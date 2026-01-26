@@ -1,0 +1,15 @@
+# Dependências gigantes (não subir nunca)
+node_modules/
+
+# Banco de Dados (DADOS REAIS - PROIBIDO SUBIR)
+*.db
+*.sqlite
+clinic.db
+
+# Arquivos de Sistema e Logs
+.DS_Store
+*.log
+npm-debug.log*
+
+# Configurações de Ambiente (Senhas)
+.env
