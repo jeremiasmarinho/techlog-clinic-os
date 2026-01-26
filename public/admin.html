@@ -3,163 +3,431 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechLog CRM | Área Restrita</title>
+    <title>TechLog CRM | Kanban Board</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .kanban-column {
+            min-height: calc(100vh - 200px);
+        }
+        .lead-card {
+            cursor: move;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .lead-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .lead-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+        .kanban-column.drag-over {
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 2px dashed #3b82f6;
+        }
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #0d9488;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'clinic-teal': '#0d9488',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50">
 
-    <nav class="bg-white shadow mb-6">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <span class="text-xl font-bold text-teal-600">
-                        <i class="fa-solid fa-user-nurse mr-2"></i> Clinic OS
-                    </span>
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-user-nurse text-clinic-teal text-2xl"></i>
+                    <h1 class="text-2xl font-bold text-gray-900">TechLog CRM <span class="text-clinic-teal">Kanban</span></h1>
                 </div>
-                <div class="flex items-center">
-                    <button onclick="logout()" class="text-sm text-gray-500 hover:text-red-600">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair
+                <div class="flex items-center space-x-4">
+                    <button onclick="loadLeads()" class="flex items-center px-4 py-2 bg-clinic-teal text-white rounded-lg hover:bg-teal-700 transition">
+                        <i class="fas fa-sync-alt mr-2"></i> Atualizar
+                    </button>
+                    <button onclick="logout()" class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Sair
                     </button>
                 </div>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div class="px-4 py-5 sm:px-6 flex justify-between items-center border-b border-gray-200">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">
-                    Pacientes Aguardando
-                </h3>
-                <button onclick="loadLeads()" class="bg-teal-50 text-teal-700 px-3 py-1 rounded-md text-sm hover:bg-teal-100 transition">
-                    <i class="fa-solid fa-sync-alt"></i> Atualizar
-                </button>
-            </div>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 flex flex-col items-center">
+            <div class="loading-spinner mb-4"></div>
+            <p class="text-gray-700 font-medium">Carregando leads...</p>
+        </div>
+    </div>
+
+    <!-- Kanban Board -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             
-            <ul id="leadsList" class="divide-y divide-gray-200 max-h-[600px] overflow-auto">
-                <li class="px-4 py-4sm:px-6 text-center text-gray-500 py-10">
-                    <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Carregando sistema...
-                </li>
-            </ul>
+            <!-- Coluna: Novos -->
+            <div class="kanban-column bg-white rounded-lg shadow-md overflow-hidden" data-status="novo">
+                <div class="bg-green-500 text-white px-4 py-3 font-bold flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        <span>Novos</span>
+                    </div>
+                    <span class="bg-white text-green-500 rounded-full px-2 py-1 text-xs font-bold" id="count-novo">0</span>
+                </div>
+                <div class="p-3 space-y-3 min-h-[400px]" id="column-novo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <!-- Cards serão inseridos aqui -->
+                </div>
+            </div>
+
+            <!-- Coluna: Em Atendimento -->
+            <div class="kanban-column bg-white rounded-lg shadow-md overflow-hidden" data-status="Em Atendimento">
+                <div class="bg-yellow-500 text-white px-4 py-3 font-bold flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-phone mr-2"></i>
+                        <span>Em Atendimento</span>
+                    </div>
+                    <span class="bg-white text-yellow-500 rounded-full px-2 py-1 text-xs font-bold" id="count-Em Atendimento">0</span>
+                </div>
+                <div class="p-3 space-y-3 min-h-[400px]" id="column-Em Atendimento" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <!-- Cards serão inseridos aqui -->
+                </div>
+            </div>
+
+            <!-- Coluna: Agendados -->
+            <div class="kanban-column bg-white rounded-lg shadow-md overflow-hidden" data-status="Agendado">
+                <div class="bg-blue-500 text-white px-4 py-3 font-bold flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar-check mr-2"></i>
+                        <span>Agendados</span>
+                    </div>
+                    <span class="bg-white text-blue-500 rounded-full px-2 py-1 text-xs font-bold" id="count-Agendado">0</span>
+                </div>
+                <div class="p-3 space-y-3 min-h-[400px]" id="column-Agendado" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <!-- Cards serão inseridos aqui -->
+                </div>
+            </div>
+
+            <!-- Coluna: Finalizados -->
+            <div class="kanban-column bg-white rounded-lg shadow-md overflow-hidden" data-status="Finalizado">
+                <div class="bg-gray-500 text-white px-4 py-3 font-bold flex items-center justify-between">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span>Finalizados</span>
+                    </div>
+                    <span class="bg-white text-gray-500 rounded-full px-2 py-1 text-xs font-bold" id="count-Finalizado">0</span>
+                </div>
+                <div class="p-3 space-y-3 min-h-[400px]" id="column-Finalizado" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                    <!-- Cards serão inseridos aqui -->
+                </div>
+            </div>
+
         </div>
     </main>
 
     <script>
-        // A URL da sua API TypeScript
         const API_URL = '/api/leads';
-        const TOKEN_KEY = 'techlog_access_token';
+        const ACCESS_TOKEN = 'eviva2026';
+        let currentDraggedCard = null;
 
+        // Função para carregar leads da API
         async function loadLeads() {
-            const listContainer = document.getElementById('leadsList');
+            showLoading(true);
             
-            // 1. Tenta pegar a senha salva no navegador
-            let token = localStorage.getItem(TOKEN_KEY);
-
-            // 2. Se não tiver senha, pede pro usuário (Prompt Seguro)
-            if (!token) {
-                token = prompt("🔒 Área Restrita: Digite a senha da clínica:");
-                if (!token || token.trim() === "") {
-                    showError("Acesso Negado. É necessário informar a senha.");
-                    return;
-                }
-            }
-
             try {
-                // 3. Faz a requisição enviando a senha no cabeçalho (Header)
                 const response = await fetch(API_URL, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-access-token': token // O segredo vai aqui
+                        'x-access-token': ACCESS_TOKEN
                     }
                 });
 
-                // 4. Se a senha estiver errada (Erro 401 Unauthorized)
-                if (response.status === 401) {
-                    localStorage.removeItem(TOKEN_KEY); // Remove a senha errada
-                    showError("Senha Incorreta! Recarregue a página e tente novamente.");
-                    alert("❌ Senha Incorreta!");
-                    location.reload();
-                    return;
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
                 }
 
-                // 5. Se der erro de servidor
-                if (!response.ok) throw new Error('Erro na comunicação com o servidor.');
-
-                // 6. SUCESSO: Salva a senha correta e processa os dados
-                localStorage.setItem(TOKEN_KEY, token);
-                const leads = await response.json();
-                renderLeads(leads);
-
+                const data = await response.json();
+                // Se a API mandar a lista direto, usa ela. Se mandar objeto, busca a chave leads.
+                renderLeads(Array.isArray(data) ? data : (data.leads || []));
+                
             } catch (error) {
-                console.error(error);
-                showError("Erro de conexão. Verifique se o servidor está rodando.");
+                console.error('Erro ao carregar leads:', error);
+                alert('❌ Erro ao carregar leads. Verifique a conexão com o servidor.');
+            } finally {
+                showLoading(false);
             }
         }
 
+        // Renderizar leads nas colunas
         function renderLeads(leads) {
-            const listContainer = document.getElementById('leadsList');
-            listContainer.innerHTML = '';
+            // Limpar todas as colunas
+            ['novo', 'Em Atendimento', 'Agendado', 'Finalizado'].forEach(status => {
+                const column = document.getElementById(`column-${status}`);
+                column.innerHTML = '';
+            });
 
-            if (leads.length === 0) {
-                listContainer.innerHTML = '<li class="px-4 py-8 text-center text-gray-500">Nenhum paciente novo aguardando.</li>';
+            // Distribuir leads nas colunas
+            leads.forEach(lead => {
+                const card = createLeadCard(lead);
+                const status = lead.status || 'novo';
+                const column = document.getElementById(`column-${status}`);
+                
+                if (column) {
+                    column.appendChild(card);
+                }
+            });
+
+            // Atualizar contadores
+            updateCounters(leads);
+        }
+
+        // Criar card de lead
+        function createLeadCard(lead) {
+            const card = document.createElement('div');
+            card.className = 'lead-card bg-white rounded-lg shadow p-4 border border-gray-200';
+            card.draggable = true;
+            card.dataset.id = lead.id;
+            card.dataset.status = lead.status || 'novo';
+
+            // Definir ícone baseado no tipo
+            const icon = lead.type === 'Consulta' ? 'fa-stethoscope' : 'fa-microscope';
+            const iconColor = lead.type === 'Consulta' ? 'text-blue-500' : 'text-purple-500';
+
+            // Formatar data
+            const date = new Date(lead.created_at);
+            const timeAgo = getTimeAgo(date);
+
+            card.innerHTML = `
+                <div class="flex items-start justify-between mb-2">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas ${icon} ${iconColor} text-lg"></i>
+                        <span class="text-xs text-gray-500">${lead.type || 'Geral'}</span>
+                    </div>
+                    <button onclick="deleteLead(${lead.id})" class="text-red-500 hover:text-red-700 transition">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                </div>
+                
+                <h3 class="font-semibold text-gray-900 mb-2">${lead.name}</h3>
+                
+                <div class="flex items-center text-xs text-gray-500 mb-3">
+                    <i class="fas fa-clock mr-1"></i>
+                    <span>${timeAgo}</span>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-600">
+                        <i class="fas fa-phone mr-1"></i>${formatPhone(lead.phone)}
+                    </span>
+                    <a href="https://wa.me/55${lead.phone.replace(/\D/g, '')}?text=Olá ${encodeURIComponent(lead.name)}" 
+                       target="_blank"
+                       class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs transition flex items-center">
+                        <i class="fab fa-whatsapp mr-1"></i> Chat
+                    </a>
+                </div>
+            `;
+
+            // Event listeners para drag
+            card.addEventListener('dragstart', dragStart);
+            card.addEventListener('dragend', dragEnd);
+
+            return card;
+        }
+
+        // Drag and Drop handlers
+        function dragStart(e) {
+            currentDraggedCard = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.innerHTML);
+        }
+
+        function dragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        async function drop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            const dropZone = e.currentTarget;
+            const newStatus = dropZone.parentElement.dataset.status;
+            const leadId = currentDraggedCard.dataset.id;
+            const oldStatus = currentDraggedCard.dataset.status;
+
+            // Se for a mesma coluna, não faz nada
+            if (newStatus === oldStatus) {
                 return;
             }
 
+            // Mover visualmente o card
+            dropZone.appendChild(currentDraggedCard);
+            currentDraggedCard.dataset.status = newStatus;
+
+            // Atualizar no backend
+            try {
+                const response = await fetch(`${API_URL}/${leadId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': ACCESS_TOKEN
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao atualizar status');
+                }
+
+                // Recarregar para atualizar contadores
+                loadLeads();
+                
+                // Notificação visual
+                showNotification('✅ Status atualizado com sucesso!', 'success');
+
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+                showNotification('❌ Erro ao atualizar status', 'error');
+                // Reverter movimento
+                loadLeads();
+            }
+        }
+
+        // Deletar lead
+        async function deleteLead(id) {
+            if (!confirm('Tem certeza que deseja remover este lead?')) {
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': ACCESS_TOKEN
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao deletar lead');
+                }
+
+                showNotification('🗑️ Lead removido com sucesso!', 'success');
+                loadLeads();
+
+            } catch (error) {
+                console.error('Erro ao deletar lead:', error);
+                showNotification('❌ Erro ao remover lead', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Atualizar contadores
+        function updateCounters(leads) {
+            const counts = {
+                'novo': 0,
+                'Em Atendimento': 0,
+                'Agendado': 0,
+                'Finalizado': 0
+            };
+
             leads.forEach(lead => {
-                // Formata a data
-                const dateObj = new Date(lead.created_at);
-                const date = dateObj.toLocaleDateString('pt-BR');
-                const time = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' });
+                const status = lead.status || 'novo';
+                if (counts.hasOwnProperty(status)) {
+                    counts[status]++;
+                }
+            });
 
-                // Define a cor do ícone baseado no tipo
-                const iconClass = lead.type === 'Consulta' ? 'fa-calendar-check text-blue-500' : 'fa-microscope text-purple-500';
-                const bgClass = lead.type === 'Consulta' ? 'bg-blue-50' : 'bg-purple-50';
-
-                const item = `
-                    <li class="${bgClass} hover:bg-gray-50 transition duration-150 ease-in-out">
-                        <div class="px-4 py-4 sm:px-6 flex items-center justify-between">
-                            <div class="flex items-center min-w-0 gap-4">
-                                <div class="flex-shrink-0 text-2xl ${iconClass}">
-                                    <i class="fa-solid ${iconClass}"></i>
-                                </div>
-                                <div class="min-w-0 truncate">
-                                    <div class="text-sm leading-5 font-medium text-teal-600 truncate">${lead.name}</div>
-                                    <div class="mt-1 flex items-center text-xs leading-4 text-gray-500">
-                                        <i class="fa-solid fa-clock mr-1.5"></i>
-                                        <span>Chegou dia ${date} às ${time}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <a href="https://wa.me/55${lead.phone.replace(/\D/g,'')}?text=Olá ${lead.name}, vi seu interesse em agendar ${lead.type}. Podemos continuar o atendimento por aqui?" 
-                                   target="_blank"
-                                   class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none transition">
-                                    <i class="fa-brands fa-whatsapp mr-2"></i> Chamar
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                `;
-                listContainer.innerHTML += item;
+            Object.keys(counts).forEach(status => {
+                const counter = document.getElementById(`count-${status}`);
+                if (counter) {
+                    counter.textContent = counts[status];
+                }
             });
         }
 
-        function showError(msg) {
-             document.getElementById('leadsList').innerHTML = `
-                <li class="px-4 py-10 text-center text-red-600 font-medium">
-                    <i class="fa-solid fa-circle-xmark mr-2"></i> ${msg}
-                </li>`;
+        // Funções auxiliares
+        function formatPhone(phone) {
+            const cleaned = phone.replace(/\D/g, '');
+            if (cleaned.length === 11) {
+                return `(${cleaned.substr(0, 2)}) ${cleaned.substr(2, 5)}-${cleaned.substr(7)}`;
+            }
+            return phone;
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'Agora';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} min atrás`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h atrás`;
+            return `${Math.floor(seconds / 86400)} dias atrás`;
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.toggle('hidden', !show);
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
         }
 
         function logout() {
-            localStorage.removeItem(TOKEN_KEY);
-            location.reload();
+            if (confirm('Deseja realmente sair?')) {
+                window.location.href = '/';
+            }
         }
 
-        // Inicia o carregamento assim que a página abre
+        // Carregar leads ao iniciar
         loadLeads();
+
+        // Auto-refresh a cada 60 segundos
+        setInterval(loadLeads, 60000);
     </script>
 </body>
 </html>
