@@ -13,3 +13,6 @@ npm-debug.log*
 
 # Configurações de Ambiente (Senhas)
 .env
+# TypeScript build output
+dist/
+*.tsbuildinfo

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechLog CRM | Área Restrita</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <nav class="bg-white shadow mb-6">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-teal-600">
+                        <i class="fa-solid fa-user-nurse mr-2"></i> Clinic OS
+                    </span>
+                </div>
+                <div class="flex items-center">
+                    <button onclick="logout()" class="text-sm text-gray-500 hover:text-red-600">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 flex justify-between items-center border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Pacientes Aguardando
+                </h3>
+                <button onclick="loadLeads()" class="bg-teal-50 text-teal-700 px-3 py-1 rounded-md text-sm hover:bg-teal-100 transition">
+                    <i class="fa-solid fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+            
+            <ul id="leadsList" class="divide-y divide-gray-200 max-h-[600px] overflow-auto">
+                <li class="px-4 py-4sm:px-6 text-center text-gray-500 py-10">
+                    <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Carregando sistema...
+                </li>
+            </ul>
+        </div>
+    </main>
+
+    <script>
+        // A URL da sua API TypeScript
+        const API_URL = '/api/leads';
+        const TOKEN_KEY = 'techlog_access_token';
+
+        async function loadLeads() {
+            const listContainer = document.getElementById('leadsList');
+            
+            // 1. Tenta pegar a senha salva no navegador
+            let token = localStorage.getItem(TOKEN_KEY);
+
+            // 2. Se não tiver senha, pede pro usuário (Prompt Seguro)
+            if (!token) {
+                token = prompt("🔒 Área Restrita: Digite a senha da clínica:");
+                if (!token || token.trim() === "") {
+                    showError("Acesso Negado. É necessário informar a senha.");
+                    return;
+                }
+            }
+
+            try {
+                // 3. Faz a requisição enviando a senha no cabeçalho (Header)
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': token // O segredo vai aqui
+                    }
+                });
+
+                // 4. Se a senha estiver errada (Erro 401 Unauthorized)
+                if (response.status === 401) {
+                    localStorage.removeItem(TOKEN_KEY); // Remove a senha errada
+                    showError("Senha Incorreta! Recarregue a página e tente novamente.");
+                    alert("❌ Senha Incorreta!");
+                    location.reload();
+                    return;
+                }
+
+                // 5. Se der erro de servidor
+                if (!response.ok) throw new Error('Erro na comunicação com o servidor.');
+
+                // 6. SUCESSO: Salva a senha correta e processa os dados
+                localStorage.setItem(TOKEN_KEY, token);
+                const leads = await response.json();
+                renderLeads(leads);
+
+            } catch (error) {
+                console.error(error);
+                showError("Erro de conexão. Verifique se o servidor está rodando.");
+            }
+        }
+
+        function renderLeads(leads) {
+            const listContainer = document.getElementById('leadsList');
+            listContainer.innerHTML = '';
+
+            if (leads.length === 0) {
+                listContainer.innerHTML = '<li class="px-4 py-8 text-center text-gray-500">Nenhum paciente novo aguardando.</li>';
+                return;
+            }
+
+            leads.forEach(lead => {
+                // Formata a data
+                const dateObj = new Date(lead.created_at);
+                const date = dateObj.toLocaleDateString('pt-BR');
+                const time = dateObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' });
+
+                // Define a cor do ícone baseado no tipo
+                const iconClass = lead.type === 'Consulta' ? 'fa-calendar-check text-blue-500' : 'fa-microscope text-purple-500';
+                const bgClass = lead.type === 'Consulta' ? 'bg-blue-50' : 'bg-purple-50';
+
+                const item = `
+                    <li class="${bgClass} hover:bg-gray-50 transition duration-150 ease-in-out">
+                        <div class="px-4 py-4 sm:px-6 flex items-center justify-between">
+                            <div class="flex items-center min-w-0 gap-4">
+                                <div class="flex-shrink-0 text-2xl ${iconClass}">
+                                    <i class="fa-solid ${iconClass}"></i>
+                                </div>
+                                <div class="min-w-0 truncate">
+                                    <div class="text-sm leading-5 font-medium text-teal-600 truncate">${lead.name}</div>
+                                    <div class="mt-1 flex items-center text-xs leading-4 text-gray-500">
+                                        <i class="fa-solid fa-clock mr-1.5"></i>
+                                        <span>Chegou dia ${date} às ${time}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="https://wa.me/55${lead.phone.replace(/\D/g,'')}?text=Olá ${lead.name}, vi seu interesse em agendar ${lead.type}. Podemos continuar o atendimento por aqui?" 
+                                   target="_blank"
+                                   class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none transition">
+                                    <i class="fa-brands fa-whatsapp mr-2"></i> Chamar
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                `;
+                listContainer.innerHTML += item;
+            });
+        }
+
+        function showError(msg) {
+             document.getElementById('leadsList').innerHTML = `
+                <li class="px-4 py-10 text-center text-red-600 font-medium">
+                    <i class="fa-solid fa-circle-xmark mr-2"></i> ${msg}
+                </li>`;
+        }
+
+        function logout() {
+            localStorage.removeItem(TOKEN_KEY);
+            location.reload();
+        }
+
+        // Inicia o carregamento assim que a página abre
+        loadLeads();
+    </script>
+</body>
+</html>
