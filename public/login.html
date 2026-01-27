@@ -3,147 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Medical CRM</title>
-    
+    <title>Acesso Restrito | Medical CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        body {
-            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-        
-        .login-card {
-            animation: slideIn 0.4s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .input-group:focus-within label {
-            color: #0d9488;
-        }
-        
-        .input-group:focus-within .input-icon {
-            color: #0d9488;
-        }
+        body { background: #0f172a; font-family: sans-serif; overflow: hidden; }
+        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .input-glass { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); color: white; }
+        .input-glass:focus { border-color: #06b6d4; outline: none; background: rgba(0, 0, 0, 0.4); }
     </style>
 </head>
-<body>
-
-    <div class="login-card bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
-        <!-- Logo / Header -->
+<body class="h-screen w-full flex items-center justify-center">
+    <div class="glass-panel p-8 rounded-2xl w-full max-w-md mx-4 shadow-2xl">
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-teal-600 rounded-full mb-4">
-                <i class="fas fa-hospital text-white text-2xl"></i>
-            </div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Acesso ao Medical CRM</h1>
-            <p class="text-gray-600">Gestão completa para sua clínica</p>
+            <i class="fas fa-user-shield text-cyan-400 text-5xl mb-4"></i>
+            <h1 class="text-2xl font-bold text-white tracking-wide">Medical CRM</h1>
+            <p class="text-gray-400 text-sm mt-1">Área Administrativa</p>
         </div>
 
-        <!-- Error Message -->
-        <div id="errorMessage" class="hidden bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
-            <div class="flex items-center">
-                <i class="fas fa-exclamation-circle mr-2"></i>
-                <span id="errorText">Erro ao fazer login</span>
-            </div>
-        </div>
-
-        <!-- Login Form -->
         <form id="loginForm" class="space-y-6">
-            <!-- Username Input -->
-            <div class="input-group">
-                <label for="username" class="block text-sm font-semibold text-gray-700 mb-2 transition">
-                    Usuário
-                </label>
-                <div class="relative">
-                    <span class="input-icon absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 transition">
-                        <i class="fas fa-user"></i>
-                    </span>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        name="username"
-                        placeholder="Digite seu usuário"
-                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-600 focus:outline-none transition"
-                        required
-                        autofocus
-                    >
-                </div>
+            <div>
+                <label class="block text-gray-400 text-xs font-bold uppercase mb-2">E-mail Corporativo</label>
+                <input type="email" id="email" class="input-glass w-full rounded-lg py-3 px-4" placeholder="admin@medicalcrm.com" required autofocus>
+            </div>
+            
+            <div>
+                <label class="block text-gray-400 text-xs font-bold uppercase mb-2">Senha de Acesso</label>
+                <input type="password" id="password" class="input-glass w-full rounded-lg py-3 px-4" placeholder="••••••••" required>
             </div>
 
-            <!-- Password Input -->
-            <div class="input-group">
-                <label for="password" class="block text-sm font-semibold text-gray-700 mb-2 transition">
-                    Senha
-                </label>
-                <div class="relative">
-                    <span class="input-icon absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 transition">
-                        <i class="fas fa-lock"></i>
-                    </span>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password"
-                        placeholder="Digite sua senha"
-                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-teal-600 focus:outline-none transition"
-                        required
-                    >
-                </div>
+            <div id="error-msg" class="hidden bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded text-sm text-center">
+                <i class="fas fa-times-circle mr-2"></i>Credenciais incorretas.
             </div>
 
-            <!-- Submit Button -->
-            <button 
-                type="submit" 
-                id="loginButton"
-                class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
-            >
-                <i class="fas fa-sign-in-alt"></i>
-                <span>Entrar no Sistema</span>
+            <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-lg transition-all shadow-lg hover:shadow-cyan-500/30 active:scale-95">
+                <i class="fas fa-sign-in-alt mr-2"></i> Acessar Painel
             </button>
         </form>
-
-        <!-- Demo Info -->
-        <div class="mt-8 pt-6 border-t border-gray-200">
-            <div class="text-sm text-gray-600 space-y-2">
-                <p class="font-semibold text-gray-800 flex items-center">
-                    <i class="fas fa-info-circle text-teal-600 mr-2"></i>
-                    Credenciais de Demonstração:
-                </p>
-                <div class="bg-gray-50 p-3 rounded-lg font-mono text-xs">
-                    <div class="flex justify-between mb-1">
-                        <span class="text-gray-700">Usuário:</span>
-                        <span class="font-bold text-gray-900">admin</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-700">Senha:</span>
-                        <span class="font-bold text-gray-900">123</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
+        
         <div class="mt-6 text-center text-xs text-gray-500">
-            <p>© 2026 Medical CRM. Sistema de Gestão para Clínicas.</p>
+            &copy; 2026 Medical CRM SaaS
         </div>
     </div>
 
-    <!-- CRM Login Script -->
-    <script src="./js/crm/login.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = e.target.querySelector('button');
+            const errorMsg = document.getElementById('error-msg');
+            const originalText = btn.innerHTML;
 
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Validando...';
+            btn.disabled = true;
+            errorMsg.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    sessionStorage.setItem('MEDICAL_CRM_TOKEN', data.token);
+                    sessionStorage.setItem('userName', data.user.name);
+                    window.location.href = '/admin.html';
+                } else {
+                    throw new Error(data.error || 'Erro desconhecido');
+                }
+            } catch (err) {
+                console.error(err);
+                errorMsg.classList.remove('hidden');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>

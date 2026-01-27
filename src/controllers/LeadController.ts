@@ -2,21 +2,12 @@ import { Request, Response } from 'express';
 import sqlite3 from 'sqlite3';
 import { db } from '../database';
 
-const SENHA_MESTRA = "eviva2026";
-
 export class LeadController {
     
-    // Listar (GET)
+    // Listar (GET) - Protegido por authMiddleware
     static index(req: Request, res: Response): void {
-        const token = req.headers['x-access-token'];
         const view = req.query.view as string;
         const showArchived = req.query.show_archived === 'true';
-        
-        if (token !== SENHA_MESTRA) {
-            console.log(`❌ Acesso Negado. Token: ${token}`);
-            res.status(403).json({ error: 'Acesso Negado.' });
-            return;
-        }
 
         let query = "SELECT * FROM leads WHERE status != 'archived' ORDER BY created_at DESC";
         
@@ -44,16 +35,10 @@ export class LeadController {
         });
     }
 
-    // Atualizar Status (PATCH)
+    // Atualizar Status (PATCH) - Protegido por authMiddleware
     static update(req: Request, res: Response): void {
-        const token = req.headers['x-access-token'];
         const { id } = req.params;
         const { status, appointment_date, doctor, notes } = req.body;
-
-        if (token !== SENHA_MESTRA) {
-            res.status(403).json({ error: 'Acesso Negado.' });
-            return;
-        }
 
         // Construir query dinâmica baseada nos campos enviados
         const updates: string[] = [];
@@ -93,15 +78,9 @@ export class LeadController {
         });
     }
 
-    // Deletar (DELETE)
+    // Deletar (DELETE) - Protegido por authMiddleware
     static delete(req: Request, res: Response): void {
-        const token = req.headers['x-access-token'];
         const { id } = req.params;
-
-        if (token !== SENHA_MESTRA) {
-            res.status(403).json({ error: 'Acesso Negado.' });
-            return;
-        }
 
         db.run("DELETE FROM leads WHERE id = ?", [id], function(err) {
             if (err) {
@@ -112,14 +91,8 @@ export class LeadController {
         });
     }
 
-    // Dashboard Métricas (GET)
-    static metrics(req: Request, res: Response): void {
-        const token = req.headers['x-access-token'];
-        
-        if (token !== SENHA_MESTRA) {
-            res.status(403).json({ error: 'Acesso Negado.' });
-            return;
-        }
+    // Dashboard Métricas (GET) - Protegido por authMiddleware
+    static metrics(_req: Request, res: Response): void {
 
         // Total de leads
         db.get("SELECT COUNT(*) as total FROM leads", [], (err, totalRow: any) => {
@@ -184,15 +157,9 @@ export class LeadController {
         stmt.finalize();
     }
 
-    // Arquivar (PUT)
+    // Arquivar (PUT) - Protegido por authMiddleware
     static archive(req: Request, res: Response): void {
-        const token = req.headers['x-access-token'];
         const { id } = req.params;
-
-        if (token !== SENHA_MESTRA) {
-            res.status(403).json({ error: 'Acesso Negado.' });
-            return;
-        }
 
         db.run("UPDATE leads SET status = 'archived' WHERE id = ?", [id], function(err) {
             if (err) {
@@ -203,15 +170,9 @@ export class LeadController {
         });
     }
 
-    // Desarquivar (PUT)
+    // Desarquivar (PUT) - Protegido por authMiddleware
     static unarchive(req: Request, res: Response): void {
-        const token = req.headers['x-access-token'];
         const { id } = req.params;
-
-        if (token !== SENHA_MESTRA) {
-            res.status(403).json({ error: 'Acesso Negado.' });
-            return;
-        }
 
         db.run("UPDATE leads SET status = 'novo' WHERE id = ?", [id], function(err) {
             if (err) {

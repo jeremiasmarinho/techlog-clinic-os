@@ -26,6 +26,7 @@ export class UserController {
                     console.log(`✅ Login bem-sucedido: ${row.username} (${row.role})`);
                     res.json({
                         success: true,
+                        token: process.env.ACCESS_TOKEN || 'eviva2026',
                         user: {
                             id: row.id,
                             name: row.name,

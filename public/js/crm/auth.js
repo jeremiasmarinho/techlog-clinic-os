@@ -3,27 +3,27 @@
 // ============================================
 
 // Check authentication on page load
-const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+const authToken = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+const currentUser = sessionStorage.getItem('userName');
 
-if (!currentUser) {
+if (!authToken) {
     // Redirect to login if not authenticated
+    alert('Sessão inválida. Faça login novamente.');
     window.location.href = '/login.html';
 }
 
 // Display user name in header
 if (document.getElementById('userName')) {
-    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userName').textContent = currentUser || 'Usuário';
 }
-
-// Show Team Management button only for admins
-if (currentUser.role === 'admin' && document.getElementById('teamButton')) {
-    document.getElementById('teamButton').classList.remove('hidden');
+if (document.getElementById('userNameSidebar')) {
+    document.getElementById('userNameSidebar').textContent = currentUser || 'Usuário';
 }
 
 // Logout function
 function logout() {
     if (confirm('Deseja realmente sair do sistema?')) {
-        localStorage.removeItem('user');
+        sessionStorage.clear();
         window.location.href = '/login.html';
     }
 }

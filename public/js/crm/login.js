@@ -47,6 +47,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Save user to localStorage
                     localStorage.setItem('user', JSON.stringify(data.user));
                     
+                    // Save token to sessionStorage (more secure)
+                    if (data.token) {
+                        sessionStorage.setItem('accessToken', data.token);
+                    }
+                    
                     // Success feedback
                     loginButton.innerHTML = '<i class="fas fa-check mr-2"></i><span>Sucesso!</span>';
                     loginButton.classList.remove('bg-teal-600', 'hover:bg-teal-700');

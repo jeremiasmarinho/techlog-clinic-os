@@ -1,6 +1,12 @@
 // ============================================
-// Kanban Board - Lead Management System
+// Kanban Board - Lead Management System with JWT Auth
 // ============================================
+
+const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+if (!token) {
+    alert('Sessão inválida. Faça login novamente.');
+    window.location.href = '/login.html';
+}
 
 // Global state variables
 let currentDraggedCard = null;
@@ -17,9 +23,15 @@ async function loadLeads() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'x-access-token': ACCESS_TOKEN
+                'Authorization': `Bearer ${token}`
             }
         });
+
+        if (response.status === 401) {
+            sessionStorage.clear();
+            window.location.href = '/login.html';
+            return;
+        }
 
         if (!response.ok) {
             throw new Error(`Erro ${response.status}: ${response.statusText}`);
@@ -50,7 +62,7 @@ async function loadLeads() {
 // Render leads in columns
 function renderLeads(leads) {
     // Clear all columns
-    ['novo', 'Em Atendimento', 'Agendado', 'Finalizado'].forEach(status => {
+    ['novo', 'em_atendimento', 'agendado', 'finalizado'].forEach(status => {
         const column = document.getElementById(`column-${status}`);
         if (column) {
             column.innerHTML = '';
@@ -269,7 +281,7 @@ async function drop(e) {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
-                'x-access-token': ACCESS_TOKEN
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ status: newStatus })
         });
@@ -301,7 +313,7 @@ async function deleteLead(id) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'x-access-token': ACCESS_TOKEN
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -324,9 +336,9 @@ async function deleteLead(id) {
 function updateCounters(leads) {
     const counts = {
         'novo': 0,
-        'Em Atendimento': 0,
-        'Agendado': 0,
-        'Finalizado': 0
+        'em_atendimento': 0,
+        'agendado': 0,
+        'finalizado': 0
     };
 
     leads.forEach(lead => {
@@ -416,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-access-token': ACCESS_TOKEN
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         appointment_date: appointmentDate || null,
