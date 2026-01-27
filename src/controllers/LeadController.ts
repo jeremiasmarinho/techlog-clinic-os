@@ -10,6 +10,7 @@ export class LeadController {
     static index(req: Request, res: Response): void {
         const token = req.headers['x-access-token'];
         const view = req.query.view as string;
+        const showArchived = req.query.show_archived === 'true';
         
         if (token !== SENHA_MESTRA) {
             console.log(`❌ Acesso Negado. Token: ${token}`);
@@ -17,14 +18,19 @@ export class LeadController {
             return;
         }
 
-        let query = "SELECT * FROM leads ORDER BY created_at DESC";
+        let query = "SELECT * FROM leads WHERE status != 'archived' ORDER BY created_at DESC";
         
-        // If view=kanban: Return active leads + finalized leads from last 24 hours only
-        if (view === 'kanban') {
+        // If show_archived=true: Return ONLY archived leads
+        if (showArchived) {
+            query = "SELECT * FROM leads WHERE status = 'archived' ORDER BY created_at DESC";
+        }
+        // If view=kanban: Return active leads + finalized leads from last 24 hours only (exclude archived)
+        else if (view === 'kanban') {
             query = `
                 SELECT * FROM leads 
-                WHERE status != 'Finalizado' 
-                   OR (status = 'Finalizado' AND datetime(created_at) >= datetime('now', '-1 day'))
+                WHERE status != 'archived'
+                  AND (status != 'Finalizado' 
+                   OR (status = 'Finalizado' AND datetime(created_at) >= datetime('now', '-1 day')))
                 ORDER BY created_at DESC
             `;
         }
@@ -176,5 +182,43 @@ export class LeadController {
             });
         });
         stmt.finalize();
+    }
+
+    // Arquivar (PUT)
+    static archive(req: Request, res: Response): void {
+        const token = req.headers['x-access-token'];
+        const { id } = req.params;
+
+        if (token !== SENHA_MESTRA) {
+            res.status(403).json({ error: 'Acesso Negado.' });
+            return;
+        }
+
+        db.run("UPDATE leads SET status = 'archived' WHERE id = ?", [id], function(err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json({ message: 'Lead arquivado com sucesso!', changes: this.changes });
+        });
+    }
+
+    // Desarquivar (PUT)
+    static unarchive(req: Request, res: Response): void {
+        const token = req.headers['x-access-token'];
+        const { id } = req.params;
+
+        if (token !== SENHA_MESTRA) {
+            res.status(403).json({ error: 'Acesso Negado.' });
+            return;
+        }
+
+        db.run("UPDATE leads SET status = 'novo' WHERE id = ?", [id], function(err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+            res.json({ message: 'Lead restaurado com sucesso!', changes: this.changes });
+        });
     }
 }

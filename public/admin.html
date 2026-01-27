@@ -6,28 +6,129 @@
     <title>Medical CRM | Gestão</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
+        * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e1a;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Aurora Animated Gradient Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a192f 0%, #0d1b2a 25%, #0f2f3f 50%, #134e4a 75%, #0d1b2a 100%);
+            z-index: -2;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(13, 148, 136, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(14, 116, 144, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 90% 20%, rgba(6, 95, 70, 0.18) 0%, transparent 50%);
+            animation: aurora 20s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes aurora {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+            25% { transform: translate(5%, 5%) rotate(90deg); opacity: 1; }
+            50% { transform: translate(-5%, 10%) rotate(180deg); opacity: 0.9; }
+            75% { transform: translate(10%, -5%) rotate(270deg); opacity: 0.95; }
+        }
+        /* Premium Glass Card Style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Premium Header Glass */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Neon Button Glow */
+        .neon-button {
+            position: relative;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.8) 0%, rgba(13, 148, 136, 0.9) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .neon-button:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .neon-button:active {
+            transform: scale(0.95);
+        }
+        
         .kanban-column {
             min-height: calc(100vh - 200px);
         }
+        
         .lead-card {
             cursor: move;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
         .lead-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        
         .lead-card.dragging {
             opacity: 0.5;
             transform: rotate(5deg);
         }
+        
         .kanban-column.drag-over {
-            background-color: rgba(59, 130, 246, 0.1);
-            border: 2px dashed #3b82f6;
+            background: rgba(6, 182, 212, 0.1);
+            border: 2px dashed rgba(6, 182, 212, 0.5);
         }
         .loading-spinner {
             border: 3px solid #f3f4f6;
@@ -61,49 +162,124 @@
         }
     </script>
 </head>
-<body class="bg-gray-50">
+<body class="min-h-screen">
 
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
+    <header class="glass-header sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex justify-between items-center">
+                <!-- Mobile Hamburger Menu Button -->
+                <button id="mobileMenuButton" onclick="toggleMobileMenu()" class="block md:hidden text-cyan-400 p-2 hover:bg-white/10 rounded-lg transition">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-hospital text-clinic-teal text-2xl"></i>
-                    <h1 class="text-2xl font-bold text-gray-900">Medical CRM <span class="text-clinic-teal">| Gestão</span></h1>
+                    <i class="fas fa-hospital text-cyan-400 text-2xl hidden md:block"></i>
+                    <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Medical CRM <span class="text-cyan-400 hidden sm:inline">| Gestão</span></h1>
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 md:space-x-4">
                     <!-- User Greeting -->
-                    <div class="text-sm text-gray-700">
+                    <div class="text-xs md:text-sm text-gray-300 hidden sm:block">
                         <span class="font-medium">Olá, </span>
-                        <span id="userName" class="font-bold text-clinic-teal">Usuário</span>
+                        <span id="userName" class="font-bold text-cyan-400">Usuário</span>
                     </div>
                     
                     <!-- Navigation -->
-                    <a href="patients.html" class="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">
-                        <i class="fas fa-users mr-2"></i> Pacientes
+                    <a href="patients.html" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
+                        <i class="fas fa-users"></i><span class="ml-2 hidden lg:inline"> Pacientes</span>
                     </a>
                     
                     <!-- Team Management (Admin Only) -->
-                    <button id="teamButton" onclick="openTeamModal()" class="hidden flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
-                        <i class="fas fa-user-cog mr-2"></i> Equipe
+                    <button id="teamButton" onclick="openTeamModal()" class="neon-button hidden items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
+                        <i class="fas fa-user-cog"></i><span class="ml-2 hidden lg:inline"> Equipe</span>
                     </button>
                     
-                    <button id="togglePrivacy" onclick="togglePrivacyMode()" class="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition" title="Modo Privacidade (LGPD)">
+                    <button id="togglePrivacy" onclick="togglePrivacyMode()" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium" title="Modo Privacidade (LGPD)">
                         <i class="fas fa-eye" id="privacyIcon"></i>
                     </button>
-                    <button onclick="openDashboard()" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                        <i class="fas fa-chart-pie mr-2"></i> Relatórios
+                    <button onclick="openDashboard()" class="neon-button hidden md:flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
+                        <i class="fas fa-chart-pie"></i><span class="ml-2 hidden lg:inline"> Relatórios</span>
                     </button>
-                    <button onclick="loadLeads()" class="flex items-center px-4 py-2 bg-clinic-teal text-white rounded-lg hover:bg-teal-700 transition">
-                        <i class="fas fa-sync-alt mr-2"></i> Atualizar
+                    <button onclick="loadLeads()" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
+                        <i class="fas fa-sync-alt"></i><span class="ml-2 hidden lg:inline"> Atualizar</span>
                     </button>
-                    <button onclick="logout()" class="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Sair
+                    <button onclick="logout()" class="flex items-center px-2 md:px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 backdrop-blur-xl text-white rounded-lg font-medium hover:brightness-110 active:scale-95 transition-all border border-red-500/30">
+                        <i class="fas fa-sign-out-alt"></i><span class="ml-2 hidden lg:inline"> Sair</span>
                     </button>
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Mobile Sidebar Menu -->
+    <div id="mobileSidebar" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop Overlay -->
+        <div id="mobileBackdrop" onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
+        
+        <!-- Sidebar Panel -->
+        <div id="mobileSidebarPanel" class="absolute top-0 left-0 h-full w-80 max-w-[85vw] glass-card shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out">
+            <div class="flex flex-col h-full">
+                <!-- Sidebar Header -->
+                <div class="bg-gradient-to-r from-cyan-500/20 to-teal-600/20 backdrop-blur-xl text-white px-6 py-4 flex items-center justify-between border-b border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-hospital text-2xl text-cyan-400"></i>
+                        <h2 class="text-xl font-bold tracking-tight">Menu</h2>
+                    </div>
+                    <button onclick="toggleMobileMenu()" class="hover:bg-white/20 rounded-full p-2 transition">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- User Info -->
+                <div class="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 px-6 py-4 border-b border-white/10">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Olá,</p>
+                            <p id="userNameSidebar" class="font-bold text-white tracking-tight">Usuário</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Menu -->
+                <nav class="flex-1 overflow-y-auto px-4 py-6 space-y-2">
+                    <a href="patients.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
+                        <i class="fas fa-users text-xl w-6"></i>
+                        <span class="font-medium">Pacientes</span>
+                    </a>
+                    
+                    <button id="teamButtonSidebar" onclick="openTeamModal(); toggleMobileMenu();" class="hidden w-full items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
+                        <i class="fas fa-user-cog text-xl w-6"></i>
+                        <span class="font-medium">Gerenciar Equipe</span>
+                    </button>
+                    
+                    <button onclick="openDashboard(); toggleMobileMenu();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
+                        <i class="fas fa-chart-pie text-xl w-6"></i>
+                        <span class="font-medium">Relatórios</span>
+                    </button>
+                    
+                    <button onclick="togglePrivacyMode()" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
+                        <i class="fas fa-eye text-xl w-6" id="privacyIconSidebar"></i>
+                        <span class="font-medium">Modo Privacidade</span>
+                    </button>
+                    
+                    <button onclick="loadLeads(); toggleMobileMenu();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
+                        <i class="fas fa-sync-alt text-xl w-6"></i>
+                        <span class="font-medium">Atualizar</span>
+                    </button>
+                    
+                    <div class="border-t border-white/10 my-4"></div>
+                    
+                    <button onclick="logout()" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all duration-300">
+                        <i class="fas fa-sign-out-alt text-xl w-6"></i>
+                        <span class="font-medium">Sair</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </div>
 
     <!-- Dashboard Modal -->
     <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
@@ -295,16 +471,16 @@
 
     <!-- Kanban Board -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <!-- Coluna: Novos -->
-            <div class="kanban-column bg-white rounded-lg shadow-md overflow-hidden" data-status="novo">
-                <div class="bg-green-500 text-white px-4 py-3 font-bold flex items-center justify-between">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="novo">
+                <div class="bg-gradient-to-r from-emerald-500/30 to-green-500/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-plus-circle mr-2"></i>
-                        <span>Novos</span>
+                        <span class="tracking-tight">Novos</span>
                     </div>
-                    <span class="bg-white text-green-500 rounded-full px-2 py-1 text-xs font-bold" id="count-novo">0</span>
+                    <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-novo">0</span>
                 </div>
                 <div class="p-3 space-y-3 min-h-[400px]" id="column-novo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                     <!-- Cards serão inseridos aqui -->
@@ -312,13 +488,13 @@
             </div>
 
             <!-- Coluna: Em Atendimento -->
-            <div class="kanban-column bg-white rounded-lg shadow-md overflow-hidden" data-status="Em Atendimento">
-                <div class="bg-yellow-500 text-white px-4 py-3 font-bold flex items-center justify-between">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="Em Atendimento">
+                <div class="bg-gradient-to-r from-amber-500/30 to-yellow-500/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-phone mr-2"></i>
-                        <span>Em Atendimento</span>
+                        <span class="tracking-tight">Em Atendimento</span>
                     </div>
-                    <span class="bg-white text-yellow-500 rounded-full px-2 py-1 text-xs font-bold" id="count-Em Atendimento">0</span>
+                    <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-Em Atendimento">0</span>
                 </div>
                 <div class="p-3 space-y-3 min-h-[400px]" id="column-Em Atendimento" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                     <!-- Cards serão inseridos aqui -->
@@ -326,13 +502,13 @@
             </div>
 
             <!-- Coluna: Agendados -->
-            <div class="kanban-column bg-white rounded-lg shadow-md overflow-hidden" data-status="Agendado">
-                <div class="bg-blue-500 text-white px-4 py-3 font-bold flex items-center justify-between">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="Agendado">
+                <div class="bg-gradient-to-r from-cyan-500/30 to-blue-500/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-calendar-check mr-2"></i>
-                        <span>Agendados</span>
+                        <span class="tracking-tight">Agendados</span>
                     </div>
-                    <span class="bg-white text-blue-500 rounded-full px-2 py-1 text-xs font-bold" id="count-Agendado">0</span>
+                    <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-Agendado">0</span>
                 </div>
                 <div class="p-3 space-y-3 min-h-[400px]" id="column-Agendado" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                     <!-- Cards serão inseridos aqui -->
@@ -340,13 +516,13 @@
             </div>
 
             <!-- Coluna: Finalizados -->
-            <div class="kanban-column bg-white rounded-lg shadow-md overflow-hidden" data-status="Finalizado">
-                <div class="bg-gray-500 text-white px-4 py-3 font-bold flex items-center justify-between">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="Finalizado">
+                <div class="bg-gradient-to-r from-slate-500/30 to-gray-600/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-check-circle mr-2"></i>
-                        <span>Finalizados</span>
+                        <span class="tracking-tight">Finalizados</span>
                     </div>
-                    <span class="bg-white text-gray-500 rounded-full px-2 py-1 text-xs font-bold" id="count-Finalizado">0</span>
+                    <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-Finalizado">0</span>
                 </div>
                 <div class="p-3 space-y-3 min-h-[400px]" id="column-Finalizado" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                     <!-- Cards serão inseridos aqui -->
@@ -426,10 +602,11 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Application JavaScript Modules -->
-    <script src="./js/api.js"></script>
-    <script src="./js/auth.js"></script>
-    <script src="./js/kanban.js"></script>
-    <script src="./js/dashboard.js"></script>
+    <!-- CRM Application JavaScript Modules -->
+    <script src="./js/crm/api.js"></script>
+    <script src="./js/crm/auth.js"></script>
+    <script src="./js/crm/kanban.js"></script>
+    <script src="./js/crm/dashboard.js"></script>
+    <script src="./js/crm/admin.js"></script>
 </body>
 </html>

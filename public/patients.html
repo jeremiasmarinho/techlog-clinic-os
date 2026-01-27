@@ -110,220 +110,51 @@
             </div>
         </div>
 
-        <!-- Patients Table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-gray-100 border-b-2 border-gray-200">
-                    <tr>
-                        <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Nome</th>
-                        <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">WhatsApp</th>
-                        <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Tipo (Último)</th>
-                        <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider">Data Cadastro</th>
-                        <th class="px-6 py-4 text-sm font-bold text-gray-700 uppercase tracking-wider text-center">Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="patientsTableBody" class="divide-y divide-gray-200">
-                    <!-- Loading State -->
-                    <tr id="loadingRow">
-                        <td colspan="6" class="px-6 py-12 text-center">
-                            <div class="flex justify-center items-center">
-                                <div class="loading-spinner"></div>
-                            </div>
-                            <p class="text-gray-500 mt-4">Carregando pacientes...</p>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <!-- Empty State -->
-            <div id="emptyState" class="hidden px-6 py-12 text-center">
-                <i class="fas fa-users text-gray-300 text-6xl mb-4"></i>
-                <p class="text-gray-500 text-lg">Nenhum paciente encontrado</p>
-            </div>
-        </div>
-    </main>
-
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-6 flex flex-col items-center">
-            <div class="loading-spinner mb-4"></div>
-            <p class="text-gray-700 font-medium">Carregando...</p>
-        </div>
-    </div>
-
-    <!-- Patient Details Modal (For Future Implementation) -->
-    <div id="patientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">Histórico do Paciente</h2>
-                <button onclick="closePatientModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-2xl"></i>
+        <!-- Filter Bar -->
+        <div class="bg-white p-4 rounded-lg shadow mb-4">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-gray-900">
+                    <i class="fas fa-filter text-clinic-teal mr-2"></i>Filtros Avançados
+                </h3>
+                <button onclick="clearFilters()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-semibold">
+                    <i class="fas fa-times-circle mr-1"></i> Limpar Filtros
                 </button>
             </div>
-            <div id="patientDetailsContent">
-                <!-- Patient history will be loaded here -->
-                <p class="text-gray-500 text-center py-8">Em breve: Histórico completo de atendimentos</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript Modules -->
-    <script src="./js/api.js"></script>
-    <script src="./js/auth.js"></script>
-    
-    <script>
-        // ============================================
-        // PATIENTS LIST LOGIC
-        // ============================================
-        
-        let allPatients = [];
-        
-        // Load all patients
-        async function loadPatients() {
-            showLoading(true);
             
-            try {
-                const response = await fetch(`${API_URL}?view=all`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-access-token': ACCESS_TOKEN
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                allPatients = Array.isArray(data) ? data : (data.leads || []);
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <!-- Date Start -->
+                <div>
+                    <label for="filterDateStart" class="block text-sm font-semibold text-gray-700 mb-1">Data Início</label>
+                    <input 
+                        type="date" 
+                        id="filterDateStart" 
+                        class="w-full border-2 border-gray-300 p-2 rounded-lg focus:border-clinic-teal focus:outline-none transition"
+                        onchange="applyFilters()"
+                    >
+                </div>
                 
-                renderPatients(allPatients);
-                updateStats(allPatients);
+                <!-- Date End -->
+                <div>
+                    <label for="filterDateEnd" class="block text-sm font-semibold text-gray-700 mb-1">Data Fim</label>
+                    <input 
+                        type="date" 
+                        id="filterDateEnd" 
+                        class="w-full border-2 border-gray-300 p-2 rounded-lg focus:border-clinic-teal focus:outline-none transition"
+                        onchange="applyFilters()"
+                    >
+                </div>
                 
-            } catch (error) {
-                console.error('Erro ao carregar pacientes:', error);
-                showNotification('❌ Erro ao carregar pacientes. Verifique a conexão.', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Render patients table
-        function renderPatients(patients) {
-            const tbody = document.getElementById('patientsTableBody');
-            const emptyState = document.getElementById('emptyState');
-            const loadingRow = document.getElementById('loadingRow');
-            
-            // Hide loading
-            if (loadingRow) {
-                loadingRow.classList.add('hidden');
-            }
-            
-            if (patients.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-            
-            emptyState.classList.add('hidden');
-            
-            tbody.innerHTML = patients.map(patient => {
-                // Type badge
-                let typeBadge = '';
-                if (patient.type === 'primeira_consulta') {
-                    typeBadge = '<span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-200"><i class="fas fa-star mr-1"></i>Primeira Consulta</span>';
-                } else if (patient.type === 'retorno') {
-                    typeBadge = '<span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700 border border-gray-300"><i class="fas fa-undo mr-1"></i>Retorno</span>';
-                } else if (patient.type === 'recorrente') {
-                    typeBadge = '<span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200"><i class="fas fa-sync-alt mr-1"></i>Recorrente</span>';
-                } else if (patient.type === 'exame') {
-                    typeBadge = '<span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200"><i class="fas fa-microscope mr-1"></i>Exame</span>';
-                } else {
-                    typeBadge = '<span class="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200"><i class="fas fa-question mr-1"></i>' + (patient.type || 'Geral') + '</span>';
-                }
-                
-                // Status badge
-                let statusBadge = '';
-                const statusColors = {
-                    'novo': 'bg-green-100 text-green-800 border-green-200',
-                    'Em Atendimento': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                    'Agendado': 'bg-blue-100 text-blue-800 border-blue-200',
-                    'Finalizado': 'bg-gray-100 text-gray-700 border-gray-200'
-                };
-                const statusClass = statusColors[patient.status] || 'bg-gray-100 text-gray-700 border-gray-200';
-                statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-bold border ${statusClass}">${patient.status || 'Novo'}</span>`;
-                
-                // Format date
-                const date = new Date(patient.created_at);
-                const formattedDate = date.toLocaleDateString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                return `
-                    <tr class="hover:bg-teal-50 transition" data-patient-id="${patient.id}" data-patient-name="${patient.name}" data-patient-phone="${patient.phone}" data-patient-type="${patient.type}">
-                        <td class="px-6 py-4">
-                            <div class="font-semibold text-gray-900">${patient.name}</div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center space-x-2">
-                                <span class="text-gray-700">${formatPhone(patient.phone)}</span>
-                                <a href="https://wa.me/55${patient.phone.replace(/\D/g, '')}?text=Olá ${encodeURIComponent(patient.name)}" 
-                                   target="_blank"
-                                   class="text-green-600 hover:text-green-700"
-                                   title="Abrir WhatsApp">
-                                    <i class="fab fa-whatsapp text-xl"></i>
-                                </a>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">${typeBadge}</td>
-                        <td class="px-6 py-4">${statusBadge}</td>
-                        <td class="px-6 py-4 text-gray-600 text-sm">${formattedDate}</td>
-                        <td class="px-6 py-4 text-center">
-                            <button onclick="viewPatientHistory(${patient.id})" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition text-sm font-semibold">
-                                <i class="fas fa-history mr-1"></i> Histórico
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        // Update stats
-        function updateStats(patients) {
-            document.getElementById('totalPatients').textContent = patients.length;
-            
-            const firstConsult = patients.filter(p => p.type === 'primeira_consulta').length;
-            const recurrent = patients.filter(p => p.type === 'recorrente').length;
-            const finalized = patients.filter(p => p.status === 'Finalizado').length;
-            
-            document.getElementById('totalFirstConsult').textContent = firstConsult;
-            document.getElementById('totalRecurrent').textContent = recurrent;
-            document.getElementById('totalFinalized').textContent = finalized;
-        }
-        
-        // Filter patients
-        function filterPatients() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
-            if (!searchTerm) {
-                renderPatients(allPatients);
-                return;
-            }
-            
-            const filtered = allPatients.filter(patient => {
-                return patient.name.toLowerCase().includes(searchTerm) ||
+                <!-- JavaScript Modules -->
+                <script src="./js/crm/api.js"></script>
+                <script src="./js/crm/auth.js"></script>
+                <script src="./js/crm/patients.js"></script>
                        patient.phone.includes(searchTerm) ||
                        (patient.type && patient.type.toLowerCase().includes(searchTerm)) ||
                        (patient.status && patient.status.toLowerCase().includes(searchTerm));
             });
             
             renderPatients(filtered);
+            updateStats(filtered);
         }
         
         // View patient history (placeholder for future implementation)
@@ -332,6 +163,97 @@
             // Future: Open modal with patient history
             // const modal = document.getElementById('patientModal');
             // modal.classList.remove('hidden');
+        }
+        
+        // Toggle between active and archived views
+        function toggleArchiveView() {
+            viewingArchive = !viewingArchive;
+            
+            const toggleBtn = document.getElementById('toggleArchive');
+            const tableTitle = document.getElementById('tableTitle');
+            
+            if (viewingArchive) {
+                toggleBtn.innerHTML = '<i class="fas fa-users mr-1"></i> Voltar para Pacientes Ativos';
+                tableTitle.textContent = 'Arquivo Morto 🗑️';
+            } else {
+                toggleBtn.innerHTML = '<i class="fas fa-archive mr-1"></i> Ver Arquivo Morto';
+                tableTitle.textContent = 'Lista de Pacientes 📋';
+            }
+            
+            // Reload patients with new view
+            loadPatients();
+        }
+        
+        // Archive a patient
+        async function archivePatient(patientId) {
+            const confirmed = confirm('Tem certeza que deseja arquivar? O paciente sumirá da lista principal.');
+            
+            if (!confirmed) return;
+            
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_URL}/${patientId}/archive`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': ACCESS_TOKEN
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+                
+                showNotification('✅ Paciente arquivado com sucesso!', 'success');
+                
+                // Remove from current view
+                allPatients = allPatients.filter(p => p.id !== patientId);
+                filteredPatients = filteredPatients.filter(p => p.id !== patientId);
+                
+                renderPatients(filteredPatients);
+                updateStats(filteredPatients);
+                
+            } catch (error) {
+                console.error('Erro ao arquivar paciente:', error);
+                showNotification('❌ Erro ao arquivar paciente. Tente novamente.', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Unarchive (restore) a patient
+        async function unarchivePatient(patientId) {
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_URL}/${patientId}/unarchive`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-token': ACCESS_TOKEN
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+                
+                showNotification('✅ Paciente restaurado com sucesso!', 'success');
+                
+                // Remove from archive view
+                allPatients = allPatients.filter(p => p.id !== patientId);
+                filteredPatients = filteredPatients.filter(p => p.id !== patientId);
+                
+                renderPatients(filteredPatients);
+                updateStats(filteredPatients);
+                
+            } catch (error) {
+                console.error('Erro ao restaurar paciente:', error);
+                showNotification('❌ Erro ao restaurar paciente. Tente novamente.', 'error');
+            } finally {
+                showLoading(false);
+            }
         }
         
         function closePatientModal() {
