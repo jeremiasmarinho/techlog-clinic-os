@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import leadRoutes from './routes/lead.routes'; // Importação sem chaves {} (Default)
+import userRoutes from './routes/user.routes'; // Rotas de autenticação e usuários
 import './database'; // Inicia o banco de dados
 
 export class Server {
@@ -26,11 +27,13 @@ export class Server {
     }
 
     private routes(): void {
+        // API Routes
         this.app.use('/api/leads', leadRoutes);
+        this.app.use('/api', userRoutes); // Login e Users
 
         // Rota de Teste (Usando _req para o TypeScript não reclamar)
         this.app.get('/api', (_req, res) => {
-            res.json({ message: 'TechLog API Online 🚀' });
+            res.json({ message: 'Medical CRM API Online 🚀' });
         });
     }
 

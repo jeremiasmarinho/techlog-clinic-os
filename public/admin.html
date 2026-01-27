@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechLog CRM | Kanban Board</title>
+    <title>Medical CRM | Gestão</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -41,6 +41,13 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Privacy Mode - LGPD Compliance */
+        .blur-sensitive .lead-name,
+        .blur-sensitive .lead-phone {
+            filter: blur(4px);
+            transition: filter 0.3s;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -61,14 +68,36 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-user-nurse text-clinic-teal text-2xl"></i>
-                    <h1 class="text-2xl font-bold text-gray-900">TechLog CRM <span class="text-clinic-teal">Kanban</span></h1>
+                    <i class="fas fa-hospital text-clinic-teal text-2xl"></i>
+                    <h1 class="text-2xl font-bold text-gray-900">Medical CRM <span class="text-clinic-teal">| Gestão</span></h1>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <!-- User Greeting -->
+                    <div class="text-sm text-gray-700">
+                        <span class="font-medium">Olá, </span>
+                        <span id="userName" class="font-bold text-clinic-teal">Usuário</span>
+                    </div>
+                    
+                    <!-- Navigation -->
+                    <a href="patients.html" class="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition">
+                        <i class="fas fa-users mr-2"></i> Pacientes
+                    </a>
+                    
+                    <!-- Team Management (Admin Only) -->
+                    <button id="teamButton" onclick="openTeamModal()" class="hidden flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        <i class="fas fa-user-cog mr-2"></i> Equipe
+                    </button>
+                    
+                    <button id="togglePrivacy" onclick="togglePrivacyMode()" class="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition" title="Modo Privacidade (LGPD)">
+                        <i class="fas fa-eye" id="privacyIcon"></i>
+                    </button>
+                    <button onclick="openDashboard()" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-chart-pie mr-2"></i> Relatórios
+                    </button>
                     <button onclick="loadLeads()" class="flex items-center px-4 py-2 bg-clinic-teal text-white rounded-lg hover:bg-teal-700 transition">
                         <i class="fas fa-sync-alt mr-2"></i> Atualizar
                     </button>
-                    <button onclick="logout()" class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                    <button onclick="logout()" class="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
                         <i class="fas fa-sign-out-alt mr-2"></i> Sair
                     </button>
                 </div>
@@ -76,11 +105,191 @@
         </div>
     </header>
 
+    <!-- Dashboard Modal -->
+    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 flex justify-between items-center rounded-t-xl">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-chart-line text-2xl"></i>
+                    <h2 class="text-2xl font-bold">Dashboard de Métricas</h2>
+                </div>
+                <button onclick="closeDashboard()" class="hover:bg-white/20 rounded-full p-2 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Metric Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Total de Leads -->
+                    <div class="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-lg opacity-90">Total de Leads</p>
+                                <h3 id="totalLeads" class="text-5xl font-bold mt-2">0</h3>
+                            </div>
+                            <i class="fas fa-users text-6xl opacity-30"></i>
+                        </div>
+                    </div>
+
+                    <!-- Potencial de Receita -->
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-lg opacity-90">Potencial de Receita</p>
+                                <h3 id="revenueEstimate" class="text-5xl font-bold mt-2">R$ 0</h3>
+                            </div>
+                            <i class="fas fa-dollar-sign text-6xl opacity-30"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-circle-notch mr-2 text-blue-600"></i>
+                            Distribuição por Status
+                        </h3>
+                        <div class="relative h-64 w-full">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-chart-bar mr-2 text-purple-600"></i>
+                            Tipos de Atendimento
+                        </h3>
+                        <div class="relative h-64 w-full">
+                            <canvas id="typeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Chart (Full Width) -->
+                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-clinic-teal"></i>
+                        Evolução dos Últimos 7 Dias
+                    </h3>
+                    <div class="relative h-64 w-full">
+                        <canvas id="historyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg p-8 flex flex-col items-center">
             <div class="loading-spinner mb-4"></div>
             <p class="text-gray-700 font-medium">Carregando leads...</p>
+        </div>
+    </div>
+
+    <!-- Edit Lead Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4">
+            <div class="bg-gradient-to-r from-clinic-teal to-teal-700 text-white px-6 py-4 flex justify-between items-center rounded-t-xl">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-edit text-2xl"></i>
+                    <h2 class="text-xl font-bold">Editar Agendamento</h2>
+                </div>
+                <button onclick="closeEditModal()" class="hover:bg-white/20 rounded-full p-2 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <form id="editForm" class="space-y-4">
+                    <input type="hidden" id="editLeadId">
+                    
+                    <!-- Nome (readonly) -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-clinic-teal"></i>Paciente
+                        </label>
+                        <input type="text" id="editLeadName" readonly class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-700">
+                    </div>
+
+                    <!-- Data/Hora do Agendamento -->
+                    <div>
+                        <label for="editAppointmentDate" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-calendar-alt mr-2 text-clinic-teal"></i>Data e Hora do Agendamento
+                        </label>
+                        <input 
+                            type="datetime-local" 
+                            id="editAppointmentDate" 
+                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition"
+                        >
+                    </div>
+
+                    <!-- Médico -->
+                    <div>
+                        <label for="editDoctor" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-user-md mr-2 text-clinic-teal"></i>Médico Responsável
+                        </label>
+                        <select 
+                            id="editDoctor" 
+                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition bg-white"
+                        >
+                            <option value="">Selecione um médico</option>
+                            <option value="Dr. Edmar">Dr. Edmar</option>
+                            <option value="Dr. Cleber">Dr. Cleber</option>
+                            <option value="Dra. Ana">Dra. Ana</option>
+                        </select>
+                    </div>
+
+                    <!-- Tipo de Atendimento -->
+                    <div>
+                        <label for="editType" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-stethoscope mr-2 text-clinic-teal"></i>Tipo de Atendimento
+                        </label>
+                        <select 
+                            id="editType" 
+                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition bg-white"
+                        >
+                            <option value="">Selecione um tipo</option>
+                            <option value="primeira_consulta">⭐ Primeira Consulta</option>
+                            <option value="retorno">🔄 Retorno</option>
+                            <option value="recorrente">🔁 Sessão/Recorrente</option>
+                            <option value="exame">🔬 Exame</option>
+                        </select>
+                    </div>
+
+                    <!-- Observações -->
+                    <div>
+                        <label for="editNotes" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-notes-medical mr-2 text-clinic-teal"></i>Observações / Sintomas
+                        </label>
+                        <textarea 
+                            id="editNotes" 
+                            rows="4" 
+                            placeholder="Digite sintomas, histórico ou observações relevantes..."
+                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition resize-none"
+                        ></textarea>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex space-x-3 pt-4">
+                        <button 
+                            type="button" 
+                            onclick="closeEditModal()" 
+                            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-lg transition"
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="flex-1 bg-clinic-teal hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+                        >
+                            <i class="fas fa-save mr-2"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -147,287 +356,80 @@
         </div>
     </main>
 
-    <script>
-        const API_URL = '/api/leads';
-        const ACCESS_TOKEN = 'eviva2026';
-        let currentDraggedCard = null;
+    <!-- Team Management Modal (Admin Only) -->
+    <div id="teamModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 flex justify-between items-center rounded-t-xl">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-users text-2xl"></i>
+                    <h2 class="text-2xl font-bold">Gerenciar Equipe</h2>
+                </div>
+                <button onclick="closeTeamModal()" class="hover:bg-white/20 rounded-full p-2 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
 
-        // Função para carregar leads da API
-        async function loadLeads() {
-            showLoading(true);
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-access-token': ACCESS_TOKEN
-                    }
-                });
+            <div class="p-6">
+                <!-- Add User Form -->
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-user-plus text-indigo-600 mr-2"></i>
+                        Adicionar Novo Usuário
+                    </h3>
+                    <form id="addUserForm" class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo</label>
+                            <input type="text" id="newUserName" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-600 focus:outline-none" placeholder="Ex: Dr. João Silva" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Usuário (Login)</label>
+                            <input type="text" id="newUsername" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-600 focus:outline-none" placeholder="Ex: joao.silva" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Senha</label>
+                            <input type="password" id="newPassword" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-600 focus:outline-none" placeholder="Mínimo 3 caracteres" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Função</label>
+                            <select id="newUserRole" class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-600 focus:outline-none" required>
+                                <option value="recepcao">👋 Recepção</option>
+                                <option value="medico">🩺 Médico</option>
+                                <option value="admin">👑 Administrador</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition flex items-center justify-center">
+                                <i class="fas fa-plus-circle mr-2"></i>
+                                Adicionar Usuário
+                            </button>
+                        </div>
+                    </form>
+                </div>
 
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                // Se a API mandar a lista direto, usa ela. Se mandar objeto, busca a chave leads.
-                renderLeads(Array.isArray(data) ? data : (data.leads || []));
-                
-            } catch (error) {
-                console.error('Erro ao carregar leads:', error);
-                alert('❌ Erro ao carregar leads. Verifique a conexão com o servidor.');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Renderizar leads nas colunas
-        function renderLeads(leads) {
-            // Limpar todas as colunas
-            ['novo', 'Em Atendimento', 'Agendado', 'Finalizado'].forEach(status => {
-                const column = document.getElementById(`column-${status}`);
-                column.innerHTML = '';
-            });
-
-            // Distribuir leads nas colunas
-            leads.forEach(lead => {
-                const card = createLeadCard(lead);
-                const status = lead.status || 'novo';
-                const column = document.getElementById(`column-${status}`);
-                
-                if (column) {
-                    column.appendChild(card);
-                }
-            });
-
-            // Atualizar contadores
-            updateCounters(leads);
-        }
-
-        // Criar card de lead
-        function createLeadCard(lead) {
-            const card = document.createElement('div');
-            card.className = 'lead-card bg-white rounded-lg shadow p-4 border border-gray-200';
-            card.draggable = true;
-            card.dataset.id = lead.id;
-            card.dataset.status = lead.status || 'novo';
-
-            // Definir ícone baseado no tipo
-            const icon = lead.type === 'Consulta' ? 'fa-stethoscope' : 'fa-microscope';
-            const iconColor = lead.type === 'Consulta' ? 'text-blue-500' : 'text-purple-500';
-
-            // Formatar data
-            const date = new Date(lead.created_at);
-            const timeAgo = getTimeAgo(date);
-
-            card.innerHTML = `
-                <div class="flex items-start justify-between mb-2">
-                    <div class="flex items-center space-x-2">
-                        <i class="fas ${icon} ${iconColor} text-lg"></i>
-                        <span class="text-xs text-gray-500">${lead.type || 'Geral'}</span>
+                <!-- Users List -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-list text-indigo-600 mr-2"></i>
+                        Usuários Cadastrados
+                    </h3>
+                    <div id="usersList" class="space-y-3">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                            <p>Carregando usuários...</p>
+                        </div>
                     </div>
-                    <button onclick="deleteLead(${lead.id})" class="text-red-500 hover:text-red-700 transition">
-                        <i class="fas fa-trash text-sm"></i>
-                    </button>
                 </div>
-                
-                <h3 class="font-semibold text-gray-900 mb-2">${lead.name}</h3>
-                
-                <div class="flex items-center text-xs text-gray-500 mb-3">
-                    <i class="fas fa-clock mr-1"></i>
-                    <span>${timeAgo}</span>
-                </div>
-                
-                <div class="flex items-center justify-between">
-                    <span class="text-xs text-gray-600">
-                        <i class="fas fa-phone mr-1"></i>${formatPhone(lead.phone)}
-                    </span>
-                    <a href="https://wa.me/55${lead.phone.replace(/\D/g, '')}?text=Olá ${encodeURIComponent(lead.name)}" 
-                       target="_blank"
-                       class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs transition flex items-center">
-                        <i class="fab fa-whatsapp mr-1"></i> Chat
-                    </a>
-                </div>
-            `;
+            </div>
+        </div>
+    </div>
 
-            // Event listeners para drag
-            card.addEventListener('dragstart', dragStart);
-            card.addEventListener('dragend', dragEnd);
-
-            return card;
-        }
-
-        // Drag and Drop handlers
-        function dragStart(e) {
-            currentDraggedCard = e.target;
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', e.target.innerHTML);
-        }
-
-        function dragEnd(e) {
-            e.target.classList.remove('dragging');
-        }
-
-        function allowDrop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('drag-over');
-        }
-
-        function dragLeave(e) {
-            e.currentTarget.classList.remove('drag-over');
-        }
-
-        async function drop(e) {
-            e.preventDefault();
-            e.currentTarget.classList.remove('drag-over');
-
-            const dropZone = e.currentTarget;
-            const newStatus = dropZone.parentElement.dataset.status;
-            const leadId = currentDraggedCard.dataset.id;
-            const oldStatus = currentDraggedCard.dataset.status;
-
-            // Se for a mesma coluna, não faz nada
-            if (newStatus === oldStatus) {
-                return;
-            }
-
-            // Mover visualmente o card
-            dropZone.appendChild(currentDraggedCard);
-            currentDraggedCard.dataset.status = newStatus;
-
-            // Atualizar no backend
-            try {
-                const response = await fetch(`${API_URL}/${leadId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-access-token': ACCESS_TOKEN
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao atualizar status');
-                }
-
-                // Recarregar para atualizar contadores
-                loadLeads();
-                
-                // Notificação visual
-                showNotification('✅ Status atualizado com sucesso!', 'success');
-
-            } catch (error) {
-                console.error('Erro ao atualizar status:', error);
-                showNotification('❌ Erro ao atualizar status', 'error');
-                // Reverter movimento
-                loadLeads();
-            }
-        }
-
-        // Deletar lead
-        async function deleteLead(id) {
-            if (!confirm('Tem certeza que deseja remover este lead?')) {
-                return;
-            }
-
-            showLoading(true);
-
-            try {
-                const response = await fetch(`${API_URL}/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-access-token': ACCESS_TOKEN
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao deletar lead');
-                }
-
-                showNotification('🗑️ Lead removido com sucesso!', 'success');
-                loadLeads();
-
-            } catch (error) {
-                console.error('Erro ao deletar lead:', error);
-                showNotification('❌ Erro ao remover lead', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Atualizar contadores
-        function updateCounters(leads) {
-            const counts = {
-                'novo': 0,
-                'Em Atendimento': 0,
-                'Agendado': 0,
-                'Finalizado': 0
-            };
-
-            leads.forEach(lead => {
-                const status = lead.status || 'novo';
-                if (counts.hasOwnProperty(status)) {
-                    counts[status]++;
-                }
-            });
-
-            Object.keys(counts).forEach(status => {
-                const counter = document.getElementById(`count-${status}`);
-                if (counter) {
-                    counter.textContent = counts[status];
-                }
-            });
-        }
-
-        // Funções auxiliares
-        function formatPhone(phone) {
-            const cleaned = phone.replace(/\D/g, '');
-            if (cleaned.length === 11) {
-                return `(${cleaned.substr(0, 2)}) ${cleaned.substr(2, 5)}-${cleaned.substr(7)}`;
-            }
-            return phone;
-        }
-
-        function getTimeAgo(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
-            
-            if (seconds < 60) return 'Agora';
-            if (seconds < 3600) return `${Math.floor(seconds / 60)} min atrás`;
-            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h atrás`;
-            return `${Math.floor(seconds / 86400)} dias atrás`;
-        }
-
-        function showLoading(show) {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.classList.toggle('hidden', !show);
-        }
-
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white z-50 ${
-                type === 'success' ? 'bg-green-500' : 'bg-red-500'
-            }`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function logout() {
-            if (confirm('Deseja realmente sair?')) {
-                window.location.href = '/';
-            }
-        }
-
-        // Carregar leads ao iniciar
-        loadLeads();
-
-        // Auto-refresh a cada 60 segundos
-        setInterval(loadLeads, 60000);
-    </script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Application JavaScript Modules -->
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/kanban.js"></script>
+    <script src="./js/dashboard.js"></script>
 </body>
 </html>

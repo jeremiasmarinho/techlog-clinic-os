@@ -9,6 +9,7 @@ export class LeadController {
     // Listar (GET)
     static index(req: Request, res: Response): void {
         const token = req.headers['x-access-token'];
+        const view = req.query.view as string;
         
         if (token !== SENHA_MESTRA) {
             console.log(`❌ Acesso Negado. Token: ${token}`);
@@ -16,7 +17,19 @@ export class LeadController {
             return;
         }
 
-        db.all("SELECT * FROM leads ORDER BY created_at DESC", [], (err, rows) => {
+        let query = "SELECT * FROM leads ORDER BY created_at DESC";
+        
+        // If view=kanban: Return active leads + finalized leads from last 24 hours only
+        if (view === 'kanban') {
+            query = `
+                SELECT * FROM leads 
+                WHERE status != 'Finalizado' 
+                   OR (status = 'Finalizado' AND datetime(created_at) >= datetime('now', '-1 day'))
+                ORDER BY created_at DESC
+            `;
+        }
+        
+        db.all(query, [], (err, rows) => {
             if (err) {
                 res.status(500).json({ error: err.message });
                 return;
@@ -29,19 +42,48 @@ export class LeadController {
     static update(req: Request, res: Response): void {
         const token = req.headers['x-access-token'];
         const { id } = req.params;
-        const { status } = req.body;
+        const { status, appointment_date, doctor, notes } = req.body;
 
         if (token !== SENHA_MESTRA) {
             res.status(403).json({ error: 'Acesso Negado.' });
             return;
         }
 
-        db.run("UPDATE leads SET status = ? WHERE id = ?", [status, id], function(err) {
+        // Construir query dinâmica baseada nos campos enviados
+        const updates: string[] = [];
+        const values: any[] = [];
+
+        if (status !== undefined) {
+            updates.push('status = ?');
+            values.push(status);
+        }
+        if (appointment_date !== undefined) {
+            updates.push('appointment_date = ?');
+            values.push(appointment_date);
+        }
+        if (doctor !== undefined) {
+            updates.push('doctor = ?');
+            values.push(doctor);
+        }
+        if (notes !== undefined) {
+            updates.push('notes = ?');
+            values.push(notes);
+        }
+
+        if (updates.length === 0) {
+            res.status(400).json({ error: 'Nenhum campo para atualizar' });
+            return;
+        }
+
+        values.push(id);
+        const query = `UPDATE leads SET ${updates.join(', ')} WHERE id = ?`;
+
+        db.run(query, values, function(err) {
             if (err) {
                 res.status(500).json({ error: err.message });
                 return;
             }
-            res.json({ message: 'Status atualizado!', changes: this.changes });
+            res.json({ message: 'Lead atualizado!', changes: this.changes });
         });
     }
 
@@ -61,6 +103,55 @@ export class LeadController {
                 return;
             }
             res.json({ message: 'Lead removido.', changes: this.changes });
+        });
+    }
+
+    // Dashboard Métricas (GET)
+    static metrics(req: Request, res: Response): void {
+        const token = req.headers['x-access-token'];
+        
+        if (token !== SENHA_MESTRA) {
+            res.status(403).json({ error: 'Acesso Negado.' });
+            return;
+        }
+
+        // Total de leads
+        db.get("SELECT COUNT(*) as total FROM leads", [], (err, totalRow: any) => {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return;
+            }
+
+            // Leads por status
+            db.all("SELECT status, COUNT(*) as count FROM leads GROUP BY status", [], (err, statusRows: any[]) => {
+                if (err) {
+                    res.status(500).json({ error: err.message });
+                    return;
+                }
+
+                // Leads por tipo
+                db.all("SELECT type, COUNT(*) as count FROM leads GROUP BY type", [], (err, typeRows: any[]) => {
+                    if (err) {
+                        res.status(500).json({ error: err.message });
+                        return;
+                    }
+
+                    // Histórico dos últimos 7 dias
+                    db.all("SELECT date(created_at) as date, COUNT(*) as count FROM leads GROUP BY date(created_at) ORDER BY date(created_at) DESC LIMIT 7", [], (err, historyRows: any[]) => {
+                        if (err) {
+                            res.status(500).json({ error: err.message });
+                            return;
+                        }
+
+                        res.json({
+                            total: totalRow.total,
+                            byStatus: statusRows,
+                            byType: typeRows,
+                            history: historyRows.reverse() // Inverter para ordem cronológica
+                        });
+                    });
+                });
+            });
         });
     }
 

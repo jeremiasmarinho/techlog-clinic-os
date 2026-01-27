@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Clínica Viva - Agende sua consulta ou exame online. Atendimento rápido e humanizado.">
+    <title>Clínica Viva | Agendamento Online</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+        }
+        
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+        }
+        
+        .success-checkmark .check-icon {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 4px solid #10b981;
+            background: #fff;
+        }
+        
+        .success-checkmark .check-icon::before {
+            top: 3px;
+            left: -2px;
+            width: 30px;
+            transform-origin: 100% 50%;
+            border-radius: 100px 0 0 100px;
+        }
+        
+        .success-checkmark .check-icon::after {
+            top: 0;
+            left: 30px;
+            width: 60px;
+            transform-origin: 0 50%;
+            border-radius: 0 100px 100px 0;
+            animation: rotate-circle 4.25s ease-in;
+        }
+        
+        .success-checkmark .check-icon::before,
+        .success-checkmark .check-icon::after {
+            content: '';
+            height: 100px;
+            position: absolute;
+            background: #fff;
+            transform: rotate(-45deg);
+        }
+        
+        .success-checkmark .check-icon .icon-line {
+            height: 5px;
+            background-color: #10b981;
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+        
+        .success-checkmark .check-icon .icon-line.line-tip {
+            top: 46px;
+            left: 14px;
+            width: 25px;
+            transform: rotate(45deg);
+            animation: icon-line-tip 0.75s;
+        }
+        
+        .success-checkmark .check-icon .icon-line.line-long {
+            top: 38px;
+            right: 8px;
+            width: 47px;
+            transform: rotate(-45deg);
+            animation: icon-line-long 0.75s;
+        }
+        
+        @keyframes icon-line-tip {
+            0% { width: 0; left: 1px; top: 19px; }
+            54% { width: 0; left: 1px; top: 19px; }
+            70% { width: 50px; left: -8px; top: 37px; }
+            84% { width: 17px; left: 21px; top: 48px; }
+            100% { width: 25px; left: 14px; top: 46px; }
+        }
+        
+        @keyframes icon-line-long {
+            0% { width: 0; right: 46px; top: 54px; }
+            65% { width: 0; right: 46px; top: 54px; }
+            84% { width: 55px; right: 0px; top: 35px; }
+            100% { width: 47px; right: 8px; top: 38px; }
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.6s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'clinic-teal': '#0d9488',
+                        'clinic-teal-dark': '#0f766e',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6 shadow-lg">
+        <div class="max-w-md mx-auto px-4">
+            <div class="flex items-center justify-center space-x-3">
+                <i class="fas fa-hospital text-3xl"></i>
+                <div>
+                    <h1 class="text-2xl font-bold">Clínica Viva</h1>
+                    <p class="text-sm opacity-90">Agendamento Online</p>
+                </div>
+            </div>
+        </div>
+    </header>
+                    <i class="fas fa-heartbeat text-clinic-teal text-3xl mr-3"></i>
+                    <span class="text-2xl font-bold text-gray-900">Clínica <span class="text-clinic-teal">Viva</span></span>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:flex space-x-8">
+                    <a href="#servicos" class="text-gray-700 hover:text-clinic-teal transition font-medium">Serviços</a>
+                    <a href="#diferenciais" class="text-gray-700 hover:text-clinic-teal transition font-medium">Diferenciais</a>
+                    <a href="#contato" class="text-gray-700 hover:text-clinic-teal transition font-medium">Contato</a>
+                </div>
+                
+                <!-- CTA Button -->
+                <button onclick="toggleChat()" class="bg-clinic-teal hover:bg-clinic-teal-dark text-white px-6 py-3 rounded-lg font-semibold transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    Agendar Agora
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-clinic-gray to-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left Column - Text Content -->
+                <div class="space-y-8">
+                    <div class="inline-block">
+                        <span class="bg-teal-50 text-clinic-teal px-4 py-2 rounded-full text-sm font-semibold">
+                            <i class="fas fa-shield-alt mr-2"></i>Atendimento de Excelência
+                        </span>
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
+                        Sua Saúde em <span class="text-clinic-teal">Primeiro Lugar</span>
+                    </h1>
+                    
+                    <p class="text-xl text-gray-600 leading-relaxed">
+                        Cuidado médico especializado com tecnologia de ponta e equipe altamente qualificada. Agende sua consulta agora e tenha a melhor experiência em saúde.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="toggleChat()" class="bg-clinic-teal hover:bg-clinic-teal-dark text-white px-8 py-4 rounded-lg font-bold text-lg transition duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 flex items-center justify-center">
+                            <i class="fas fa-calendar-check mr-3"></i>Agendar Consulta
+                        </button>
+                        <a href="#servicos" class="border-2 border-clinic-teal text-clinic-teal hover:bg-teal-50 px-8 py-4 rounded-lg font-bold text-lg transition duration-300 flex items-center justify-center">
+                            <i class="fas fa-info-circle mr-3"></i>Saiba Mais
+                        </a>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200">
+                        <div>
+                            <div class="text-3xl font-bold text-clinic-teal">15+</div>
+                            <div class="text-sm text-gray-600 mt-1">Anos de Experiência</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-clinic-teal">50+</div>
+                            <div class="text-sm text-gray-600 mt-1">Especialistas</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-clinic-teal">10k+</div>
+                            <div class="text-sm text-gray-600 mt-1">Pacientes Atendidos</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column - Image/Illustration -->
+                <div class="relative">
+                    <div class="bg-gradient-to-br from-clinic-teal to-teal-600 rounded-3xl shadow-2xl p-8 transform rotate-3 hover:rotate-0 transition duration-500">
+                        <div class="bg-white rounded-2xl p-8 -rotate-3">
+                            <div class="space-y-6">
+                                <div class="flex items-center space-x-4 bg-teal-50 p-4 rounded-xl">
+                                    <i class="fas fa-user-md text-clinic-teal text-3xl"></i>
+                                    <div>
+                                        <div class="font-semibold text-gray-900">Equipe Especializada</div>
+                                        <div class="text-sm text-gray-600">Médicos certificados</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 bg-teal-50 p-4 rounded-xl">
+                                    <i class="fas fa-clock text-clinic-teal text-3xl"></i>
+                                    <div>
+                                        <div class="font-semibold text-gray-900">Horário Flexível</div>
+                                        <div class="text-sm text-gray-600">Segunda a Sábado</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4 bg-teal-50 p-4 rounded-xl">
+                                    <i class="fas fa-microscope text-clinic-teal text-3xl"></i>
+                                    <div>
+                                        <div class="font-semibold text-gray-900">Tecnologia Avançada</div>
+                                        <div class="text-sm text-gray-600">Equipamentos modernos</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="servicos" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <span class="text-clinic-teal font-semibold text-sm uppercase tracking-wider">Nossos Serviços</span>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mt-3 mb-4">
+                    Especialidades Médicas
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Oferecemos atendimento completo em diversas áreas da medicina com profissionais altamente capacitados
+                </p>
+            </div>
+            
+            <!-- Services Grid -->
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1: Cardiologia -->
+                <div class="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-clinic-teal hover:shadow-2xl transition duration-300 cursor-pointer">
+                    <div class="bg-teal-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-clinic-teal transition duration-300">
+                        <i class="fas fa-heartbeat text-3xl text-clinic-teal group-hover:text-white transition duration-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Cardiologia</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Cuidados completos para o coração. Prevenção, diagnóstico e tratamento de doenças cardiovasculares com tecnologia de ponta.
+                    </p>
+                    <button onclick="toggleChat()" class="text-clinic-teal font-semibold hover:underline flex items-center">
+                        Agendar Consulta <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+                
+                <!-- Card 2: Dermatologia -->
+                <div class="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-clinic-teal hover:shadow-2xl transition duration-300 cursor-pointer">
+                    <div class="bg-teal-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-clinic-teal transition duration-300">
+                        <i class="fas fa-hand-sparkles text-3xl text-clinic-teal group-hover:text-white transition duration-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Dermatologia</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Saúde e estética da pele. Tratamentos especializados para todas as condições dermatológicas com resultados comprovados.
+                    </p>
+                    <button onclick="toggleChat()" class="text-clinic-teal font-semibold hover:underline flex items-center">
+                        Agendar Consulta <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+                
+                <!-- Card 3: Exames -->
+                <div class="group bg-white border-2 border-gray-100 rounded-2xl p-8 hover:border-clinic-teal hover:shadow-2xl transition duration-300 cursor-pointer">
+                    <div class="bg-teal-50 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-clinic-teal transition duration-300">
+                        <i class="fas fa-microscope text-3xl text-clinic-teal group-hover:text-white transition duration-300"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">Exames Laboratoriais</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Diagnóstico preciso e rápido. Laboratório completo com equipamentos modernos e resultados confiáveis em tempo ágil.
+                    </p>
+                    <button onclick="toggleChat()" class="text-clinic-teal font-semibold hover:underline flex items-center">
+                        Solicitar Orçamento <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section id="diferenciais" class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-clinic-gray to-teal-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left Column - Content -->
+                <div>
+                    <span class="text-clinic-teal font-semibold text-sm uppercase tracking-wider">Nossos Diferenciais</span>
+                    <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mt-3 mb-6">
+                        Por Que Escolher a Clínica Viva?
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-8">
+                        Somos referência em atendimento médico de qualidade. Nossa missão é proporcionar cuidados de excelência com humanização e tecnologia.
+                    </p>
+                    
+                    <!-- Benefits List -->
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-clinic-teal rounded-full p-2 mt-1">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg">Atendimento Rápido</h4>
+                                <p class="text-gray-600">Agendamento ágil e consultas sem longas esperas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-clinic-teal rounded-full p-2 mt-1">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg">Equipe Especializada</h4>
+                                <p class="text-gray-600">Médicos certificados e com vasta experiência</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-clinic-teal rounded-full p-2 mt-1">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg">Tecnologia de Ponta</h4>
+                                <p class="text-gray-600">Equipamentos modernos para diagnósticos precisos</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-clinic-teal rounded-full p-2 mt-1">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg">Atendimento Humanizado</h4>
+                                <p class="text-gray-600">Cuidado personalizado e acolhedor para cada paciente</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-clinic-teal rounded-full p-2 mt-1">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg">Localização Privilegiada</h4>
+                                <p class="text-gray-600">Fácil acesso e estacionamento disponível</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-clinic-teal rounded-full p-2 mt-1">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg">Resultados Online</h4>
+                                <p class="text-gray-600">Acesse seus exames de forma rápida e segura</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column - CTA Box -->
+                <div class="bg-gradient-to-br from-clinic-teal to-teal-600 rounded-3xl shadow-2xl p-10 text-white">
+                    <div class="text-center">
+                        <i class="fas fa-calendar-alt text-6xl mb-6 opacity-90"></i>
+                        <h3 class="text-3xl font-bold mb-4">Pronto para Cuidar da Sua Saúde?</h3>
+                        <p class="text-teal-50 text-lg mb-8">
+                            Agende sua consulta agora mesmo e tenha acesso ao melhor atendimento médico da região.
+                        </p>
+                        <button onclick="toggleChat()" class="bg-white text-clinic-teal hover:bg-gray-50 px-8 py-4 rounded-lg font-bold text-lg transition duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 w-full">
+                            <i class="fas fa-comments mr-3"></i>Falar com Atendente
+                        </button>
+                        <p class="text-teal-100 text-sm mt-6">
+                            <i class="fas fa-shield-check mr-2"></i>Seus dados estão seguros conosco
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contato" class="bg-gray-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <!-- Column 1 - Logo & Description -->
+                <div class="md:col-span-2">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-heartbeat text-clinic-teal text-3xl mr-3"></i>
+                        <span class="text-2xl font-bold">Clínica <span class="text-clinic-teal">Viva</span></span>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed mb-6">
+                        Há mais de 15 anos cuidando da saúde e bem-estar da nossa comunidade com excelência, tecnologia e humanização.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="bg-gray-800 hover:bg-clinic-teal w-10 h-10 rounded-full flex items-center justify-center transition duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-gray-800 hover:bg-clinic-teal w-10 h-10 rounded-full flex items-center justify-center transition duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="bg-gray-800 hover:bg-clinic-teal w-10 h-10 rounded-full flex items-center justify-center transition duration-300">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Column 2 - Contact Info -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Contato</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-clinic-teal mt-1 mr-3"></i>
+                            <span>Av. Principal, 1234<br>Centro - Palmas/TO<br>CEP: 77000-000</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone text-clinic-teal mr-3"></i>
+                            <a href="tel:+556399999999" class="hover:text-clinic-teal transition">(63) 99999-9999</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope text-clinic-teal mr-3"></i>
+                            <a href="mailto:contato@clinicaviva.com.br" class="hover:text-clinic-teal transition">contato@clinicaviva.com.br</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Column 3 - Hours -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Horário de Atendimento</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex justify-between">
+                            <span>Segunda - Sexta:</span>
+                            <span class="text-white">7h - 19h</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Sábado:</span>
+                            <span class="text-white">8h - 13h</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Domingo:</span>
+                            <span class="text-gray-500">Fechado</span>
+                        </li>
+                    </ul>
+                    <button onclick="toggleChat()" class="mt-6 bg-clinic-teal hover:bg-clinic-teal-dark text-white px-6 py-3 rounded-lg font-semibold transition duration-300 w-full">
+                        <i class="fas fa-calendar-check mr-2"></i>Agendar Agora
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Bottom Bar -->
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-400 text-sm">
+                <p>&copy; 2026 Clínica Viva. Todos os direitos reservados. | CNPJ: 00.000.000/0001-00</p>
+                <p class="mt-2">Desenvolvido com <i class="fas fa-heart text-red-500"></i> por <span class="text-clinic-teal font-semibold">TechLog</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Widget Integration -->
+    <script src="widget.js"></script>
+</body>
+</html>

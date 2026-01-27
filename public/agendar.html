@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Clínica Viva - Agende sua consulta ou exame online. Atendimento rápido e humanizado.">
+    <title>Clínica Viva | Agendamento Online</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0d9488;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+        
+        .success-checkmark {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+        }
+        
+        .success-checkmark .check-icon {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            border-radius: 50%;
+            box-sizing: content-box;
+            border: 5px solid #10b981;
+            background: #fff;
+        }
+        
+        .success-checkmark .check-icon .icon-line {
+            height: 5px;
+            background-color: #10b981;
+            display: block;
+            border-radius: 2px;
+            position: absolute;
+            z-index: 10;
+        }
+        
+        .success-checkmark .check-icon .icon-line.line-tip {
+            top: 52px;
+            left: 18px;
+            width: 30px;
+            transform: rotate(45deg);
+            animation: icon-line-tip 0.75s;
+        }
+        
+        .success-checkmark .check-icon .icon-line.line-long {
+            top: 45px;
+            right: 10px;
+            width: 55px;
+            transform: rotate(-45deg);
+            animation: icon-line-long 0.75s;
+        }
+        
+        @keyframes icon-line-tip {
+            0% { width: 0; left: 1px; top: 19px; }
+            54% { width: 0; left: 1px; top: 19px; }
+            70% { width: 50px; left: -8px; top: 37px; }
+            84% { width: 17px; left: 21px; top: 48px; }
+            100% { width: 30px; left: 18px; top: 52px; }
+        }
+        
+        @keyframes icon-line-long {
+            0% { width: 0; right: 46px; top: 54px; }
+            65% { width: 0; right: 46px; top: 54px; }
+            84% { width: 55px; right: 0px; top: 35px; }
+            100% { width: 55px; right: 10px; top: 45px; }
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.6s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'clinic-teal': '#0d9488',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6 shadow-lg">
+        <div class="max-w-md mx-auto px-4">
+            <div class="flex items-center justify-center space-x-3">
+                <i class="fas fa-hospital text-4xl"></i>
+                <div>
+                    <h1 class="text-2xl font-bold">Clínica Viva</h1>
+                    <p class="text-sm opacity-90">Agendamento Online</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center px-4 py-8">
+        <div class="max-w-md w-full">
+            
+            <!-- Form Container -->
+            <div id="formContainer" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-teal-100 rounded-full mb-4">
+                        <i class="fas fa-calendar-check text-clinic-teal text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Agende sua Consulta</h2>
+                    <p class="text-gray-600">Preencha os dados abaixo e entraremos em contato rapidamente</p>
+                </div>
+
+                <!-- Form -->
+                <form id="appointmentForm" class="space-y-5">
+                    <!-- Nome Completo -->
+                    <div>
+                        <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-user mr-2 text-clinic-teal"></i>Nome Completo
+                        </label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            required 
+                            placeholder="Digite seu nome completo"
+                            class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition"
+                        >
+                    </div>
+
+                    <!-- WhatsApp -->
+                    <div>
+                        <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fab fa-whatsapp mr-2 text-clinic-teal"></i>WhatsApp
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            required 
+                            placeholder="(00) 00000-0000"
+                            maxlength="15"
+                            class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition"
+                        >
+                        <p class="text-xs text-gray-500 mt-1">Entraremos em contato pelo WhatsApp</p>
+                    </div>
+
+                    <!-- Tipo de Agendamento -->
+                    <div>
+                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fas fa-stethoscope mr-2 text-clinic-teal"></i>Tipo de Atendimento
+                        </label>
+                        <select 
+                            id="type" 
+                            name="type" 
+                            required
+                            class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition bg-white"
+                        >
+                            <option value="">Selecione uma opção</option>
+                            <option value="primeira_consulta">⭐ Primeira Consulta</option>
+                            <option value="retorno">🔄 Retorno</option>
+                            <option value="recorrente">🔁 Sessão/Recorrente</option>
+                            <option value="exame">🔬 Exame</option>
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        id="submitBtn"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-lg py-4 px-6 rounded-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center justify-center"
+                    >
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        <span id="btnText">Agendar Agora</span>
+                        <div id="btnSpinner" class="spinner ml-2 hidden"></div>
+                    </button>
+                </form>
+
+                <!-- Trust Badges -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                        <div class="flex items-center">
+                            <i class="fas fa-shield-alt text-green-600 mr-1"></i>
+                            <span>Dados Seguros</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-green-600 mr-1"></i>
+                            <span>Resposta Rápida</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-600 mr-1"></i>
+                            <span>Sem Compromisso</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Message (Hidden by Default) -->
+            <div id="successContainer" class="bg-white rounded-2xl shadow-xl p-8 hidden">
+                <div class="text-center">
+                    <!-- Animated Checkmark -->
+                    <div class="success-checkmark">
+                        <div class="check-icon">
+                            <span class="icon-line line-tip"></span>
+                            <span class="icon-line line-long"></span>
+                        </div>
+                    </div>
+
+                    <!-- Success Message -->
+                    <h2 class="text-2xl font-bold text-gray-900 mb-3">
+                        Agendamento Recebido!
+                    </h2>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        <i class="fab fa-whatsapp text-green-600 text-xl mr-2"></i>
+                        Recebemos seu pedido! Entraremos em contato pelo WhatsApp em breve para confirmar seu agendamento.
+                    </p>
+
+                    <!-- CTA Buttons -->
+                    <div class="space-y-3">
+                        <button 
+                            onclick="resetForm()" 
+                            class="w-full bg-clinic-teal hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+                        >
+                            <i class="fas fa-plus mr-2"></i>Fazer Novo Agendamento
+                        </button>
+                        <a 
+                            href="/" 
+                            class="block w-full border-2 border-gray-300 hover:border-clinic-teal text-gray-700 font-semibold py-3 px-6 rounded-lg transition text-center"
+                        >
+                            Voltar ao Início
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+        <div class="max-w-md mx-auto px-4 text-center">
+            <p class="text-gray-600 text-sm mb-2">
+                <i class="fas fa-phone-alt text-clinic-teal mr-2"></i>
+                Dúvidas? Entre em contato: <strong>(00) 0000-0000</strong>
+            </p>
+            <p class="text-gray-500 text-xs">
+                © 2026 Clínica Viva. Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        const form = document.getElementById('appointmentForm');
+        const phoneInput = document.getElementById('phone');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const formContainer = document.getElementById('formContainer');
+        const successContainer = document.getElementById('successContainer');
+
+        // Phone Mask (XX) XXXXX-XXXX
+        phoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+            
+            let formatted = '';
+            if (value.length > 0) {
+                formatted = '(' + value.substring(0, 2);
+                if (value.length >= 3) {
+                    formatted += ') ' + value.substring(2, 7);
+                }
+                if (value.length >= 8) {
+                    formatted += '-' + value.substring(7, 11);
+                }
+            }
+            
+            e.target.value = formatted;
+        });
+
+        // Form Submit
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const name = document.getElementById('name').value.trim();
+            const phone = phoneInput.value.replace(/\D/g, ''); // Remove formatting
+            const type = document.getElementById('type').value;
+
+            // Validation
+            if (!name || !phone || !type) {
+                alert('Por favor, preencha todos os campos.');
+                return;
+            }
+
+            if (phone.length < 10) {
+                alert('Por favor, digite um número de WhatsApp válido com DDD.');
+                phoneInput.focus();
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.textContent = 'Enviando...';
+            btnSpinner.classList.remove('hidden');
+
+            try {
+                // Send POST request to API (PUBLIC ROUTE - NO TOKEN)
+                const response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        phone: phone,
+                        type: type
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao enviar agendamento');
+                }
+
+                const data = await response.json();
+                console.log('Agendamento criado:', data);
+
+                // Show success message
+                formContainer.classList.add('hidden');
+                successContainer.classList.remove('hidden');
+
+                // Reset form
+                form.reset();
+
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro ao enviar agendamento. Por favor, tente novamente.');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.textContent = 'Agendar Agora';
+                btnSpinner.classList.add('hidden');
+            }
+        });
+
+        // Reset form function
+        function resetForm() {
+            formContainer.classList.remove('hidden');
+            successContainer.classList.add('hidden');
+            form.reset();
+        }
+    </script>
+
+</body>
+</html>
