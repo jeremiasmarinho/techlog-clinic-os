@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import sqlite3 from 'sqlite3';
 import { db } from '../database';
-import { updateLeadSchema } from '../validators/lead.validator';
+import { createLeadSchema, updateLeadSchema } from '../validators/lead.validator';
 
 export class LeadController {
     
@@ -56,14 +56,14 @@ export class LeadController {
     static update(req: Request, res: Response): void {
         const { id } = req.params;
         
-        // Validar com Joi
-        const { error, value } = updateLeadSchema.validate(req.body);
-        if (error) {
-            res.status(400).json({ error: error.details[0].message });
+        // Validar com Zod
+        const result = updateLeadSchema.safeParse(req.body);
+        if (!result.success) {
+            res.status(400).json({ error: result.error.errors[0].message });
             return;
         }
 
-        const { status, appointment_date, doctor, notes, type, attendance_status, archive_reason } = value;
+        const { status, appointment_date, doctor, notes, type, attendance_status, archive_reason } = result.data;
 
         // Construir query dinâmica baseada nos campos enviados
         const updates: string[] = [];
@@ -182,15 +182,17 @@ export class LeadController {
 
     // Criar (POST) - Público
     static create(req: Request, res: Response): void {
-        const { name, phone, type } = req.body;
-        
-        if (!name || !phone) {
-            res.status(400).json({ error: 'Nome e Telefone são obrigatórios' });
+        // Validar com Zod
+        const result = createLeadSchema.safeParse(req.body);
+        if (!result.success) {
+            res.status(400).json({ error: result.error.errors[0].message });
             return;
         }
 
+        const { name, phone, type } = result.data;
+
         const stmt = db.prepare("INSERT INTO leads (name, phone, type) VALUES (?, ?, ?)");
-        stmt.run(name, phone, type || 'geral', function(this: sqlite3.RunResult, err: Error | null) {
+        stmt.run(name, phone, type, function(this: sqlite3.RunResult, err: Error | null) {
             if (err) {
                 res.status(500).json({ error: err.message });
                 return;
