@@ -16,3 +16,6 @@ npm-debug.log*
 # TypeScript build output
 dist/
 *.tsbuildinfo
+
+# Test coverage
+coverage/

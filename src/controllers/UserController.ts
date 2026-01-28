@@ -73,7 +73,7 @@ export class UserController {
         // Validar com Zod
         const result = createUserSchema.safeParse(req.body);
         if (!result.success) {
-            res.status(400).json({ error: result.error.errors[0].message });
+            res.status(400).json({ error: result.error.issues[0].message });
             return;
         }
 
