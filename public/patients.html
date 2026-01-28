@@ -6,24 +6,111 @@
     <title>Base de Pacientes | Medical CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
+        * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e1a;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Aurora Animated Gradient Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a192f 0%, #0d1b2a 25%, #0f2f3f 50%, #134e4a 75%, #0d1b2a 100%);
+            z-index: -2;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(13, 148, 136, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(14, 116, 144, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 90% 20%, rgba(6, 95, 70, 0.18) 0%, transparent 50%);
+            animation: aurora 20s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes aurora {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+            25% { transform: translate(5%, 5%) rotate(90deg); opacity: 1; }
+            50% { transform: translate(-5%, 10%) rotate(180deg); opacity: 0.9; }
+            75% { transform: translate(10%, -5%) rotate(270deg); opacity: 0.95; }
+        }
+        
+        /* Premium Glass Card Style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        /* Premium Header Glass */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Neon Button Glow */
+        .neon-button {
+            position: relative;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.8) 0%, rgba(13, 148, 136, 0.9) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .neon-button:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+        }
+        
         .loading-spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #0d9488;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top: 3px solid #06b6d4;
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
         tr:hover {
-            background-color: rgba(13, 148, 136, 0.05);
+            background-color: rgba(6, 182, 212, 0.05);
         }
     </style>
     <script>
@@ -38,30 +125,30 @@
         }
     </script>
 </head>
-<body class="bg-gray-50">
+<body class="min-h-screen">
 
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
+    <header class="glass-header sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-database text-clinic-teal text-2xl"></i>
-                    <h1 class="text-2xl font-bold text-gray-900">Base de Pacientes</h1>
+                    <i class="fas fa-database text-cyan-400 text-2xl"></i>
+                    <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Base de Pacientes</h1>
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 md:space-x-4">
                     <!-- User Greeting -->
-                    <div class="text-sm text-gray-700">
+                    <div class="text-xs md:text-sm text-gray-300 hidden sm:block">
                         <span class="font-medium">Olá, </span>
-                        <span id="userName" class="font-bold text-clinic-teal">Usuário</span>
+                        <span id="userName" class="font-bold text-cyan-400">Usuário</span>
                     </div>
                     
                     <!-- Navigation -->
-                    <a href="admin.html" class="flex items-center px-4 py-2 bg-clinic-teal text-white rounded-lg hover:bg-teal-700 transition">
-                        <i class="fas fa-columns mr-2"></i> Kanban
+                    <a href="admin.html" class="neon-button flex items-center px-3 md:px-4 py-2 text-white rounded-lg font-medium">
+                        <i class="fas fa-columns mr-2"></i><span class="hidden md:inline"> Kanban</span>
                     </a>
                     
-                    <button onclick="logout()" class="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Sair
+                    <button onclick="logout()" class="flex items-center px-3 md:px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 backdrop-blur-xl text-white rounded-lg font-medium hover:brightness-110 transition border border-red-500/30">
+                        <i class="fas fa-sign-out-alt mr-2"></i><span class="hidden md:inline"> Sair</span>
                     </button>
                 </div>
             </div>
@@ -72,208 +159,254 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         <!-- Search Bar -->
-        <div class="bg-white rounded-lg shadow p-6 mb-6">
-            <div class="flex items-center space-x-4">
+        <div class="glass-card rounded-xl p-6 mb-6">
+            <div class="flex flex-col md:flex-row items-stretch md:items-center space-y-3 md:space-y-0 md:space-x-4">
                 <div class="flex-1 relative">
-                    <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                    <i class="fas fa-search absolute left-4 top-3.5 text-cyan-400"></i>
                     <input 
                         type="text" 
                         id="searchInput" 
                         placeholder="Buscar por nome, telefone ou tipo..."
-                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-clinic-teal focus:outline-none transition"
+                        class="w-full pl-12 pr-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
                         onkeyup="filterPatients()"
                     >
                 </div>
-                <button onclick="loadPatients()" class="flex items-center px-6 py-3 bg-clinic-teal text-white rounded-lg hover:bg-teal-700 transition">
+                <button onclick="loadPatients()" class="neon-button flex items-center justify-center px-6 py-3 text-white rounded-lg font-medium">
                     <i class="fas fa-sync-alt mr-2"></i> Atualizar
                 </button>
             </div>
             
             <!-- Stats -->
-            <div class="grid grid-cols-4 gap-4 mt-6">
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <div class="text-3xl font-bold text-gray-900" id="totalPatients">0</div>
-                    <div class="text-sm text-gray-600 mt-1">Total de Pacientes</div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 mt-6">
+                <div class="text-center p-4 bg-white/5 rounded-lg border border-white/10">
+                    <div class="text-3xl font-bold text-white" id="totalPatients">0</div>
+                    <div class="text-sm text-gray-400 mt-1">Total</div>
                 </div>
-                <div class="text-center p-4 bg-yellow-50 rounded-lg">
-                    <div class="text-3xl font-bold text-yellow-700" id="totalFirstConsult">0</div>
-                    <div class="text-sm text-gray-600 mt-1">Primeira Consulta</div>
+                <div class="text-center p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
+                    <div class="text-3xl font-bold text-yellow-400" id="totalFirstConsult">0</div>
+                    <div class="text-sm text-gray-400 mt-1">1ª Consulta</div>
                 </div>
-                <div class="text-center p-4 bg-indigo-50 rounded-lg">
-                    <div class="text-3xl font-bold text-indigo-700" id="totalRecurrent">0</div>
-                    <div class="text-sm text-gray-600 mt-1">Recorrentes</div>
+                <div class="text-center p-4 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
+                    <div class="text-3xl font-bold text-indigo-400" id="totalRecurrent">0</div>
+                    <div class="text-sm text-gray-400 mt-1">Recorrentes</div>
                 </div>
-                <div class="text-center p-4 bg-green-50 rounded-lg">
-                    <div class="text-3xl font-bold text-green-700" id="totalFinalized">0</div>
-                    <div class="text-sm text-gray-600 mt-1">Finalizados</div>
+                <div class="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                    <div class="text-3xl font-bold text-purple-400" id="totalFinalized">0</div>
+                    <div class="text-sm text-gray-400 mt-1">Finalizados</div>
+                </div>
+                <div class="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <div class="text-3xl font-bold text-green-400" id="totalAttended">0</div>
+                    <div class="text-sm text-gray-400 mt-1">Compareceram</div>
+                </div>
+                <div class="text-center p-4 bg-red-500/10 rounded-lg border border-red-500/20">
+                    <div class="text-3xl font-bold text-red-400" id="totalNoShow">0</div>
+                    <div class="text-sm text-gray-400 mt-1">Faltas</div>
+                </div>
+                <div class="text-center p-4 bg-gray-500/10 rounded-lg border border-gray-500/20">
+                    <div class="text-3xl font-bold text-gray-400" id="totalCanceled">0</div>
+                    <div class="text-sm text-gray-400 mt-1">Cancelados</div>
                 </div>
             </div>
         </div>
 
         <!-- Filter Bar -->
-        <div class="bg-white p-4 rounded-lg shadow mb-4">
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-bold text-gray-900">
-                    <i class="fas fa-filter text-clinic-teal mr-2"></i>Filtros Avançados
+        <div class="glass-card rounded-xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-white">
+                    <i class="fas fa-filter text-cyan-400 mr-2"></i>Filtros Avançados
                 </h3>
-                <button onclick="clearFilters()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm font-semibold">
+                <button onclick="clearFilters()" class="px-4 py-2 bg-white/10 border border-white/20 text-gray-200 rounded-lg hover:bg-white/20 transition text-sm font-semibold">
                     <i class="fas fa-times-circle mr-1"></i> Limpar Filtros
                 </button>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                 <!-- Date Start -->
                 <div>
-                    <label for="filterDateStart" class="block text-sm font-semibold text-gray-700 mb-1">Data Início</label>
+                    <label for="filterDateStart" class="block text-sm font-semibold text-gray-200 mb-2">Data Início</label>
                     <input 
                         type="date" 
                         id="filterDateStart" 
-                        class="w-full border-2 border-gray-300 p-2 rounded-lg focus:border-clinic-teal focus:outline-none transition"
+                        class="w-full bg-white/10 border-2 border-white/20 p-2 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
                         onchange="applyFilters()"
                     >
                 </div>
                 
                 <!-- Date End -->
                 <div>
-                    <label for="filterDateEnd" class="block text-sm font-semibold text-gray-700 mb-1">Data Fim</label>
+                    <label for="filterDateEnd" class="block text-sm font-semibold text-gray-200 mb-2">Data Fim</label>
                     <input 
                         type="date" 
                         id="filterDateEnd" 
-                        class="w-full border-2 border-gray-300 p-2 rounded-lg focus:border-clinic-teal focus:outline-none transition"
+                        class="w-full bg-white/10 border-2 border-white/20 p-2 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
                         onchange="applyFilters()"
                     >
                 </div>
                 
-                <!-- JavaScript Modules -->
-                <script src="./js/crm/api.js"></script>
-                <script src="./js/crm/auth.js"></script>
-                <script src="./js/crm/patients.js"></script>
-                       patient.phone.includes(searchTerm) ||
-                       (patient.type && patient.type.toLowerCase().includes(searchTerm)) ||
-                       (patient.status && patient.status.toLowerCase().includes(searchTerm));
-            });
-            
-            renderPatients(filtered);
-            updateStats(filtered);
-        }
+                <!-- Type Filter -->
+                <div>
+                    <label for="filterType" class="block text-sm font-semibold text-gray-200 mb-2">Tipo</label>
+                    <select 
+                        id="filterType" 
+                        class="w-full bg-white/10 border-2 border-white/20 p-2 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        onchange="applyFilters()"
+                    >
+                        <option value="">Todos</option>
+                        <option value="Primeira Consulta">Primeira Consulta</option>
+                        <option value="Retorno">Retorno</option>
+                        <option value="Exame">Exame</option>
+                    </select>
+                </div>
+                
+                <!-- Status Filter -->
+                <div>
+                    <label for="filterStatus" class="block text-sm font-semibold text-gray-200 mb-2">Status</label>
+                    <select 
+                        id="filterStatus" 
+                        class="w-full bg-white/10 border-2 border-white/20 p-2 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        onchange="applyFilters()"
+                    >
+                        <option value="">Todos</option>
+                        <option value="novo">Novo</option>
+                        <option value="Em Atendimento">Em Atendimento</option>
+                        <option value="agendado">Agendado</option>
+                        <option value="Finalizado">Finalizado</option>
+                    </select>
+                </div>
+                
+                <!-- Attendance Status Filter -->
+                <div>
+                    <label for="filterAttendance" class="block text-sm font-semibold text-gray-200 mb-2">Resultado</label>
+                    <select 
+                        id="filterAttendance" 
+                        class="w-full bg-white/10 border-2 border-white/20 p-2 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        onchange="applyFilters()"
+                    >
+                        <option value="">Todos</option>
+                        <option value="compareceu">Compareceu</option>
+                        <option value="nao_compareceu">Não veio</option>
+                        <option value="cancelado">Cancelado</option>
+                        <option value="remarcado">Remarcado</option>
+                    </select>
+                </div>
+                
+                <!-- Archive Toggle -->
+                <div class="flex items-end">
+                    <button 
+                        id="toggleArchive" 
+                        onclick="toggleArchiveView()" 
+                        class="w-full px-4 py-2 bg-white/10 border border-white/20 text-gray-200 rounded-lg hover:bg-white/20 transition text-sm font-semibold"
+                    >
+                        <i class="fas fa-archive mr-1"></i> Ver Arquivo Morto
+                    </button>
+                </div>
+            </div>
+        </div>
         
-        // View patient history (placeholder for future implementation)
-        function viewPatientHistory(patientId) {
-            showNotification('🔜 Em breve: Visualização completa do histórico do paciente', 'success');
-            // Future: Open modal with patient history
-            // const modal = document.getElementById('patientModal');
-            // modal.classList.remove('hidden');
-        }
+        <!-- Patients Table -->
+        <div class="glass-card rounded-xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-white/10">
+                <h3 id="tableTitle" class="text-lg font-bold text-white">Lista de Pacientes 📋</h3>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loading" class="flex justify-center items-center py-12 hidden">
+                <div class="loading-spinner"></div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="emptyState" class="text-center py-12 hidden">
+                <i class="fas fa-users text-gray-500 text-6xl mb-4"></i>
+                <p class="text-gray-400 text-lg">Nenhum paciente encontrado</p>
+            </div>
+            
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-white/5 border-b border-white/10">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Nome</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">WhatsApp</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Tipo</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold text-cyan-400 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody" class="divide-y divide-white/10">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
         
-        // Toggle between active and archived views
-        function toggleArchiveView() {
-            viewingArchive = !viewingArchive;
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="fixed top-4 right-4 z-50 hidden">
+        <div class="glass-card rounded-lg shadow-xl border-l-4 border-cyan-400 px-6 py-4 max-w-md">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-cyan-400 text-2xl mr-3"></i>
+                <p id="notificationMessage" class="text-white font-medium">Mensagem</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archive Reason Modal -->
+    <div id="archiveModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeArchiveModal()"></div>
+        <div class="glass-card rounded-2xl p-6 w-full max-w-md relative z-10">
+            <h3 class="text-2xl font-bold text-white mb-4">
+                <i class="fas fa-archive text-cyan-400 mr-2"></i>Motivo do Arquivamento
+            </h3>
+            <p class="text-gray-300 mb-6">Por que este paciente está sendo arquivado?</p>
             
-            const toggleBtn = document.getElementById('toggleArchive');
-            const tableTitle = document.getElementById('tableTitle');
+            <div class="space-y-3 mb-6">
+                <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                    <input type="radio" name="archiveReason" value="tratamento_concluido" class="mr-3" checked>
+                    <span class="text-white">
+                        <i class="fas fa-check-circle text-green-400 mr-2"></i>Tratamento concluído / Alta
+                    </span>
+                </label>
+                <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                    <input type="radio" name="archiveReason" value="nao_respondeu" class="mr-3">
+                    <span class="text-white">
+                        <i class="fas fa-phone-slash text-yellow-400 mr-2"></i>Não respondeu / Perdeu contato
+                    </span>
+                </label>
+                <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                    <input type="radio" name="archiveReason" value="desistiu" class="mr-3">
+                    <span class="text-white">
+                        <i class="fas fa-times-circle text-red-400 mr-2"></i>Desistiu / Troca de clínica
+                    </span>
+                </label>
+                <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                    <input type="radio" name="archiveReason" value="outro" class="mr-3">
+                    <span class="text-white">
+                        <i class="fas fa-ellipsis-h text-gray-400 mr-2"></i>Outro motivo
+                    </span>
+                </label>
+            </div>
             
-            if (viewingArchive) {
-                toggleBtn.innerHTML = '<i class="fas fa-users mr-1"></i> Voltar para Pacientes Ativos';
-                tableTitle.textContent = 'Arquivo Morto 🗑️';
-            } else {
-                toggleBtn.innerHTML = '<i class="fas fa-archive mr-1"></i> Ver Arquivo Morto';
-                tableTitle.textContent = 'Lista de Pacientes 📋';
-            }
-            
-            // Reload patients with new view
-            loadPatients();
-        }
-        
-        // Archive a patient
-        async function archivePatient(patientId) {
-            const confirmed = confirm('Tem certeza que deseja arquivar? O paciente sumirá da lista principal.');
-            
-            if (!confirmed) return;
-            
-            showLoading(true);
-            
-            try {
-                const response = await fetch(`${API_URL}/${patientId}/archive`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-access-token': ACCESS_TOKEN
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-                
-                showNotification('✅ Paciente arquivado com sucesso!', 'success');
-                
-                // Remove from current view
-                allPatients = allPatients.filter(p => p.id !== patientId);
-                filteredPatients = filteredPatients.filter(p => p.id !== patientId);
-                
-                renderPatients(filteredPatients);
-                updateStats(filteredPatients);
-                
-            } catch (error) {
-                console.error('Erro ao arquivar paciente:', error);
-                showNotification('❌ Erro ao arquivar paciente. Tente novamente.', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        // Unarchive (restore) a patient
-        async function unarchivePatient(patientId) {
-            showLoading(true);
-            
-            try {
-                const response = await fetch(`${API_URL}/${patientId}/unarchive`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-access-token': ACCESS_TOKEN
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                }
-                
-                showNotification('✅ Paciente restaurado com sucesso!', 'success');
-                
-                // Remove from archive view
-                allPatients = allPatients.filter(p => p.id !== patientId);
-                filteredPatients = filteredPatients.filter(p => p.id !== patientId);
-                
-                renderPatients(filteredPatients);
-                updateStats(filteredPatients);
-                
-            } catch (error) {
-                console.error('Erro ao restaurar paciente:', error);
-                showNotification('❌ Erro ao restaurar paciente. Tente novamente.', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-        
-        function closePatientModal() {
-            const modal = document.getElementById('patientModal');
-            modal.classList.add('hidden');
-        }
-        
-        // Helper: Format phone
-        function formatPhone(phone) {
-            const cleaned = phone.replace(/\D/g, '');
-            if (cleaned.length === 11) {
-                return `(${cleaned.substr(0, 2)}) ${cleaned.substr(2, 5)}-${cleaned.substr(7)}`;
-            }
-            return phone;
-        }
-        
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadPatients();
-        });
-    </script>
+            <div class="flex gap-3">
+                <button 
+                    onclick="closeArchiveModal()" 
+                    class="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg font-medium transition">
+                    Cancelar
+                </button>
+                <button 
+                    onclick="confirmArchive()" 
+                    class="flex-1 neon-button px-4 py-2 text-white rounded-lg font-medium">
+                    <i class="fas fa-archive mr-2"></i>Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script src="./js/crm/api.js"></script>
+    <script src="./js/crm/auth.js"></script>
+    <script src="./js/crm/whatsapp-templates.js"></script>
+    <script src="./js/crm/patients.js"></script>
 </body>
 </html>

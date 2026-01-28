@@ -8,6 +8,28 @@ if (!token) {
     window.location.href = '/login.html';
 }
 
+// ============================================
+// WhatsApp Integration (using shared helper)
+// ============================================
+
+function openWhatsAppMenuKanban(leadId, event) {
+    event.stopPropagation();
+    
+    // Find lead data
+    const card = document.querySelector(`[data-id="${leadId}"]`);
+    if (!card) return;
+    
+    const leadData = {
+        id: leadId,
+        name: card.querySelector('.lead-name').textContent,
+        phone: card.querySelector('.lead-phone').textContent.replace(/\D/g, ''),
+        appointment_date: card.dataset.appointmentDate || null
+    };
+    
+    // Use shared WhatsApp helper
+    openWhatsAppMenu(event.currentTarget, leadData, card);
+}
+
 // Global state variables
 let currentDraggedCard = null;
 let lastLeadCount = 0;
@@ -87,7 +109,7 @@ function renderLeads(leads) {
 // Create lead card
 function createLeadCard(lead) {
     const card = document.createElement('div');
-    card.className = 'lead-card bg-white rounded-lg shadow p-4 border border-gray-200 relative';
+    card.className = 'lead-card rounded-lg shadow p-4 border border-gray-200 relative';
     card.draggable = true;
     card.dataset.id = lead.id;
     card.dataset.status = lead.status || 'novo';
@@ -96,21 +118,21 @@ function createLeadCard(lead) {
     let typeBadge = '';
     
     if (lead.type === 'primeira_consulta') {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-100 text-yellow-800 border border-yellow-200"><i class="fas fa-star mr-1"></i>Primeira Consulta</span>';
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-400 text-gray-900 border border-yellow-500"><i class="fas fa-star mr-1"></i>Primeira Consulta</span>';
     } else if (lead.type === 'retorno') {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-200 text-gray-700 border border-gray-300"><i class="fas fa-undo mr-1"></i>Retorno</span>';
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400"><i class="fas fa-undo mr-1"></i>Retorno</span>';
     } else if (lead.type === 'recorrente') {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200"><i class="fas fa-sync-alt mr-1"></i>Sessão/Recorrente</span>';
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-400 text-white border border-indigo-500"><i class="fas fa-sync-alt mr-1"></i>Sessão/Recorrente</span>';
     } else if (lead.type === 'exame') {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200"><i class="fas fa-microscope mr-1"></i>Exame</span>';
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-400 text-white border border-purple-500"><i class="fas fa-microscope mr-1"></i>Exame</span>';
     } 
     // Legacy support
     else if (lead.type === 'Consulta') {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-400 text-white border border-teal-500"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
     } else if (lead.type === 'Exame') {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200"><i class="fas fa-microscope mr-1"></i>Exame</span>';
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-400 text-white border border-blue-500"><i class="fas fa-microscope mr-1"></i>Exame</span>';
     } else {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-100 text-gray-700 border border-gray-200"><i class="fas fa-question mr-1"></i>' + (lead.type || 'Geral') + '</span>';
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400"><i class="fas fa-question mr-1"></i>' + (lead.type || 'Geral') + '</span>';
     }
 
     // WAIT TIME TRACKER
@@ -128,7 +150,7 @@ function createLeadCard(lead) {
         timeString = `${minutes}m`;
     }
 
-    let timeClasses = diffMinutes < 15 ? 'text-gray-500' : 'text-red-600 font-bold animate-pulse';
+    let timeClasses = diffMinutes < 15 ? 'text-gray-200 font-medium' : 'text-red-400 font-bold animate-pulse';
 
     // SMART REMINDER - Check for upcoming appointments
     let reminderButton = '';
@@ -176,6 +198,15 @@ function createLeadCard(lead) {
             📄
         </span>
     ` : '';
+    
+    // Attendance status badge
+    const attendanceLabels = {
+        'compareceu': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-green-400/20 text-green-300 border border-green-400/30"><i class="fas fa-check mr-1"></i>Compareceu</span>',
+        'nao_compareceu': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-400/20 text-red-300 border border-red-400/30"><i class="fas fa-times mr-1"></i>Não veio</span>',
+        'cancelado': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-400/20 text-gray-300 border border-gray-400/30"><i class="fas fa-ban mr-1"></i>Cancelado</span>',
+        'remarcado': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-400/20 text-yellow-300 border border-yellow-400/30"><i class="fas fa-calendar-alt mr-1"></i>Remarcado</span>'
+    };
+    const attendanceBadge = lead.attendance_status ? attendanceLabels[lead.attendance_status] || '' : '';
 
     card.innerHTML = `
         ${notesIndicator}
@@ -188,18 +219,24 @@ function createLeadCard(lead) {
             <small class="${timeClasses}">🕒 ${timeString}</small>
         </div>
         
-        <!-- Edit/Delete buttons -->
+        <!-- Attendance Status Badge (if exists) -->
+        ${attendanceBadge ? `<div class="mb-2">${attendanceBadge}</div>` : ''}
+        
+        <!-- Edit/Delete/Move buttons -->
         <div class="flex items-center justify-end space-x-2 mb-2">
-            <button onclick="openEditModal(${lead.id}, '${lead.name}', '${lead.appointment_date || ''}', '${lead.doctor || ''}', \`${(lead.notes || '').replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`, '${lead.type || ''}')" class="text-gray-400 hover:text-blue-600 transition" title="Editar">
+            <button onclick="openMoveModal(${lead.id}, '${lead.status || 'novo'}', '${lead.name}')" class="md:hidden text-gray-300 hover:text-purple-400 transition" title="Mover">
+                <i class="fas fa-arrows-alt text-xs"></i>
+            </button>
+            <button onclick="openEditModal(${lead.id}, '${lead.name}', '${lead.appointment_date || ''}', '${lead.doctor || ''}', \`${(lead.notes || '').replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`, '${lead.type || ''}')" class="text-gray-300 hover:text-blue-400 transition" title="Editar">
                 <i class="fas fa-pen text-xs"></i>
             </button>
-            <button onclick="deleteLead(${lead.id})" class="text-gray-400 hover:text-red-600 transition" title="Excluir">
+            <button onclick="deleteLead(${lead.id})" class="text-gray-300 hover:text-red-400 transition" title="Excluir">
                 <i class="fas fa-trash text-xs"></i>
             </button>
         </div>
         
         <!-- Patient Name -->
-        <h3 class="font-semibold text-gray-900 mb-2 lead-name">${lead.name}</h3>
+        <h3 class="font-semibold text-white mb-2 lead-name">${lead.name}</h3>
         
         <!-- Appointment Badge -->
         ${appointmentBadge}
@@ -207,29 +244,28 @@ function createLeadCard(lead) {
         <!-- Phone & Actions -->
         <div class="space-y-2">
             <div class="flex items-center justify-between">
-                <span class="text-xs text-gray-600 lead-phone">
-                    <i class="fas fa-phone mr-1"></i>${formatPhone(lead.phone)}
+                <span class="text-xs text-gray-100 font-medium lead-phone">
+                    <i class="fas fa-phone mr-1 text-cyan-400"></i>${formatPhone(lead.phone)}
                 </span>
-                <a href="https://wa.me/55${lead.phone.replace(/\D/g, '')}?text=Olá ${encodeURIComponent(lead.name)}" 
-                   target="_blank"
-                   class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs transition flex items-center">
-                    <i class="fab fa-whatsapp mr-1"></i> Chat
-                </a>
+                <button 
+                    onclick="openWhatsAppMenuKanban(${lead.id}, event)"
+                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs transition flex items-center relative">
+                    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                </button>
             </div>
             
             <!-- Smart Reminder Button -->
             ${reminderButton}
-            
-            <!-- Confirmar Button -->
-            <a href="https://wa.me/55${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Olá *${lead.name}*, tudo bem? Gostaria de confirmar seu agendamento na Sua Clínica Aqui.`)}" 
-               target="_blank"
-               class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition flex items-center justify-center w-full">
-                <i class="fas fa-check-double mr-1"></i> Confirmar
-            </a>
         </div>
     `;
+    
+    // Store appointment_date in dataset for WhatsApp menu
+    if (lead.appointment_date) {
+        card.dataset.appointmentDate = lead.appointment_date;
+    }
 
-    // Event listeners for drag
+    // Event listeners for drag (desktop only)
     card.addEventListener('dragstart', dragStart);
     card.addEventListener('dragend', dragEnd);
 
@@ -275,15 +311,42 @@ async function drop(e) {
     dropZone.appendChild(currentDraggedCard);
     currentDraggedCard.dataset.status = newStatus;
 
+    // If moving to "Finalizado", ask for attendance status
+    let attendanceStatus = null;
+    if (newStatus === 'Finalizado' || newStatus === 'finalizado') {
+        attendanceStatus = prompt(
+            'Qual foi o resultado da consulta?\n\n' +
+            '1 - Compareceu\n' +
+            '2 - Não veio\n' +
+            '3 - Cancelado\n' +
+            '4 - Remarcado\n\n' +
+            'Digite o número da opção (padrão: 1):'
+        ) || '1';
+        
+        const statusMap = {
+            '1': 'compareceu',
+            '2': 'nao_compareceu',
+            '3': 'cancelado',
+            '4': 'remarcado'
+        };
+        
+        attendanceStatus = statusMap[attendanceStatus] || 'compareceu';
+    }
+
     // Update backend
     try {
+        const body = { status: newStatus };
+        if (attendanceStatus) {
+            body.attendance_status = attendanceStatus;
+        }
+        
         const response = await fetch(`${API_URL}/${leadId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ status: newStatus })
+            body: JSON.stringify(body)
         });
 
         if (!response.ok) {
@@ -297,6 +360,104 @@ async function drop(e) {
         console.error('Erro ao atualizar status:', error);
         showNotification('❌ Erro ao atualizar status', 'error');
         loadLeads();
+    }
+}
+
+// ============================================
+// MOBILE MOVE MODAL
+// ============================================
+
+let currentMoveLeadId = null;
+let currentMoveLeadStatus = null;
+
+function openMoveModal(leadId, currentStatus, leadName) {
+    currentMoveLeadId = leadId;
+    currentMoveLeadStatus = currentStatus;
+    
+    const modal = document.getElementById('moveModal');
+    const leadNameElement = document.getElementById('moveLeadName');
+    
+    if (leadNameElement) {
+        leadNameElement.textContent = leadName;
+    }
+    
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+function closeMoveModal() {
+    const modal = document.getElementById('moveModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+    currentMoveLeadId = null;
+    currentMoveLeadStatus = null;
+}
+
+async function moveToColumn(newStatus) {
+    if (!currentMoveLeadId || newStatus === currentMoveLeadStatus) {
+        closeMoveModal();
+        return;
+    }
+    
+    // If moving to "Finalizado", ask for attendance status
+    let attendanceStatus = null;
+    if (newStatus === 'Finalizado' || newStatus === 'finalizado') {
+        attendanceStatus = prompt(
+            'Qual foi o resultado da consulta?\n\n' +
+            '1 - Compareceu\n' +
+            '2 - Não veio\n' +
+            '3 - Cancelado\n' +
+            '4 - Remarcado\n\n' +
+            'Digite o número da opção (padrão: 1):'
+        ) || '1';
+        
+        const statusMap = {
+            '1': 'compareceu',
+            '2': 'nao_compareceu',
+            '3': 'cancelado',
+            '4': 'remarcado'
+        };
+        
+        attendanceStatus = statusMap[attendanceStatus] || 'compareceu';
+    }
+    
+    showLoading(true);
+    
+    try {
+        const body = { status: newStatus };
+        if (attendanceStatus) {
+            body.attendance_status = attendanceStatus;
+        }
+        
+        const response = await fetch(`${API_URL}/${currentMoveLeadId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao atualizar status');
+        }
+
+        // Haptic feedback for success
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+
+        showNotification('✅ Status atualizado com sucesso!', 'success');
+        closeMoveModal();
+        loadLeads();
+
+    } catch (error) {
+        console.error('Erro ao atualizar status:', error);
+        showNotification('❌ Erro ao atualizar status', 'error');
+    } finally {
+        showLoading(false);
     }
 }
 

@@ -190,3 +190,10 @@ window.addEventListener('resize', function() {
 
 // Console log for debugging
 console.log('✅ Admin.js loaded - Mobile menu functionality active');
+
+// Load summary metrics on page load
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof loadSummaryMetrics === 'function') {
+        loadSummaryMetrics();
+    }
+});

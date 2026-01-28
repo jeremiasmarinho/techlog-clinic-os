@@ -1,5 +1,6 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
+import bcrypt from 'bcrypt';
 
 const DB_PATH = path.resolve(__dirname, '../../clinic.db');
 
@@ -36,6 +37,8 @@ function initDb(): void {
             addColumnIfNotExists('appointment_date', 'DATETIME');
             addColumnIfNotExists('doctor', 'TEXT');
             addColumnIfNotExists('notes', 'TEXT');
+            addColumnIfNotExists('attendance_status', 'TEXT');
+            addColumnIfNotExists('archive_reason', 'TEXT');
         }
     });
 
@@ -55,12 +58,13 @@ function initDb(): void {
         } else {
             console.log('✅ Tabela "users" pronta');
             
-            // Seed: Inserir usuário admin padrão
-            db.get("SELECT * FROM users WHERE username = 'admin'", [], (_err, row) => {
+            // Seed: Inserir usuário admin padrão com senha hasheada
+            db.get("SELECT * FROM users WHERE username = 'admin'", [], async (_err, row) => {
                 if (!row) {
+                    const hashedPassword = await bcrypt.hash('123', 10);
                     db.run(
                         "INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)",
-                        ['Administrador', 'admin', '123', 'admin'],
+                        ['Administrador', 'admin', hashedPassword, 'admin'],
                         (err) => {
                             if (err) {
                                 console.error('❌ Erro ao criar usuário admin:', err.message);

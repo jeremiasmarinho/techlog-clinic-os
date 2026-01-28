@@ -126,6 +126,31 @@
             transform: rotate(5deg);
         }
         
+        /* Mobile touch improvements */
+        @media (max-width: 768px) {
+            .lead-card {
+                cursor: grab;
+                touch-action: none;
+                user-select: none;
+                -webkit-user-select: none;
+                -webkit-touch-callout: none;
+            }
+            
+            .lead-card:active {
+                cursor: grabbing;
+            }
+            
+            /* Make buttons easier to tap on mobile */
+            .lead-card button,
+            .lead-card a {
+                min-height: 44px;
+                min-width: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+        
         .kanban-column.drag-over {
             background: rgba(6, 182, 212, 0.1);
             border: 2px dashed rgba(6, 182, 212, 0.5);
@@ -185,6 +210,10 @@
                     </div>
                     
                     <!-- Navigation -->
+                    <a href="agenda.html" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
+                        <i class="fas fa-calendar-alt"></i><span class="ml-2 hidden lg:inline"> Agenda</span>
+                    </a>
+                    
                     <a href="patients.html" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
                         <i class="fas fa-users"></i><span class="ml-2 hidden lg:inline"> Pacientes</span>
                     </a>
@@ -282,9 +311,9 @@
     </div>
 
     <!-- Dashboard Modal -->
-    <div id="dashboardModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-2xl max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 flex justify-between items-center rounded-t-xl">
+    <div id="dashboardModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="glass-card rounded-xl shadow-2xl max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto border-2 border-white/10">
+            <div class="bg-gradient-to-r from-cyan-600/90 to-teal-600/90 backdrop-blur-xl text-white px-6 py-4 flex justify-between items-center rounded-t-xl border-b border-white/20">
                 <div class="flex items-center space-x-3">
                     <i class="fas fa-chart-line text-2xl"></i>
                     <h2 class="text-2xl font-bold">Dashboard de Métricas</h2>
@@ -296,7 +325,7 @@
             
             <div class="p-6">
                 <!-- Metric Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <!-- Total de Leads -->
                     <div class="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg p-6 text-white">
                         <div class="flex items-center justify-between">
@@ -318,13 +347,25 @@
                             <i class="fas fa-dollar-sign text-6xl opacity-30"></i>
                         </div>
                     </div>
+                    
+                    <!-- Taxa de Presença -->
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-lg opacity-90">Taxa de Presença</p>
+                                <h3 id="attendanceRate" class="text-5xl font-bold mt-2">0%</h3>
+                                <p class="text-sm opacity-75 mt-1" id="attendanceDetail">--</p>
+                            </div>
+                            <i class="fas fa-user-check text-6xl opacity-30"></i>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Gráficos -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                            <i class="fas fa-circle-notch mr-2 text-blue-600"></i>
+                    <div class="bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+                            <i class="fas fa-circle-notch mr-2 text-cyan-400"></i>
                             Distribuição por Status
                         </h3>
                         <div class="relative h-64 w-full">
@@ -332,9 +373,9 @@
                         </div>
                     </div>
                     
-                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                            <i class="fas fa-chart-bar mr-2 text-purple-600"></i>
+                    <div class="bg-white/5 border border-white/10 rounded-lg p-6 backdrop-blur-sm">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+                            <i class="fas fa-chart-bar mr-2 text-purple-400"></i>
                             Tipos de Atendimento
                         </h3>
                         <div class="relative h-64 w-full">
@@ -344,13 +385,81 @@
                 </div>
 
                 <!-- History Chart (Full Width) -->
-                <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-chart-line mr-2 text-clinic-teal"></i>
+                <div class="bg-white/5 border border-white/10 rounded-lg p-6 mb-6 backdrop-blur-sm">
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-cyan-400"></i>
                         Evolução dos Últimos 7 Dias
                     </h3>
                     <div class="relative h-64 w-full">
                         <canvas id="historyChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Quick Reports Section -->
+                <div class="border-t border-white/10 pt-6">
+                    <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-file-alt mr-3 text-cyan-400"></i>
+                        Relatórios Rápidos
+                    </h3>
+                    <p class="text-sm text-gray-300 mb-6">Textos prontos para copiar e compartilhar</p>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Weekly Summary Report -->
+                        <div class="bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-400/30 rounded-lg p-5 backdrop-blur-sm">
+                            <div class="flex items-start justify-between mb-3">
+                                <h4 class="text-lg font-bold text-blue-200 flex items-center">
+                                    <i class="fas fa-calendar-week mr-2"></i>
+                                    Resumo da Semana
+                                </h4>
+                                <button 
+                                    onclick="copyReportText('weeklyReportText')"
+                                    class="flex items-center px-3 py-1 bg-blue-500/80 text-white text-sm rounded-lg hover:bg-blue-600/80 transition backdrop-blur-sm"
+                                >
+                                    <i class="fas fa-copy mr-1"></i> Copiar
+                                </button>
+                            </div>
+                            <p id="weeklyReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                                Carregando...
+                            </p>
+                        </div>
+                        
+                        <!-- Status Funnel Report -->
+                        <div class="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-400/30 rounded-lg p-5 backdrop-blur-sm">
+                            <div class="flex items-start justify-between mb-3">
+                                <h4 class="text-lg font-bold text-purple-200 flex items-center">
+                                    <i class="fas fa-filter mr-2"></i>
+                                    Funil por Status
+                                </h4>
+                                <button 
+                                    onclick="copyReportText('statusReportText')"
+                                    class="flex items-center px-3 py-1 bg-purple-500/80 text-white text-sm rounded-lg hover:bg-purple-600/80 transition backdrop-blur-sm"
+                                >
+                                    <i class="fas fa-copy mr-1"></i> Copiar
+                                </button>
+                            </div>
+                            <p id="statusReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                                Carregando...
+                            </p>
+                        </div>
+                        
+                        <!-- Service Types Report -->
+                        <div class="bg-gradient-to-br from-green-600/20 to-emerald-600/20 border border-green-400/30 rounded-lg p-5 backdrop-blur-sm">
+                            <div class="flex items-start justify-between mb-3">
+                                <h4 class="text-lg font-bold text-green-200 flex items-center">
+                                    <i class="fas fa-stethoscope mr-2"></i>
+                                    Tipos de Atendimento
+                                </h4>
+                                <button 
+                                    onclick="copyReportText('typesReportText')"
+                                    class="flex items-center px-3 py-1 bg-green-500/80 text-white text-sm rounded-lg hover:bg-green-600/80 transition backdrop-blur-sm"
+                                >
+                                    <i class="fas fa-copy mr-1"></i> Copiar
+                                </button>
+                            </div>
+                            <p id="typesReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                                Carregando...
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -469,8 +578,120 @@
         </div>
     </div>
 
+    <!-- Move Modal (Mobile Only) -->
+    <div id="moveModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
+        <div class="glass-card rounded-2xl w-11/12 max-w-md mx-4 p-6 relative animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <i class="fas fa-arrows-alt text-purple-400 mr-3"></i>
+                    Mover Card
+                </h2>
+                <button onclick="closeMoveModal()" class="hover:bg-white/20 rounded-full p-2 transition">
+                    <i class="fas fa-times text-white"></i>
+                </button>
+            </div>
+
+            <p class="text-gray-300 mb-6">
+                Mover <strong id="moveLeadName" class="text-white"></strong> para:
+            </p>
+
+            <!-- Column Options -->
+            <div class="space-y-3">
+                <button 
+                    onclick="moveToColumn('novo')"
+                    class="w-full bg-gradient-to-r from-emerald-500/30 to-green-500/30 hover:from-emerald-500/50 hover:to-green-500/50 backdrop-blur-xl text-white font-semibold py-4 px-6 rounded-lg transition border border-white/10 flex items-center justify-between"
+                >
+                    <span class="flex items-center">
+                        <i class="fas fa-plus-circle mr-3"></i>
+                        Novos
+                    </span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <button 
+                    onclick="moveToColumn('em_atendimento')"
+                    class="w-full bg-gradient-to-r from-amber-500/30 to-yellow-500/30 hover:from-amber-500/50 hover:to-yellow-500/50 backdrop-blur-xl text-white font-semibold py-4 px-6 rounded-lg transition border border-white/10 flex items-center justify-between"
+                >
+                    <span class="flex items-center">
+                        <i class="fas fa-phone mr-3"></i>
+                        Em Atendimento
+                    </span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <button 
+                    onclick="moveToColumn('agendado')"
+                    class="w-full bg-gradient-to-r from-cyan-500/30 to-blue-500/30 hover:from-cyan-500/50 hover:to-blue-500/50 backdrop-blur-xl text-white font-semibold py-4 px-6 rounded-lg transition border border-white/10 flex items-center justify-between"
+                >
+                    <span class="flex items-center">
+                        <i class="fas fa-calendar-check mr-3"></i>
+                        Agendados
+                    </span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+
+                <button 
+                    onclick="moveToColumn('finalizado')"
+                    class="w-full bg-gradient-to-r from-purple-500/30 to-pink-500/30 hover:from-purple-500/50 hover:to-pink-500/50 backdrop-blur-xl text-white font-semibold py-4 px-6 rounded-lg transition border border-white/10 flex items-center justify-between"
+                >
+                    <span class="flex items-center">
+                        <i class="fas fa-check-circle mr-3"></i>
+                        Finalizados
+                    </span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <button 
+                onclick="closeMoveModal()" 
+                class="w-full mt-4 bg-gray-200/10 hover:bg-gray-200/20 text-gray-300 font-semibold py-3 px-6 rounded-lg transition border border-white/10"
+            >
+                Cancelar
+            </button>
+        </div>
+    </div>
+
     <!-- Kanban Board -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Summary Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Taxa de Conversão -->
+            <div class="glass-card rounded-xl p-6 hover:bg-white/10 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-medium text-gray-300">Taxa de Conversão</h3>
+                    <div class="bg-green-500/20 rounded-full p-2">
+                        <i class="fas fa-chart-line text-green-400"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold text-white mb-1" id="taxaConversao">--</div>
+                <p class="text-xs text-gray-400" id="taxaConversaoDetail">calculando...</p>
+            </div>
+
+            <!-- No-Shows -->
+            <div class="glass-card rounded-xl p-6 hover:bg-white/10 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-medium text-gray-300">Faltas (No-show)</h3>
+                    <div class="bg-red-500/20 rounded-full p-2">
+                        <i class="fas fa-calendar-times text-red-400"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold text-white mb-1" id="noShows">--</div>
+                <p class="text-xs text-gray-400" id="noShowsDetail">calculando...</p>
+            </div>
+
+            <!-- Consultas esta Semana -->
+            <div class="glass-card rounded-xl p-6 hover:bg-white/10 transition">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-medium text-gray-300">Consultas Agendadas</h3>
+                    <div class="bg-blue-500/20 rounded-full p-2">
+                        <i class="fas fa-calendar-check text-blue-400"></i>
+                    </div>
+                </div>
+                <div class="text-3xl font-bold text-white mb-1" id="consultasSemana">--</div>
+                <p class="text-xs text-gray-400" id="consultasSemanaDetail">calculando...</p>
+            </div>
+        </div>
+
         <div class="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <!-- Coluna: Novos -->
@@ -488,7 +709,7 @@
             </div>
 
             <!-- Coluna: Em Atendimento -->
-            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="Em Atendimento">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="em_atendimento">
                 <div class="bg-gradient-to-r from-amber-500/30 to-yellow-500/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-phone mr-2"></i>
@@ -502,7 +723,7 @@
             </div>
 
             <!-- Coluna: Agendados -->
-            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="Agendado">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="agendado">
                 <div class="bg-gradient-to-r from-cyan-500/30 to-blue-500/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-calendar-check mr-2"></i>
@@ -516,7 +737,7 @@
             </div>
 
             <!-- Coluna: Finalizados -->
-            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="Finalizado">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="finalizado">
                 <div class="bg-gradient-to-r from-slate-500/30 to-gray-600/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-check-circle mr-2"></i>
@@ -605,6 +826,7 @@
     <!-- CRM Application JavaScript Modules -->
     <script src="./js/crm/api.js"></script>
     <script src="./js/crm/auth.js"></script>
+    <script src="./js/crm/whatsapp-templates.js"></script>
     <script src="./js/crm/kanban.js"></script>
     <script src="./js/crm/dashboard.js"></script>
     <script src="./js/crm/admin.js"></script>

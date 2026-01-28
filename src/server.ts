@@ -2,9 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
 import leadRoutes from './routes/lead.routes'; // Importação sem chaves {} (Default)
 import userRoutes from './routes/user.routes'; // Rotas de autenticação e usuários
 import authRoutes from './routes/auth.routes'; // Rotas de autenticação JWT
+import metricsRoutes from './routes/metrics.routes'; // Rotas de métricas
 import './database'; // Inicia o banco de dados
 
 // Load environment variables
@@ -20,6 +22,18 @@ export class Server {
     }
 
     private config(): void {
+        // Rate Limiting for auth endpoints
+        const authLimiter = rateLimit({
+            windowMs: 15 * 60 * 1000, // 15 minutos
+            max: 5, // Máximo 5 tentativas
+            message: { error: 'Muitas tentativas de login. Tente novamente em 15 minutos.' },
+            standardHeaders: true,
+            legacyHeaders: false,
+        });
+
+        // Apply rate limiting to auth routes
+        this.app.use('/api/auth/login', authLimiter);
+        
         // CORS Configuration - Restricted in production
         const allowedOrigins = process.env.ALLOWED_ORIGINS 
             ? process.env.ALLOWED_ORIGINS.split(',') 
@@ -52,10 +66,20 @@ export class Server {
     }
 
     private routes(): void {
+        // Health Check Endpoint
+        this.app.get('/health', (_req, res) => {
+            res.json({ 
+                status: 'ok', 
+                uptime: process.uptime(),
+                timestamp: new Date().toISOString()
+            });
+        });
+
         // API Routes
         this.app.use('/api/leads', leadRoutes);
         this.app.use('/api', userRoutes); // Login e Users
         this.app.use('/api/auth', authRoutes); // JWT Authentication
+        this.app.use('/api/metrics', metricsRoutes); // Metrics
 
         // Rota de Teste (Usando _req para o TypeScript não reclamar)
         this.app.get('/api', (_req, res) => {
