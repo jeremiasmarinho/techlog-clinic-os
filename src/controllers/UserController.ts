@@ -70,14 +70,14 @@ export class UserController {
 
     // Criar Usuário (POST /api/users)
     static async store(req: Request, res: Response): Promise<void> {
-        // Validar com Joi
-        const { error, value } = createUserSchema.validate(req.body);
-        if (error) {
-            res.status(400).json({ error: error.details[0].message });
+        // Validar com Zod
+        const result = createUserSchema.safeParse(req.body);
+        if (!result.success) {
+            res.status(400).json({ error: result.error.errors[0].message });
             return;
         }
 
-        const { name, username, password, role } = value;
+        const { name, username, password, role } = result.data;
 
         // Hash da senha com bcrypt
         const hashedPassword = await bcrypt.hash(password, 10);
