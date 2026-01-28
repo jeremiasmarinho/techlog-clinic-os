@@ -1,5 +1,6 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
+import bcrypt from 'bcrypt';
 
 const DB_PATH = path.resolve(__dirname, '../../clinic.db');
 
@@ -36,6 +37,8 @@ function initDb(): void {
             addColumnIfNotExists('appointment_date', 'DATETIME');
             addColumnIfNotExists('doctor', 'TEXT');
             addColumnIfNotExists('notes', 'TEXT');
+            addColumnIfNotExists('attendance_status', 'TEXT');
+            addColumnIfNotExists('archive_reason', 'TEXT');
         }
     });
 
@@ -55,20 +58,25 @@ function initDb(): void {
         } else {
             console.log('✅ Tabela "users" pronta');
             
-            // Seed: Inserir usuário admin padrão
+            // Seed: Inserir usuário admin padrão com senha hasheada
             db.get("SELECT * FROM users WHERE username = 'admin'", [], (_err, row) => {
                 if (!row) {
-                    db.run(
-                        "INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)",
-                        ['Administrador', 'admin', '123', 'admin'],
-                        (err) => {
-                            if (err) {
-                                console.error('❌ Erro ao criar usuário admin:', err.message);
-                            } else {
-                                console.log('✅ Usuário admin criado (username: admin, password: 123)');
+                    // Hash da senha antes de inserir
+                    bcrypt.hash('123', 10).then((hashedPassword) => {
+                        db.run(
+                            "INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)",
+                            ['Administrador', 'admin', hashedPassword, 'admin'],
+                            (err) => {
+                                if (err) {
+                                    console.error('❌ Erro ao criar usuário admin:', err.message);
+                                } else {
+                                    console.log('✅ Usuário admin criado com credenciais padrão');
+                                }
                             }
-                        }
-                    );
+                        );
+                    }).catch((err) => {
+                        console.error('❌ Erro ao criar hash de senha:', err.message);
+                    });
                 } else {
                     console.log('✅ Usuário admin já existe');
                 }

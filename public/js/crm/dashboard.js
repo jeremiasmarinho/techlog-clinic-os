@@ -7,6 +7,34 @@ let statusChartInstance = null;
 let typeChartInstance = null;
 let historyChartInstance = null;
 
+// Load summary metrics on page load
+async function loadSummaryMetrics() {
+    try {
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+        const response = await fetch('/api/metrics/resumo', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) throw new Error('Erro ao carregar métricas');
+        
+        const data = await response.json();
+        
+        // Update cards
+        document.getElementById('taxaConversao').textContent = `${data.taxaConversao.value}%`;
+        document.getElementById('taxaConversaoDetail').textContent = `${data.taxaConversao.convertidos} de ${data.taxaConversao.total} leads`;
+        
+        document.getElementById('noShows').textContent = data.noShows.value;
+        document.getElementById('noShowsDetail').textContent = data.noShows.periodo;
+        
+        document.getElementById('consultasSemana').textContent = data.consultasSemana.value;
+        document.getElementById('consultasSemanaDetail').textContent = data.consultasSemana.periodo;
+    } catch (error) {
+        console.error('Erro ao carregar métricas:', error);
+    }
+}
+
 async function openDashboard() {
     const modal = document.getElementById('dashboardModal');
     if (modal) {
@@ -14,11 +42,12 @@ async function openDashboard() {
     }
     
     try {
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
         const response = await fetch('/api/leads/dashboard', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'x-access-token': ACCESS_TOKEN
+                'Authorization': `Bearer ${token}`
             }
         });
 
@@ -43,11 +72,31 @@ async function openDashboard() {
         if (revenueElement) {
             revenueElement.textContent = `R$ ${revenue.toLocaleString('pt-BR')}`;
         }
+        
+        // Update attendance metrics
+        const attended = data.byAttendanceStatus?.find(a => a.attendance_status === 'compareceu')?.count || 0;
+        const noShow = data.byAttendanceStatus?.find(a => a.attendance_status === 'nao_compareceu')?.count || 0;
+        const canceled = data.byAttendanceStatus?.find(a => a.attendance_status === 'cancelado')?.count || 0;
+        const total = attended + noShow + canceled;
+        const attendanceRate = total > 0 ? Math.round((attended / total) * 100) : 0;
+        
+        const attendanceRateElement = document.getElementById('attendanceRate');
+        if (attendanceRateElement) {
+            attendanceRateElement.textContent = `${attendanceRate}%`;
+        }
+        
+        const attendanceDetailElement = document.getElementById('attendanceDetail');
+        if (attendanceDetailElement) {
+            attendanceDetailElement.textContent = `${attended} compareceram, ${noShow} faltas`;
+        }
 
         // Render charts
         renderStatusChart(data.byStatus);
         renderTypeChart(data.byType);
         renderHistoryChart(data.history);
+        
+        // Generate quick reports
+        generateQuickReports(data);
         
     } catch (error) {
         console.error('Erro ao carregar dashboard:', error);
@@ -283,4 +332,172 @@ function renderHistoryChart(history) {
             }
         }
     });
+}
+
+// ============================================
+// Quick Reports Generation
+// ============================================
+
+function generateQuickReports(data) {
+    generateWeeklyReport(data.history, data.byAttendanceStatus);
+    generateStatusReport(data.byStatus, data.total);
+    generateTypesReport(data.byType, data.byAttendanceStatus);
+}
+
+function generateWeeklyReport(history, byAttendanceStatus) {
+    const element = document.getElementById('weeklyReportText');
+    if (!element) return;
+    
+    // Calculate total leads in the period
+    const totalInPeriod = history.reduce((sum, day) => sum + day.count, 0);
+    
+    // Find strongest day
+    let strongestDay = { date: '', count: 0 };
+    history.forEach(day => {
+        if (day.count > strongestDay.count) {
+            strongestDay = { date: day.date, count: day.count };
+        }
+    });
+    
+    const strongestDateFormatted = strongestDay.date 
+        ? new Date(strongestDay.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+        : '--';
+    
+    // Attendance stats
+    const attended = byAttendanceStatus?.find(a => a.attendance_status === 'compareceu')?.count || 0;
+    const noShow = byAttendanceStatus?.find(a => a.attendance_status === 'nao_compareceu')?.count || 0;
+    const canceled = byAttendanceStatus?.find(a => a.attendance_status === 'cancelado')?.count || 0;
+    
+    const attendanceText = (attended + noShow + canceled) > 0 
+        ? `\n\nNo período analisado, ${attended} pacientes compareceram às consultas, ${noShow} faltaram e ${canceled} cancelaram com antecedência.`
+        : '';
+    
+    const report = `📊 RESUMO DA SEMANA
+
+Nos últimos 7 dias você recebeu ${totalInPeriod} novos leads.
+
+${strongestDay.count > 0 ? `O dia mais forte foi ${strongestDateFormatted} com ${strongestDay.count} leads.` : 'Nenhum lead registrado no período.'}${attendanceText}
+
+Continue acompanhando suas métricas para melhorar ainda mais! 💪`;
+    
+    element.textContent = report;
+}
+
+function generateStatusReport(byStatus, total) {
+    const element = document.getElementById('statusReportText');
+    if (!element) return;
+    
+    // Build status breakdown
+    const statusMap = {};
+    byStatus.forEach(item => {
+        statusMap[item.status || 'Sem Status'] = item.count;
+    });
+    
+    const novo = statusMap['novo'] || 0;
+    const emAtendimento = statusMap['Em Atendimento'] || 0;
+    const agendado = statusMap['agendado'] || statusMap['Agendado'] || 0;
+    const finalizado = statusMap['Finalizado'] || 0;
+    
+    const report = `📈 FUNIL DE ATENDIMENTO
+
+Atualmente você tem:
+
+• ${novo} leads em Novo
+• ${emAtendimento} em Atendimento  
+• ${agendado} Agendados
+• ${finalizado} Finalizados
+
+Total de ${total} leads no sistema.
+
+Continue convertendo! 🎯`;
+    
+    element.textContent = report;
+}
+
+function generateTypesReport(byType, byAttendanceStatus) {
+    const element = document.getElementById('typesReportText');
+    if (!element) return;
+    
+    if (byType.length === 0) {
+        element.textContent = 'Nenhum tipo de atendimento registrado ainda.';
+        return;
+    }
+    
+    // Build breakdown
+    let breakdown = '';
+    let totalServices = 0;
+    
+    byType.forEach(item => {
+        const type = item.type || 'Geral';
+        const count = item.count;
+        totalServices += count;
+        breakdown += `• ${count} ${type}${count !== 1 ? 's' : ''}\n`;
+    });
+    
+    // Attendance stats
+    const attended = byAttendanceStatus?.find(a => a.attendance_status === 'compareceu')?.count || 0;
+    const noShow = byAttendanceStatus?.find(a => a.attendance_status === 'nao_compareceu')?.count || 0;
+    const canceled = byAttendanceStatus?.find(a => a.attendance_status === 'cancelado')?.count || 0;
+    const totalAttendance = attended + noShow + canceled;
+    const attendanceRate = totalAttendance > 0 ? Math.round((attended / totalAttendance) * 100) : 0;
+    
+    const attendanceText = totalAttendance > 0 
+        ? `\nTaxa de presença: ${attendanceRate}% (${attended} compareceram de ${totalAttendance})`
+        : '';
+    
+    const report = `🏥 TIPOS DE ATENDIMENTO
+
+No período atual foram registradas:
+
+${breakdown}
+Total: ${totalServices} atendimentos programados.${attendanceText}
+
+Sua clínica está crescendo! 🚀`;
+    
+    element.textContent = report;
+}
+
+// ============================================
+// Copy Report Text to Clipboard
+// ============================================
+
+function copyReportText(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const text = element.textContent;
+    
+    // Use modern clipboard API if available
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                showNotification('✅ Texto copiado! Cole onde quiser.', 'success');
+            })
+            .catch(err => {
+                console.error('Erro ao copiar:', err);
+                fallbackCopyText(text);
+            });
+    } else {
+        fallbackCopyText(text);
+    }
+}
+
+function fallbackCopyText(text) {
+    // Fallback for older browsers
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    
+    try {
+        document.execCommand('copy');
+        showNotification('✅ Texto copiado! Cole onde quiser.', 'success');
+    } catch (err) {
+        console.error('Erro ao copiar:', err);
+        showNotification('❌ Erro ao copiar. Tente selecionar e copiar manualmente.', 'error');
+    }
+    
+    document.body.removeChild(textarea);
 }

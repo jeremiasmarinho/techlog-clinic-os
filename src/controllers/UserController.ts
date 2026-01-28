@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
 import { db } from '../database';
+import bcrypt from 'bcrypt';
+import { createUserSchema } from '../validators/user.validator';
 
 export class UserController {
     
     // Login (POST /api/login)
-    static login(req: Request, res: Response): void {
+    static async login(req: Request, res: Response): Promise<void> {
         const { username, password } = req.body;
 
         if (!username || !password) {
@@ -13,8 +15,8 @@ export class UserController {
         }
 
         db.get(
-            "SELECT id, name, username, role FROM users WHERE username = ? AND password = ?",
-            [username, password],
+            "SELECT id, name, username, password, role FROM users WHERE username = ?",
+            [username],
             (err, row: any) => {
                 if (err) {
                     console.error('❌ Erro no login:', err.message);
@@ -23,19 +25,30 @@ export class UserController {
                 }
 
                 if (row) {
-                    console.log(`✅ Login bem-sucedido: ${row.username} (${row.role})`);
-                    res.json({
-                        success: true,
-                        token: process.env.ACCESS_TOKEN || 'eviva2026',
-                        user: {
-                            id: row.id,
-                            name: row.name,
-                            username: row.username,
-                            role: row.role
+                    // Verificar senha com bcrypt
+                    bcrypt.compare(password, row.password).then((isPasswordValid) => {
+                        if (isPasswordValid) {
+                            console.log(`✅ Login bem-sucedido: ${row.username} (${row.role})`);
+                            res.json({
+                                success: true,
+                                token: process.env.ACCESS_TOKEN || 'eviva2026',
+                                user: {
+                                    id: row.id,
+                                    name: row.name,
+                                    username: row.username,
+                                    role: row.role
+                                }
+                            });
+                        } else {
+                            console.log(`❌ Senha inválida para usuário: ${username}`);
+                            res.status(401).json({ success: false, error: 'Credenciais inválidas' });
                         }
+                    }).catch((bcryptErr) => {
+                        console.error('❌ Erro ao verificar senha:', bcryptErr.message);
+                        res.status(500).json({ success: false, error: 'Erro no servidor' });
                     });
                 } else {
-                    console.log(`❌ Credenciais inválidas: ${username}`);
+                    console.log(`❌ Usuário não encontrado: ${username}`);
                     res.status(401).json({ success: false, error: 'Credenciais inválidas' });
                 }
             }
@@ -59,36 +72,32 @@ export class UserController {
     }
 
     // Criar Usuário (POST /api/users)
-    static store(req: Request, res: Response): void {
-        const { name, username, password, role } = req.body;
-
-        if (!name || !username || !password || !role) {
-            res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    static async store(req: Request, res: Response): Promise<void> {
+        // Validar com Joi
+        const { error, value } = createUserSchema.validate(req.body);
+        if (error) {
+            res.status(400).json({ error: error.details[0].message });
             return;
         }
 
-        // Validar role
-        const validRoles = ['admin', 'medico', 'recepcao'];
-        if (!validRoles.includes(role)) {
-            res.status(400).json({ error: 'Role inválido. Use: admin, medico ou recepcao' });
-            return;
-        }
+        const { name, username, password, role } = value;
+
+        // Hash da senha com bcrypt
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         db.run(
             "INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)",
-            [name, username, password, role],
+            [name, username, hashedPassword, role],
             function(err) {
                 if (err) {
                     if (err.message.includes('UNIQUE constraint failed')) {
                         res.status(409).json({ error: 'Nome de usuário já existe' });
                     } else {
-                        console.error('❌ Erro ao criar usuário:', err.message);
                         res.status(500).json({ error: err.message });
                     }
                     return;
                 }
                 
-                console.log(`✅ Usuário criado: ${username} (${role})`);
                 res.status(201).json({
                     message: 'Usuário criado com sucesso',
                     id: this.lastID,

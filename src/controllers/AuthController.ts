@@ -1,33 +1,37 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 export class AuthController {
     static async login(req: Request, res: Response): Promise<void> {
         const { email, password } = req.body;
         
-        console.log(`🔐 Tentativa de login: ${email}`);
-        console.log(`📧 ENV ADMIN_USER: ${process.env.ADMIN_USER}`);
-        console.log(`🔑 ENV ADMIN_PASS: ${process.env.ADMIN_PASS ? 'definido' : 'undefined'}`);
-        console.log(`✉️  Email match: ${email === process.env.ADMIN_USER}`);
-        console.log(`🔒 Password match: ${password === process.env.ADMIN_PASS}`);
-        
-        // Simulação de verificação (Em produção usaríamos banco + bcrypt)
-        if (email === process.env.ADMIN_USER && password === process.env.ADMIN_PASS) {
-            const token = jwt.sign(
-                { id: 1, name: 'Administrador', email }, 
-                process.env.JWT_SECRET as string, 
-                { expiresIn: '8h' }
-            );
-            
-            console.log(`✅ Login bem-sucedido: ${email}`);
-            res.json({
-                user: { name: 'Administrador', email },
-                token,
-            });
+        // Validação básica
+        if (!email || !password) {
+            res.status(400).json({ error: 'E-mail e senha são obrigatórios' });
             return;
         }
         
-        console.log(`❌ Credenciais inválidas: ${email}`);
+        // Verificação com bcrypt
+        // IMPORTANTE: ADMIN_PASS deve conter o hash bcrypt da senha, não a senha em texto plano
+        if (email === process.env.ADMIN_USER) {
+            const isValid = await bcrypt.compare(password, process.env.ADMIN_PASS || '');
+            
+            if (isValid) {
+                const token = jwt.sign(
+                    { id: 1, name: 'Administrador', email }, 
+                    process.env.JWT_SECRET as string, 
+                    { expiresIn: '8h' }
+                );
+                
+                res.json({
+                    user: { name: 'Administrador', email },
+                    token,
+                });
+                return;
+            }
+        }
+        
         res.status(401).json({ error: 'E-mail ou senha inválidos' });
     }
 }

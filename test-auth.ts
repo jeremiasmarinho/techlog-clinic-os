@@ -1,4 +1,6 @@
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+
 dotenv.config();
 
 console.log('--- INÍCIO DO DIAGNÓSTICO ---');
@@ -12,14 +14,16 @@ else console.log(`✅ ADMIN_PASS carregado: (oculto, tamanho: ${process.env.ADMI
 if (!process.env.JWT_SECRET) console.error('❌ ERRO: JWT_SECRET não encontrado no .env');
 else console.log('✅ JWT_SECRET carregado.');
 
-console.log('\n2. Simulando Comparação de Senha:');
+console.log('\n2. Simulando Comparação de Senha com bcrypt:');
 // Simula o que o Controller faz
 const inputEmail = 'admin@medicalcrm.com'; // Teste com o email padrão
 const inputPass = 'Mudar123!'; // Teste com a senha padrão
 
-const isEmailMatch = inputEmail === process.env.ADMIN_USER;
-const isPassMatch = inputPass === process.env.ADMIN_PASS;
+(async () => {
+    const isEmailMatch = inputEmail === process.env.ADMIN_USER;
+    const isPassMatch = await bcrypt.compare(inputPass, process.env.ADMIN_PASS || '');
 
-console.log(`Email confere? ${isEmailMatch ? 'SIM ✅' : 'NÃO ❌'}`);
-console.log(`Senha confere? ${isPassMatch ? 'SIM ✅' : 'NÃO ❌ (Verifique espaços em branco no .env)'}`);
-console.log('--- FIM DO DIAGNÓSTICO ---');
+    console.log(`Email confere? ${isEmailMatch ? 'SIM ✅' : 'NÃO ❌'}`);
+    console.log(`Senha confere (bcrypt)? ${isPassMatch ? 'SIM ✅' : 'NÃO ❌ (Verifique se a senha está hasheada no .env)'}`);
+    console.log('--- FIM DO DIAGNÓSTICO ---');
+})();
