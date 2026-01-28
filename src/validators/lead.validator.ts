@@ -8,8 +8,7 @@ export const createLeadSchema = z.object({
     .trim(),
     
     phone: z.string({ message: 'Telefone é obrigatório e deve ser um texto' })
-    .regex(/^\d{11}$/, { message: 'Telefone deve conter exatamente 11 dígitos numéricos' })
-    .length(11, { message: 'Telefone deve conter exatamente 11 dígitos' }),
+    .regex(/^\d{11}$/, { message: 'Telefone deve conter exatamente 11 dígitos numéricos' }),
     
     type: z.enum(['primeira_consulta', 'retorno', 'recorrente', 'exame', 'Consulta', 'Exame', 'geral'], { message: 'Tipo inválido' })
         .optional()
@@ -24,8 +23,7 @@ export const createLeadSchema = z.object({
 export const updateLeadSchema = z.object({
     status: z.enum(['novo', 'em_atendimento', 'agendado', 'finalizado', 'archived'], { message: 'Status inválido' }).optional(),
     
-    appointment_date: z.string().datetime().nullable().optional()
-        .or(z.null()),
+    appointment_date: z.string().datetime().optional().nullable(),
     
     doctor: z.string()
         .max(100, { message: 'Nome do médico deve ter no máximo 100 caracteres' })
