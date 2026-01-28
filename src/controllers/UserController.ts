@@ -17,7 +17,7 @@ export class UserController {
         db.get(
             "SELECT id, name, username, password, role FROM users WHERE username = ?",
             [username],
-            async (err, row: any) => {
+            (err, row: any) => {
                 if (err) {
                     console.error('❌ Erro no login:', err.message);
                     res.status(500).json({ success: false, error: 'Erro no servidor' });
@@ -26,24 +26,27 @@ export class UserController {
 
                 if (row) {
                     // Verificar senha com bcrypt
-                    const isPasswordValid = await bcrypt.compare(password, row.password);
-                    
-                    if (isPasswordValid) {
-                        console.log(`✅ Login bem-sucedido: ${row.username} (${row.role})`);
-                        res.json({
-                            success: true,
-                            token: process.env.ACCESS_TOKEN || 'eviva2026',
-                            user: {
-                                id: row.id,
-                                name: row.name,
-                                username: row.username,
-                                role: row.role
-                            }
-                        });
-                    } else {
-                        console.log(`❌ Senha inválida para usuário: ${username}`);
-                        res.status(401).json({ success: false, error: 'Credenciais inválidas' });
-                    }
+                    bcrypt.compare(password, row.password).then((isPasswordValid) => {
+                        if (isPasswordValid) {
+                            console.log(`✅ Login bem-sucedido: ${row.username} (${row.role})`);
+                            res.json({
+                                success: true,
+                                token: process.env.ACCESS_TOKEN || 'eviva2026',
+                                user: {
+                                    id: row.id,
+                                    name: row.name,
+                                    username: row.username,
+                                    role: row.role
+                                }
+                            });
+                        } else {
+                            console.log(`❌ Senha inválida para usuário: ${username}`);
+                            res.status(401).json({ success: false, error: 'Credenciais inválidas' });
+                        }
+                    }).catch((bcryptErr) => {
+                        console.error('❌ Erro ao verificar senha:', bcryptErr.message);
+                        res.status(500).json({ success: false, error: 'Erro no servidor' });
+                    });
                 } else {
                     console.log(`❌ Usuário não encontrado: ${username}`);
                     res.status(401).json({ success: false, error: 'Credenciais inválidas' });

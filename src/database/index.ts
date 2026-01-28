@@ -59,20 +59,24 @@ function initDb(): void {
             console.log('✅ Tabela "users" pronta');
             
             // Seed: Inserir usuário admin padrão com senha hasheada
-            db.get("SELECT * FROM users WHERE username = 'admin'", [], async (_err, row) => {
+            db.get("SELECT * FROM users WHERE username = 'admin'", [], (_err, row) => {
                 if (!row) {
-                    const hashedPassword = await bcrypt.hash('123', 10);
-                    db.run(
-                        "INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)",
-                        ['Administrador', 'admin', hashedPassword, 'admin'],
-                        (err) => {
-                            if (err) {
-                                console.error('❌ Erro ao criar usuário admin:', err.message);
-                            } else {
-                                console.log('✅ Usuário admin criado (username: admin, password: 123)');
+                    // Hash da senha antes de inserir
+                    bcrypt.hash('123', 10).then((hashedPassword) => {
+                        db.run(
+                            "INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)",
+                            ['Administrador', 'admin', hashedPassword, 'admin'],
+                            (err) => {
+                                if (err) {
+                                    console.error('❌ Erro ao criar usuário admin:', err.message);
+                                } else {
+                                    console.log('✅ Usuário admin criado com credenciais padrão');
+                                }
                             }
-                        }
-                    );
+                        );
+                    }).catch((err) => {
+                        console.error('❌ Erro ao criar hash de senha:', err.message);
+                    });
                 } else {
                     console.log('✅ Usuário admin já existe');
                 }

@@ -13,6 +13,7 @@ export class AuthController {
         }
         
         // Verificação com bcrypt
+        // IMPORTANTE: ADMIN_PASS deve conter o hash bcrypt da senha, não a senha em texto plano
         if (email === process.env.ADMIN_USER) {
             const isValid = await bcrypt.compare(password, process.env.ADMIN_PASS || '');
             
