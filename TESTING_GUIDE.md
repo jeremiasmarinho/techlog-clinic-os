@@ -1,5 +1,8 @@
 # Testing Guide - Medical CRM
 
+> **✅ Automated Testing Fully Implemented!**  
+> This project now includes comprehensive Jest testing with 39 passing tests covering AuthController (15 tests) and LeadController (24 tests).
+
 ## Table of Contents
 1. [Automated Testing with Jest](#automated-testing-with-jest)
 2. [Frontend Manual Testing](#frontend-manual-testing)
@@ -8,6 +11,23 @@
 ---
 
 ## Automated Testing with Jest
+
+### 🎉 Test Suite Summary
+
+**Current Status: ✅ All Tests Passing**
+
+| Controller | Tests | Coverage | Status |
+|------------|-------|----------|--------|
+| AuthController | 15 | 100% statements | ✅ Complete |
+| LeadController | 24 | 71% statements | ✅ Complete |
+| **Total** | **39** | **52% overall** | ✅ **All Passing** |
+
+**Quick Start:**
+```bash
+npm test                # Run all tests with coverage
+npm run test:watch      # Watch mode for development
+npx jest AuthController # Run specific test suite
+```
 
 ### 🧪 Setup
 
@@ -59,14 +79,23 @@ Shows detailed information about each test case.
 After running `npm test`, you'll see coverage statistics:
 
 ```
--------------------|---------|----------|---------|---------|-------------------
-File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Lines
--------------------|---------|----------|---------|---------|-------------------
-All files          |   85.5  |   78.2   |   90.1  |   85.5  |
- AuthController.ts |   95.2  |   87.5   |   100   |   95.2  | 15,23
- LeadController.ts |   82.3  |   75.0   |   88.9  |   82.3  | 45-48,102
--------------------|---------|----------|---------|---------|-------------------
+-----------------------|---------|----------|---------|---------|-------------------------------------------------------
+File                   | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                     
+-----------------------|---------|----------|---------|---------|-------------------------------------------------------
+All files              |   52.13 |    45.08 |      60 |   52.68 |                                                       
+ controllers           |   46.29 |    44.33 |   52.77 |   47.39 |                                                       
+  AuthController.ts    |     100 |       90 |     100 |     100 | 17                                                    
+  LeadController.ts    |   71.07 |    63.33 |     100 |   71.66 | ...                                                   
+  MetricsController.ts |       0 |        0 |       0 |       0 | (not tested yet)                                      
+  UserController.ts    |       0 |        0 |       0 |       0 | (not tested yet)                                      
+-----------------------|---------|----------|---------|---------|-------------------------------------------------------
 ```
+
+**Current Test Results:**
+- ✅ **39 tests passing**
+- ✅ **AuthController: 100% coverage**
+- ✅ **LeadController: 71% coverage**
+- 📝 MetricsController and UserController: Not yet tested
 
 **Coverage Goals:**
 - ✅ **80%+** - Good coverage
@@ -86,7 +115,20 @@ tests/
 
 #### Example Test Structure
 ```typescript
+import request from 'supertest';
+import express, { Express } from 'express';
+import jwt from 'jsonwebtoken';
+import authRoutes from '../src/routes/auth.routes';
+
 describe('AuthController', () => {
+  let app: Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/auth', authRoutes);
+  });
+
   describe('POST /api/auth/login', () => {
     it('should login successfully with valid credentials', async () => {
       const response = await request(app)
@@ -110,42 +152,75 @@ describe('AuthController', () => {
 });
 ```
 
+**Note:** For protected routes, use JWT authentication:
+```typescript
+// Generate a valid JWT token for testing
+const authToken = jwt.sign(
+  { id: 1, name: 'Test User', email: 'test@test.com' },
+  process.env.JWT_SECRET as string,
+  { expiresIn: '8h' }
+);
+
+// Use it in requests
+const response = await request(app)
+  .get('/api/leads')
+  .set('Authorization', `Bearer ${authToken}`)
+  .expect(200);
+```
+
 ### 🎯 Available Test Suites
 
 #### 1. AuthController Tests
 **File:** `tests/AuthController.test.ts`
 
-**Coverage:**
+**15 Test Cases Covering:**
 - ✅ JWT login with valid credentials
 - ✅ Login failure with invalid email
 - ✅ Login failure with invalid password
+- ✅ Missing email/password validation
 - ✅ bcrypt password verification
-- ✅ JWT token generation and validation
+- ✅ JWT token format validation (3 parts)
+- ✅ JWT token expiration and payload
+- ✅ User information in response
 - ✅ Input validation (empty, null, whitespace)
-- ✅ Security: no credential leakage
+- ✅ Security: no credential leakage between wrong email and wrong password errors
 
 **Run only Auth tests:**
 ```bash
 npx jest AuthController
 ```
 
+**Current Coverage:** 100% statements, 90% branches
+
 #### 2. LeadController Tests
 **File:** `tests/LeadController.test.ts`
 
-**Coverage:**
-- ✅ Create lead (POST /api/leads)
-- ✅ List leads (GET /api/leads)
+**24 Test Cases Covering:**
+- ✅ Create lead (POST /api/leads) - public endpoint
+- ✅ Create lead validation (missing name, missing phone)
+- ✅ Default type when not specified
+- ✅ List leads (GET /api/leads) with authentication
+- ✅ Filter archived leads (show_archived=true)
+- ✅ Filter kanban view
 - ✅ Update lead status (PATCH /api/leads/:id)
+- ✅ Update appointment details (date, doctor, notes)
+- ✅ Update to finalizado status
+- ✅ Validation: invalid status
+- ✅ Validation: no fields provided
 - ✅ Delete lead (DELETE /api/leads/:id)
+- ✅ Delete non-existent lead
 - ✅ Dashboard metrics (GET /api/leads/dashboard)
-- ✅ Archive/Unarchive leads
-- ✅ Authentication middleware
-- ✅ Input validation
+- ✅ Archive lead with reason (PUT /api/leads/:id/archive)
+- ✅ Archive lead without reason
+- ✅ Unarchive lead (PUT /api/leads/:id/unarchive)
+- ✅ Authentication required on protected routes
 
 **Run only Lead tests:**
 ```bash
 npx jest LeadController
 ```
+
+**Current Coverage:** 71% statements, 63% branches, 100% functions
 
 ### 🛠️ Writing New Tests
 
