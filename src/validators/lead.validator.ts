@@ -14,10 +14,12 @@ export const createLeadSchema = z.object({
         required_error: 'Telefone é obrigatório',
         invalid_type_error: 'Telefone deve ser um texto'
     })
-    .regex(/^\d{11}$/, 'Telefone deve conter exatamente 11 dígitos numéricos')
-    .length(11, 'Telefone deve conter exatamente 11 dígitos'),
+    .regex(/^\d{10,11}$/, 'Telefone deve conter 10 ou 11 dígitos numéricos')
+    .min(10, 'Telefone deve conter no mínimo 10 dígitos')
+    .max(11, 'Telefone deve conter no máximo 11 dígitos'),
     
-    type: z.enum(['primeira_consulta', 'retorno', 'recorrente', 'exame', 'Consulta', 'Exame', 'geral'])
+    type: z.string()
+        .max(500, 'Tipo deve ter no máximo 500 caracteres')
         .optional()
         .default('geral'),
     
@@ -43,7 +45,8 @@ export const updateLeadSchema = z.object({
         .nullable()
         .optional(),
     
-    type: z.enum(['primeira_consulta', 'retorno', 'recorrente', 'exame', 'Consulta', 'Exame', 'geral'])
+    type: z.string()
+        .max(500, 'Tipo deve ter no máximo 500 caracteres')
         .optional(),
     
     attendance_status: z.enum(['compareceu', 'nao_compareceu', 'cancelado', 'remarcado'])

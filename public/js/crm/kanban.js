@@ -114,23 +114,40 @@ function createLeadCard(lead) {
     card.dataset.id = lead.id;
     card.dataset.status = lead.status || 'novo';
 
-    // SMART TAGS - Badge based on lead.type
+    // SMART TAGS - Parse lead.type for detailed information
     let typeBadge = '';
+    let consultaDetails = '';
     
-    if (lead.type === 'primeira_consulta') {
+    // Novo formato: "Consulta - Especialidade - Plano/Particular - Período - Dias"
+    if (lead.type && lead.type.startsWith('Consulta - ')) {
+        const parts = lead.type.split(' - ');
+        const specialty = parts[1] || '';
+        const paymentType = parts[2] || '';
+        const period = parts[3] || '';
+        const days = parts[4] || '';
+        
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-400 text-white border border-teal-500"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
+        
+        consultaDetails = `
+            <div class="bg-gray-800/50 rounded-lg p-2 mb-2 space-y-1 text-xs">
+                ${specialty ? `<div class="flex items-center text-cyan-300"><i class="fas fa-user-md mr-1 w-4"></i><strong>Especialidade:</strong> <span class="ml-1 text-white">${specialty}</span></div>` : ''}
+                ${paymentType ? `<div class="flex items-center text-green-300"><i class="fas fa-credit-card mr-1 w-4"></i><strong>Pagamento:</strong> <span class="ml-1 text-white">${paymentType}</span></div>` : ''}
+                ${period ? `<div class="flex items-center text-yellow-300"><i class="fas fa-clock mr-1 w-4"></i><strong>Período:</strong> <span class="ml-1 text-white">${period}</span></div>` : ''}
+                ${days ? `<div class="flex items-center text-purple-300"><i class="fas fa-calendar mr-1 w-4"></i><strong>Dias:</strong> <span class="ml-1 text-white">${days}</span></div>` : ''}
+            </div>
+        `;
+    }
+    // Formatos antigos e outros tipos
+    else if (lead.type === 'primeira_consulta') {
         typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-400 text-gray-900 border border-yellow-500"><i class="fas fa-star mr-1"></i>Primeira Consulta</span>';
     } else if (lead.type === 'retorno') {
         typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400"><i class="fas fa-undo mr-1"></i>Retorno</span>';
     } else if (lead.type === 'recorrente') {
         typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-400 text-white border border-indigo-500"><i class="fas fa-sync-alt mr-1"></i>Sessão/Recorrente</span>';
-    } else if (lead.type === 'exame') {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-400 text-white border border-purple-500"><i class="fas fa-microscope mr-1"></i>Exame</span>';
-    } 
-    // Legacy support
-    else if (lead.type === 'Consulta') {
+    } else if (lead.type === 'Atendimento Humano') {
+        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-pink-400 text-white border border-pink-500"><i class="fas fa-user-headset mr-1"></i>Atend. Humano</span>';
+    } else if (lead.type === 'Consulta') {
         typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-400 text-white border border-teal-500"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
-    } else if (lead.type === 'Exame') {
-        typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-400 text-white border border-blue-500"><i class="fas fa-microscope mr-1"></i>Exame</span>';
     } else {
         typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400"><i class="fas fa-question mr-1"></i>' + (lead.type || 'Geral') + '</span>';
     }
@@ -219,6 +236,9 @@ function createLeadCard(lead) {
             <small class="${timeClasses}">🕒 ${timeString}</small>
         </div>
         
+        <!-- Consulta Details (if new format) -->
+        ${consultaDetails}
+        
         <!-- Attendance Status Badge (if exists) -->
         ${attendanceBadge ? `<div class="mb-2">${attendanceBadge}</div>` : ''}
         
@@ -298,7 +318,8 @@ async function drop(e) {
     e.currentTarget.classList.remove('drag-over');
 
     const dropZone = e.currentTarget;
-    const newStatus = dropZone.parentElement.dataset.status;
+    // Get status from the column itself or from parent if dropped on inner div
+    const newStatus = dropZone.dataset.status || dropZone.parentElement.dataset.status;
     const leadId = currentDraggedCard.dataset.id;
     const oldStatus = currentDraggedCard.dataset.status;
 
@@ -307,30 +328,27 @@ async function drop(e) {
         return;
     }
 
+    // Find the correct container to append the card (the div with id="column-*")
+    const columnContainer = dropZone.querySelector('[id^="column-"]') || dropZone;
+    
     // Move card visually
-    dropZone.appendChild(currentDraggedCard);
+    columnContainer.appendChild(currentDraggedCard);
     currentDraggedCard.dataset.status = newStatus;
 
     // If moving to "Finalizado", ask for attendance status
     let attendanceStatus = null;
     if (newStatus === 'Finalizado' || newStatus === 'finalizado') {
-        attendanceStatus = prompt(
-            'Qual foi o resultado da consulta?\n\n' +
-            '1 - Compareceu\n' +
-            '2 - Não veio\n' +
-            '3 - Cancelado\n' +
-            '4 - Remarcado\n\n' +
-            'Digite o número da opção (padrão: 1):'
-        ) || '1';
+        const result = await customPromptOptions(
+            'Qual foi o resultado da consulta?',
+            [
+                { value: 'compareceu', label: 'Compareceu', icon: 'fas fa-check-circle' },
+                { value: 'nao_compareceu', label: 'Não veio', icon: 'fas fa-times-circle' },
+                { value: 'cancelado', label: 'Cancelado', icon: 'fas fa-ban' },
+                { value: 'remarcado', label: 'Remarcado', icon: 'fas fa-calendar-alt' }
+            ]
+        );
         
-        const statusMap = {
-            '1': 'compareceu',
-            '2': 'nao_compareceu',
-            '3': 'cancelado',
-            '4': 'remarcado'
-        };
-        
-        attendanceStatus = statusMap[attendanceStatus] || 'compareceu';
+        attendanceStatus = result || 'compareceu';
     }
 
     // Update backend
@@ -404,23 +422,17 @@ async function moveToColumn(newStatus) {
     // If moving to "Finalizado", ask for attendance status
     let attendanceStatus = null;
     if (newStatus === 'Finalizado' || newStatus === 'finalizado') {
-        attendanceStatus = prompt(
-            'Qual foi o resultado da consulta?\n\n' +
-            '1 - Compareceu\n' +
-            '2 - Não veio\n' +
-            '3 - Cancelado\n' +
-            '4 - Remarcado\n\n' +
-            'Digite o número da opção (padrão: 1):'
-        ) || '1';
+        const result = await customPromptOptions(
+            'Qual foi o resultado da consulta?',
+            [
+                { value: 'compareceu', label: 'Compareceu', icon: 'fas fa-check-circle' },
+                { value: 'nao_compareceu', label: 'Não veio', icon: 'fas fa-times-circle' },
+                { value: 'cancelado', label: 'Cancelado', icon: 'fas fa-ban' },
+                { value: 'remarcado', label: 'Remarcado', icon: 'fas fa-calendar-alt' }
+            ]
+        );
         
-        const statusMap = {
-            '1': 'compareceu',
-            '2': 'nao_compareceu',
-            '3': 'cancelado',
-            '4': 'remarcado'
-        };
-        
-        attendanceStatus = statusMap[attendanceStatus] || 'compareceu';
+        attendanceStatus = result || 'compareceu';
     }
     
     showLoading(true);
@@ -539,7 +551,25 @@ function openEditModal(leadId, leadName, appointmentDate, doctor, notes, type) {
     document.getElementById('editAppointmentDate').value = appointmentDate || '';
     document.getElementById('editDoctor').value = doctor || '';
     document.getElementById('editNotes').value = notes || '';
-    document.getElementById('editType').value = type || '';
+    
+    // Store original type in a hidden field
+    const originalTypeInput = document.getElementById('editOriginalType') || (() => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.id = 'editOriginalType';
+        document.getElementById('editForm').appendChild(input);
+        return input;
+    })();
+    originalTypeInput.value = type || '';
+    
+    // Only set the select value if it matches one of the predefined options
+    const typeSelect = document.getElementById('editType');
+    const validOptions = ['primeira_consulta', 'retorno', 'recorrente', 'exame'];
+    if (validOptions.includes(type)) {
+        typeSelect.value = type;
+    } else {
+        typeSelect.value = ''; // Don't select anything if it's a custom type from chat
+    }
     
     document.getElementById('editModal').classList.remove('hidden');
 }
@@ -582,7 +612,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const appointmentDate = document.getElementById('editAppointmentDate').value;
             const doctor = document.getElementById('editDoctor').value;
             const notes = document.getElementById('editNotes').value;
-            const type = document.getElementById('editType').value;
+            const typeSelect = document.getElementById('editType').value;
+            const originalType = document.getElementById('editOriginalType')?.value || '';
+
+            // Convert appointmentDate to ISO format if provided
+            let isoDate = null;
+            if (appointmentDate) {
+                try {
+                    isoDate = new Date(appointmentDate).toISOString();
+                } catch (err) {
+                    console.error('Erro ao converter data:', err);
+                    showNotification('❌ Data inválida', 'error');
+                    return;
+                }
+            }
+
+            // Only update type if user selected a new value from dropdown
+            // If dropdown is empty, keep the original type (preserves detailed chat types)
+            const finalType = typeSelect ? typeSelect : originalType;
+
+            console.log('Salvando lead:', { leadId, isoDate, doctor, notes, finalType, originalType });
+
+            // Build update object only with fields that should be updated
+            const updateData = {
+                appointment_date: isoDate,
+                doctor: doctor || null,
+                notes: notes || null
+            };
+            
+            // Only include type if it was explicitly changed
+            if (typeSelect) {
+                updateData.type = typeSelect;
+            }
 
             try {
                 const response = await fetch(`${API_URL}/${leadId}`, {
@@ -591,16 +652,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({
-                        appointment_date: appointmentDate || null,
-                        doctor: doctor || null,
-                        notes: notes || null,
-                        type: type || null
-                    })
+                    body: JSON.stringify(updateData)
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erro ao atualizar agendamento');
+                    const errorData = await response.json();
+                    console.error('Erro do servidor:', errorData);
+                    throw new Error(errorData.error || 'Erro ao atualizar agendamento');
                 }
 
                 showNotification('✅ Agendamento atualizado com sucesso!', 'success');
@@ -609,7 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Erro ao atualizar agendamento:', error);
-                showNotification('❌ Erro ao atualizar agendamento', 'error');
+                showNotification('❌ Erro ao atualizar agendamento: ' + error.message, 'error');
             }
         });
     }
@@ -617,6 +675,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load leads on page load
     loadLeads();
 
-    // Auto-refresh every 60 seconds
-    setInterval(loadLeads, 60000);
+    // Auto-refresh every 10 seconds
+    setInterval(loadLeads, 10000);
 });

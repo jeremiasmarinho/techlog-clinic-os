@@ -84,7 +84,7 @@ function updateState() {
             setTimeout(() => addBotMessage("Olá! Sou o assistente da Clínica. 🤖"), 500);
             setTimeout(() => {
                 addBotMessage("Como posso te ajudar hoje?");
-                showOptions(['Agendar Consulta', 'Ver Exames', 'Falar com Humano']);
+                showOptions(['Agendar Consulta', 'Falar com Humano']);
             }, 1000);
             hasInteraction = true;
         }
@@ -146,7 +146,7 @@ function processUserInput(text) {
 
         else {
             addBotMessage("Desculpe, escolha uma das opções abaixo.");
-            showOptions(['Agendar Consulta', 'Ver Exames']);
+                    showOptions(['Agendar Consulta', 'Falar com Humano']);
         }
     }, 800);
 }
@@ -159,28 +159,61 @@ function handleOption(opt, parentDiv) {
     setTimeout(() => {
         removeTyping();
 
-        if (['Cardiologia', 'Clínica Geral', 'Dermatologia'].includes(opt)) {
-            userLead.interest = opt;
-            addBotMessage(`Certo, **${opt}**.`);
-            addBotMessage("Temos horários disponíveis.");
-            addBotMessage("Qual é o seu **Nome Completo**?");
-            
+        // Fluxo guiado para coleta de dados da consulta
+        const specialties = ['Clínica Geral', 'Ginecologia & Obstetrícia', 'Cardiologia', 'Oftalmologia', 'Ortopedia', 'Pediatria'];
+
+        if (chatState === 'WAITING_SPECIALTY' && specialties.includes(opt)) {
+            userLead.specialty = opt;
+            addBotMessage(`Perfeito, consulta em **${opt}**.`);
+            addBotMessage("O atendimento será por **plano de saúde** ou **particular**?");
+            showOptions(['Plano de saúde', 'Particular']);
+            chatState = 'WAITING_PAYMENT';
+        }
+        else if (chatState === 'WAITING_PAYMENT' && ['Plano de saúde', 'Particular'].includes(opt)) {
+            userLead.paymentType = opt;
+            addBotMessage("Qual período você prefere ser atendido?");
+            showOptions(['Manhã', 'Tarde', 'Tanto faz']);
+            chatState = 'WAITING_PERIOD';
+        }
+        else if (chatState === 'WAITING_PERIOD' && ['Manhã', 'Tarde', 'Tanto faz'].includes(opt)) {
+            userLead.period = opt;
+            addBotMessage("Ótimo! Em quais dias você prefere ser atendido?");
+            showOptions(['Segunda a Sexta', 'Apenas Sábado', 'Tanto faz']);
+            chatState = 'WAITING_DAY';
+        }
+        else if (chatState === 'WAITING_DAY' && ['Segunda a Sexta', 'Apenas Sábado', 'Tanto faz'].includes(opt)) {
+            userLead.dayPreference = opt;
+            // Monta um resumo do interesse para ajudar a secretária
+            userLead.interest = `Consulta - ${userLead.specialty} - ${userLead.paymentType} - ${userLead.period} - ${userLead.dayPreference}`;
+            addBotMessage("Perfeito! Agora me informe seu **Nome Completo** para finalizarmos o agendamento.");
             chatState = 'WAITING_NAME';
             chatInput.placeholder = "Digite seu Nome e Sobrenome...";
             chatInput.focus();
-        } 
-        else if (opt === 'Agendar Consulta') {
-            addBotMessage("Para qual especialidade?");
-            showOptions(['Cardiologia', 'Clínica Geral', 'Dermatologia']);
         }
-        else if (opt === 'Ver Exames') {
-            addBotMessage("Acesse: **portal.clinica.com.br**");
+        else if (opt === 'Agendar Consulta') {
+            addBotMessage("Para qual especialidade você precisa de consulta?");
+            showOptions(specialties);
+            chatState = 'WAITING_SPECIALTY';
+        }
+        else if (opt === 'Falar com Humano') {
+            userLead.interest = 'Atendimento Humano';
+            addBotMessage("Claro, vou te encaminhar para nossa equipe.");
+            addBotMessage("Antes, me informe seu **Nome Completo** para que a secretária já verifique horários para você.");
+            chatState = 'WAITING_NAME';
+            chatInput.placeholder = "Digite seu Nome e Sobrenome...";
+            chatInput.focus();
+        }
+        else if (specialties.includes(opt)) {
+            // Caso o usuário clique em uma especialidade fora do estado esperado
+            userLead.specialty = opt;
+            addBotMessage(`Certo, consulta em **${opt}**.`);
+            addBotMessage("O atendimento será por **plano de saúde** ou **particular**?");
+            showOptions(['Plano de saúde', 'Particular']);
+            chatState = 'WAITING_PAYMENT';
         }
         else {
-            userLead.interest = 'Atendimento Humano';
-            addBotMessage("Ok! Qual seu nome completo?");
-            chatState = 'WAITING_NAME';
-            chatInput.placeholder = "Digite seu nome...";
+            addBotMessage("Não entendi, vamos começar de novo. Escolha uma opção abaixo.");
+            showOptions(['Agendar Consulta', 'Falar com Humano']);
         }
     }, 1000);
 }

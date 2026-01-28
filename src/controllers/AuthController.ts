@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 
 export class AuthController {
     static async login(req: Request, res: Response): Promise<void> {
@@ -12,23 +11,19 @@ export class AuthController {
             return;
         }
         
-        // Verificação com bcrypt
-        if (email === process.env.ADMIN_USER) {
-            const isValid = await bcrypt.compare(password, process.env.ADMIN_PASS || '');
+        // Verificação de credenciais
+        if (email === process.env.ADMIN_USER && password === process.env.ADMIN_PASS) {
+            const token = jwt.sign(
+                { id: 1, name: 'Administrador', email }, 
+                process.env.JWT_SECRET as string, 
+                { expiresIn: '8h' }
+            );
             
-            if (isValid) {
-                const token = jwt.sign(
-                    { id: 1, name: 'Administrador', email }, 
-                    process.env.JWT_SECRET as string, 
-                    { expiresIn: '8h' }
-                );
-                
-                res.json({
-                    user: { name: 'Administrador', email },
-                    token,
-                });
-                return;
-            }
+            res.json({
+                user: { name: 'Administrador', email },
+                token,
+            });
+            return;
         }
         
         res.status(401).json({ error: 'E-mail ou senha inválidos' });

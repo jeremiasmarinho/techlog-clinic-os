@@ -695,7 +695,7 @@
         <div class="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <!-- Coluna: Novos -->
-            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="novo">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="novo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                 <div class="bg-gradient-to-r from-emerald-500/30 to-green-500/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-plus-circle mr-2"></i>
@@ -703,13 +703,13 @@
                     </div>
                     <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-novo">0</span>
                 </div>
-                <div class="p-3 space-y-3 min-h-[400px]" id="column-novo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <div class="p-3 space-y-3 min-h-[400px]" id="column-novo">
                     <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
 
             <!-- Coluna: Em Atendimento -->
-            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="em_atendimento">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="em_atendimento" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                 <div class="bg-gradient-to-r from-amber-500/30 to-yellow-500/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-phone mr-2"></i>
@@ -717,13 +717,13 @@
                     </div>
                     <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-em_atendimento">0</span>
                 </div>
-                <div class="p-3 space-y-3 min-h-[400px]" id="column-em_atendimento" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <div class="p-3 space-y-3 min-h-[400px]" id="column-em_atendimento">
                     <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
 
             <!-- Coluna: Agendados -->
-            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="agendado">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="agendado" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                 <div class="bg-gradient-to-r from-cyan-500/30 to-blue-500/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-calendar-check mr-2"></i>
@@ -731,13 +731,13 @@
                     </div>
                     <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-agendado">0</span>
                 </div>
-                <div class="p-3 space-y-3 min-h-[400px]" id="column-agendado" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <div class="p-3 space-y-3 min-h-[400px]" id="column-agendado">
                     <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
 
             <!-- Coluna: Finalizados -->
-            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="finalizado">
+            <div class="kanban-column glass-card rounded-xl overflow-hidden w-full" data-status="finalizado" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
                 <div class="bg-gradient-to-r from-slate-500/30 to-gray-600/30 backdrop-blur-xl text-white px-4 py-3 font-bold flex items-center justify-between border-b border-white/10">
                     <div class="flex items-center">
                         <i class="fas fa-check-circle mr-2"></i>
@@ -745,7 +745,7 @@
                     </div>
                     <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-finalizado">0</span>
                 </div>
-                <div class="p-3 space-y-3 min-h-[400px]" id="column-finalizado" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)">
+                <div class="p-3 space-y-3 min-h-[400px]" id="column-finalizado">
                     <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
@@ -824,6 +824,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- CRM Application JavaScript Modules -->
+    <script src="./js/crm/dialogs.js"></script>
     <script src="./js/crm/api.js"></script>
     <script src="./js/crm/auth.js"></script>
     <script src="./js/crm/whatsapp-templates.js"></script>
