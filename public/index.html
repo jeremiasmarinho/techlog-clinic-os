@@ -218,6 +218,37 @@
             background: rgba(255, 255, 255, 0.05);
             border-color: rgba(6, 182, 212, 0.3);
         }
+        
+        /* Avatar Images */
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(6, 182, 212, 0.3);
+        }
+        
+        /* Hero Background Image */
+        .hero-background {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-background::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 14, 26, 0.95) 0%, rgba(10, 14, 26, 0.85) 100%);
+            z-index: 1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
     </style>
 </head>
 <body class="min-h-screen text-gray-100">
@@ -248,8 +279,18 @@
         </nav>
     </header>
 
-    <section id="home" class="min-h-screen flex items-center justify-center pt-20">
-        <div class="max-w-7xl mx-auto px-6 text-center">
+    <section id="home" class="min-h-screen flex items-center justify-center pt-20 relative overflow-hidden">
+        <!-- Background Image -->
+        <div class="hero-background">
+            <img 
+                src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1920&h=1080&fit=crop" 
+                alt="Medical Facility" 
+                class="w-full h-full object-cover opacity-20"
+            >
+        </div>
+        
+        <!-- Content -->
+        <div class="max-w-7xl mx-auto px-6 text-center hero-content">
             <div class="inline-flex items-center glass-card px-5 py-2 rounded-full text-sm font-semibold mb-8">
                 <svg class="w-5 h-5 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
@@ -546,9 +587,11 @@
                         "Atendimento excepcional! A equipe é extremamente atenciosa e o sistema de agendamento online facilitou muito minha vida. Recomendo!"
                     </p>
                     <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center text-white font-bold mr-3">
-                            MF
-                        </div>
+                        <img 
+                            src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=faces" 
+                            alt="Maria Fernanda Silva"
+                            class="testimonial-avatar mr-3"
+                        >
                         <div>
                             <p class="font-bold text-white">Maria Fernanda Silva</p>
                             <p class="text-sm text-gray-400">Paciente desde 2023</p>
@@ -569,9 +612,11 @@
                         "Excelentes profissionais e instalações modernas. Minha família toda é atendida aqui e sempre saímos satisfeitos. Nota 10!"
                     </p>
                     <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center text-white font-bold mr-3">
-                            RA
-                        </div>
+                        <img 
+                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=faces" 
+                            alt="Roberto Almeida"
+                            class="testimonial-avatar mr-3"
+                        >
                         <div>
                             <p class="font-bold text-white">Roberto Almeida</p>
                             <p class="text-sm text-gray-400">Paciente desde 2021</p>
@@ -592,9 +637,11 @@
                         "Profissionalismo e cuidado em cada consulta. A Dra. Ana é incrível! Me sinto segura e bem cuidada. Obrigada por tudo!"
                     </p>
                     <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold mr-3">
-                            JS
-                        </div>
+                        <img 
+                            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=faces" 
+                            alt="Juliana Santos"
+                            class="testimonial-avatar mr-3"
+                        >
                         <div>
                             <p class="font-bold text-white">Juliana Santos</p>
                             <p class="text-sm text-gray-400">Paciente desde 2022</p>
@@ -617,7 +664,7 @@
                 <!-- Doctor 1 -->
                 <div class="doctor-card rounded-3xl p-8 text-center">
                     <img 
-                        src="https://via.placeholder.com/120/06b6d4/ffffff?text=Dr+Paulo" 
+                        src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop&crop=faces" 
                         alt="Dr. Paulo Mendes" 
                         class="doctor-avatar mx-auto mb-6"
                     >
@@ -638,7 +685,7 @@
                 <!-- Doctor 2 -->
                 <div class="doctor-card rounded-3xl p-8 text-center">
                     <img 
-                        src="https://via.placeholder.com/120/8b5cf6/ffffff?text=Dra+Ana" 
+                        src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop&crop=faces" 
                         alt="Dra. Ana Clara" 
                         class="doctor-avatar mx-auto mb-6"
                     >
@@ -659,7 +706,7 @@
                 <!-- Doctor 3 -->
                 <div class="doctor-card rounded-3xl p-8 text-center">
                     <img 
-                        src="https://via.placeholder.com/120/ec4899/ffffff?text=Dr+Carlos" 
+                        src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop&crop=faces" 
                         alt="Dr. Carlos Rocha" 
                         class="doctor-avatar mx-auto mb-6"
                     >
