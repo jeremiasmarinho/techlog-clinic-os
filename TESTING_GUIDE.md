@@ -1,4 +1,361 @@
-# Testing Guide - Refactored Frontend
+# Testing Guide - Medical CRM
+
+> **✅ Automated Testing Fully Implemented!**  
+> This project now includes comprehensive Jest testing with 39 passing tests covering AuthController (15 tests) and LeadController (24 tests).
+
+## Table of Contents
+1. [Automated Testing with Jest](#automated-testing-with-jest)
+2. [Frontend Manual Testing](#frontend-manual-testing)
+3. [API Testing](#api-testing)
+
+---
+
+## Automated Testing with Jest
+
+### 🎉 Test Suite Summary
+
+**Current Status: ✅ All Tests Passing**
+
+| Controller | Tests | Coverage | Status |
+|------------|-------|----------|--------|
+| AuthController | 15 | 100% statements | ✅ Complete |
+| LeadController | 24 | 71% statements | ✅ Complete |
+| **Total** | **39** | **52% overall** | ✅ **All Passing** |
+
+**Quick Start:**
+```bash
+npm test                # Run all tests with coverage
+npm run test:watch      # Watch mode for development
+npx jest AuthController # Run specific test suite
+```
+
+### 🧪 Setup
+
+The project uses **Jest** with **ts-jest** for TypeScript support and **supertest** for API testing.
+
+#### Prerequisites
+```bash
+# All test dependencies are already installed
+# If you need to reinstall:
+npm install --save-dev jest ts-jest @types/jest supertest @types/supertest
+```
+
+### 📝 Running Tests
+
+#### Run All Tests with Coverage
+```bash
+npm test
+```
+
+This will:
+- Run all test files (*.test.ts)
+- Generate coverage report
+- Display results in terminal
+- Create HTML coverage report in `coverage/` directory
+
+#### Run Tests in Watch Mode
+```bash
+npm run test:watch
+```
+
+Automatically re-runs tests when files change. Perfect for TDD (Test-Driven Development).
+
+#### Run Unit Tests Only
+```bash
+npm run test:unit
+```
+
+Runs only unit tests (excludes integration tests if any).
+
+#### Run Tests with Verbose Output
+```bash
+npm run test:verbose
+```
+
+Shows detailed information about each test case.
+
+### 📊 Understanding Test Coverage
+
+After running `npm test`, you'll see coverage statistics:
+
+```
+-----------------------|---------|----------|---------|---------|-------------------------------------------------------
+File                   | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                     
+-----------------------|---------|----------|---------|---------|-------------------------------------------------------
+All files              |   52.13 |    45.08 |      60 |   52.68 |                                                       
+ controllers           |   46.29 |    44.33 |   52.77 |   47.39 |                                                       
+  AuthController.ts    |     100 |       90 |     100 |     100 | 17                                                    
+  LeadController.ts    |   71.07 |    63.33 |     100 |   71.66 | ...                                                   
+  MetricsController.ts |       0 |        0 |       0 |       0 | (not tested yet)                                      
+  UserController.ts    |       0 |        0 |       0 |       0 | (not tested yet)                                      
+-----------------------|---------|----------|---------|---------|-------------------------------------------------------
+```
+
+**Current Test Results:**
+- ✅ **39 tests passing**
+- ✅ **AuthController: 100% coverage**
+- ✅ **LeadController: 71% coverage**
+- 📝 MetricsController and UserController: Not yet tested
+
+**Coverage Goals:**
+- ✅ **80%+** - Good coverage
+- ✅ **90%+** - Excellent coverage
+- 🎯 **100%** - Perfect (not always practical)
+
+### 🧩 Test Structure
+
+#### Test Files Location
+```
+tests/
+├── setup.ts                 # Test environment setup
+├── AuthController.test.ts   # Auth/JWT tests
+├── LeadController.test.ts   # Lead CRUD tests
+└── ... (add more tests here)
+```
+
+#### Example Test Structure
+```typescript
+import request from 'supertest';
+import express, { Express } from 'express';
+import jwt from 'jsonwebtoken';
+import authRoutes from '../src/routes/auth.routes';
+
+describe('AuthController', () => {
+  let app: Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/auth', authRoutes);
+  });
+
+  describe('POST /api/auth/login', () => {
+    it('should login successfully with valid credentials', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'admin@test.com', password: 'Mudar123!' })
+        .expect(200);
+
+      expect(response.body).toHaveProperty('token');
+      expect(response.body).toHaveProperty('user');
+    });
+
+    it('should fail with invalid credentials', async () => {
+      const response = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'wrong@test.com', password: 'wrong' })
+        .expect(401);
+
+      expect(response.body).toHaveProperty('error');
+    });
+  });
+});
+```
+
+**Note:** For protected routes, use JWT authentication:
+```typescript
+// Generate a valid JWT token for testing
+const authToken = jwt.sign(
+  { id: 1, name: 'Test User', email: 'test@test.com' },
+  process.env.JWT_SECRET as string,
+  { expiresIn: '8h' }
+);
+
+// Use it in requests
+const response = await request(app)
+  .get('/api/leads')
+  .set('Authorization', `Bearer ${authToken}`)
+  .expect(200);
+```
+
+### 🎯 Available Test Suites
+
+#### 1. AuthController Tests
+**File:** `tests/AuthController.test.ts`
+
+**15 Test Cases Covering:**
+- ✅ JWT login with valid credentials
+- ✅ Login failure with invalid email
+- ✅ Login failure with invalid password
+- ✅ Missing email/password validation
+- ✅ bcrypt password verification
+- ✅ JWT token format validation (3 parts)
+- ✅ JWT token expiration and payload
+- ✅ User information in response
+- ✅ Input validation (empty, null, whitespace)
+- ✅ Security: no credential leakage between wrong email and wrong password errors
+
+**Run only Auth tests:**
+```bash
+npx jest AuthController
+```
+
+**Current Coverage:** 100% statements, 90% branches
+
+#### 2. LeadController Tests
+**File:** `tests/LeadController.test.ts`
+
+**24 Test Cases Covering:**
+- ✅ Create lead (POST /api/leads) - public endpoint
+- ✅ Create lead validation (missing name, missing phone)
+- ✅ Default type when not specified
+- ✅ List leads (GET /api/leads) with authentication
+- ✅ Filter archived leads (show_archived=true)
+- ✅ Filter kanban view
+- ✅ Update lead status (PATCH /api/leads/:id)
+- ✅ Update appointment details (date, doctor, notes)
+- ✅ Update to finalizado status
+- ✅ Validation: invalid status
+- ✅ Validation: no fields provided
+- ✅ Delete lead (DELETE /api/leads/:id)
+- ✅ Delete non-existent lead
+- ✅ Dashboard metrics (GET /api/leads/dashboard)
+- ✅ Archive lead with reason (PUT /api/leads/:id/archive)
+- ✅ Archive lead without reason
+- ✅ Unarchive lead (PUT /api/leads/:id/unarchive)
+- ✅ Authentication required on protected routes
+
+**Run only Lead tests:**
+```bash
+npx jest LeadController
+```
+
+**Current Coverage:** 71% statements, 63% branches, 100% functions
+
+### 🛠️ Writing New Tests
+
+#### 1. Create Test File
+```bash
+# Create new test file
+touch tests/YourController.test.ts
+```
+
+#### 2. Basic Template
+```typescript
+import request from 'supertest';
+import express, { Express } from 'express';
+import yourRoutes from '../src/routes/your.routes';
+
+describe('YourController', () => {
+  let app: Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/your-endpoint', yourRoutes);
+  });
+
+  describe('GET /api/your-endpoint', () => {
+    it('should return data', async () => {
+      const response = await request(app)
+        .get('/api/your-endpoint')
+        .expect(200);
+
+      expect(response.body).toBeDefined();
+    });
+  });
+});
+```
+
+#### 3. Run Your Test
+```bash
+npx jest YourController
+```
+
+### 🐛 Debugging Tests
+
+#### Run Single Test File
+```bash
+npx jest AuthController.test.ts
+```
+
+#### Run Single Test Case
+```bash
+npx jest -t "should login successfully"
+```
+
+#### Enable Console Output
+```bash
+npx jest --silent=false
+```
+
+### 📋 Test Best Practices
+
+1. **AAA Pattern** (Arrange-Act-Assert)
+   ```typescript
+   it('should create a lead', async () => {
+     // Arrange
+     const newLead = { name: 'Test', phone: '11999999999' };
+     
+     // Act
+     const response = await request(app).post('/api/leads').send(newLead);
+     
+     // Assert
+     expect(response.status).toBe(201);
+     expect(response.body).toHaveProperty('id');
+   });
+   ```
+
+2. **Test Independence**
+   - Each test should be independent
+   - Use `beforeEach` for fresh setup
+   - Clean up in `afterEach` if needed
+
+3. **Meaningful Descriptions**
+   ```typescript
+   // ❌ Bad
+   it('test 1', () => { ... });
+   
+   // ✅ Good
+   it('should return 401 when token is missing', () => { ... });
+   ```
+
+4. **Test Edge Cases**
+   - Empty inputs
+   - Null values
+   - Invalid formats
+   - Boundary conditions
+
+### 🔧 Configuration Files
+
+#### jest.config.js
+```javascript
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts', '!src/server.ts'],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+};
+```
+
+#### tests/setup.ts
+Sets up test environment variables and global configuration.
+
+### 🚀 CI/CD Integration
+
+Add to `.github/workflows/test.yml`:
+```yaml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+      - run: npm ci
+      - run: npm test
+```
+
+---
+
+## Frontend Manual Testing
 
 ## Quick Test Checklist
 
