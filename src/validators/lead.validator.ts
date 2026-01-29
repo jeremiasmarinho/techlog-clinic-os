@@ -2,21 +2,15 @@ import { z } from 'zod';
 
 // Schema para criação de lead
 export const createLeadSchema = z.object({
-    name: z.string({
-        required_error: 'Nome é obrigatório',
-        invalid_type_error: 'Nome deve ser um texto'
-    })
-    .min(2, 'Nome deve ter no mínimo 2 caracteres')
-    .max(100, 'Nome deve ter no máximo 100 caracteres')
+    name: z.string({ message: 'Nome deve ser um texto' })
+    .min(2, { message: 'Nome deve ter no mínimo 2 caracteres' })
+    .max(100, { message: 'Nome deve ter no máximo 100 caracteres' })
     .trim(),
     
-    phone: z.string({
-        required_error: 'Telefone é obrigatório',
-        invalid_type_error: 'Telefone deve ser um texto'
-    })
-    .regex(/^\d{10,11}$/, 'Telefone deve conter 10 ou 11 dígitos numéricos')
-    .min(10, 'Telefone deve conter no mínimo 10 dígitos')
-    .max(11, 'Telefone deve conter no máximo 11 dígitos'),
+    phone: z.string({ message: 'Telefone deve ser um texto' })
+    .regex(/^\d{10,11}$/, { message: 'Telefone deve conter 10 ou 11 dígitos numéricos' })
+    .min(10, { message: 'Telefone deve conter no mínimo 10 dígitos' })
+    .max(11, { message: 'Telefone deve conter no máximo 11 dígitos' }),
     
     type: z.string()
         .max(500, 'Tipo deve ter no máximo 500 caracteres')

@@ -17,7 +17,7 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
 
 // Função para criar tabelas
 function initDb(): void {
-    // Tabela de Leads
+    // Tabela de Leads com schema completo
     db.run(`
         CREATE TABLE IF NOT EXISTS leads (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,20 +25,34 @@ function initDb(): void {
             phone TEXT NOT NULL,
             type TEXT DEFAULT 'geral',
             status TEXT DEFAULT 'novo',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            appointment_date DATETIME,
+            doctor TEXT,
+            notes TEXT,
+            attendance_status TEXT,
+            archive_reason TEXT,
+            source TEXT DEFAULT 'Manual',
+            value REAL DEFAULT 0,
+            updated_at DATETIME
         )
     `, (err) => {
         if (err) {
             console.error('❌ Erro ao criar tabela leads:', err.message);
         } else {
-            console.log('✅ Tabela "leads" pronta');
+            console.log('✅ Tabela "leads" pronta com schema completo');
             
-            // Adicionar novas colunas se não existirem (para upgrade)
+            // Adicionar colunas se não existirem (backward compatibility)
             addColumnIfNotExists('appointment_date', 'DATETIME');
             addColumnIfNotExists('doctor', 'TEXT');
             addColumnIfNotExists('notes', 'TEXT');
             addColumnIfNotExists('attendance_status', 'TEXT');
             addColumnIfNotExists('archive_reason', 'TEXT');
+            addColumnIfNotExists('source', "TEXT DEFAULT 'Manual'");
+            addColumnIfNotExists('value', 'REAL DEFAULT 0');
+            addColumnIfNotExists('updated_at', 'DATETIME');
+            
+            // Create trigger for auto-update timestamp
+            createUpdateTrigger();
         }
     });
 
@@ -92,6 +106,29 @@ function addColumnIfNotExists(columnName: string, columnType: string): void {
         } else {
             console.log(`✅ Coluna "${columnName}" adicionada`);
         }
+    });
+}
+
+// Função para criar trigger de auto-update timestamp
+function createUpdateTrigger(): void {
+    db.run(`DROP TRIGGER IF EXISTS update_leads_timestamp`, (err) => {
+        if (err && !err.message.includes('no such trigger')) {
+            console.warn('⚠️ Aviso ao remover trigger:', err.message);
+        }
+        
+        db.run(`
+            CREATE TRIGGER IF NOT EXISTS update_leads_timestamp 
+            AFTER UPDATE ON leads
+            BEGIN
+                UPDATE leads SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+            END;
+        `, (err) => {
+            if (err) {
+                console.warn('⚠️ Aviso ao criar trigger:', err.message);
+            } else {
+                console.log('✅ Trigger de timestamp configurado');
+            }
+        });
     });
 }
 

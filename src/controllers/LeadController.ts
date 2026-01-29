@@ -59,7 +59,12 @@ export class LeadController {
         // Validar com Zod
         const result = updateLeadSchema.safeParse(req.body);
         if (!result.success) {
-            res.status(400).json({ error: result.error.errors[0].message });
+            const formatted = result.error.format();
+            const firstError = Object.keys(formatted)
+                .filter(k => k !== '_errors')
+                .map(k => (formatted as any)[k]._errors?.[0])
+                .find(e => e) || 'Erro de validação';
+            res.status(400).json({ error: firstError });
             return;
         }
 
@@ -185,7 +190,12 @@ export class LeadController {
         // Validar com Zod
         const result = createLeadSchema.safeParse(req.body);
         if (!result.success) {
-            res.status(400).json({ error: result.error.errors[0].message });
+            const formatted = result.error.format();
+            const firstError = Object.keys(formatted)
+                .filter(k => k !== '_errors')
+                .map(k => (formatted as any)[k]._errors?.[0])
+                .find(e => e) || 'Erro de validação';
+            res.status(400).json({ error: firstError });
             return;
         }
 

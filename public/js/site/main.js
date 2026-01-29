@@ -31,3 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(card);
     });
 });
+
+// 3. Toggle FAQ (Accordion)
+function toggleFaq(element) {
+    const answer = element.querySelector('.faq-answer');
+    const icon = element.querySelector('.faq-icon');
+    const isOpen = !answer.classList.contains('hidden');
+    
+    if (isOpen) {
+        // Fechar
+        answer.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        // Abrir
+        answer.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+    }
+}

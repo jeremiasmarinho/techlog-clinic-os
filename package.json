@@ -7,6 +7,7 @@
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
     "watch": "tsc -w",
+    "migrate": "ts-node scripts/fix_db_schema.ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:unit": "jest --testPathPattern=tests/.*\\.test\\.ts$",
