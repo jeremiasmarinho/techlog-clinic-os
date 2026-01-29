@@ -8,6 +8,7 @@
     "dev": "ts-node src/server.ts",
     "watch": "tsc -w",
     "migrate": "ts-node scripts/fix_db_schema.ts",
+    "migrate:status-timer": "ts-node scripts/add_status_updated_at.ts",
     "reset-db": "ts-node scripts/reset_db.ts",
     "reset-db-quick": "ts-node scripts/reset_db_quick.ts",
     "reset-db-with-seed": "ts-node scripts/reset_db_with_seed.ts && npm start",

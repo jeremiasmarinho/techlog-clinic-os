@@ -33,7 +33,8 @@ function initDb(): void {
             archive_reason TEXT,
             source TEXT DEFAULT 'Manual',
             value REAL DEFAULT 0,
-            updated_at DATETIME
+            updated_at DATETIME,
+            status_updated_at DATETIME
         )
     `, (err) => {
         if (err) {
@@ -50,9 +51,11 @@ function initDb(): void {
             addColumnIfNotExists('source', "TEXT DEFAULT 'Manual'");
             addColumnIfNotExists('value', 'REAL DEFAULT 0');
             addColumnIfNotExists('updated_at', 'DATETIME');
+            addColumnIfNotExists('status_updated_at', 'DATETIME');
             
-            // Create trigger for auto-update timestamp
+            // Create triggers for auto-update timestamp
             createUpdateTrigger();
+            createStatusUpdateTrigger();
         }
     });
 
@@ -127,6 +130,33 @@ function createUpdateTrigger(): void {
                 console.warn('⚠️ Aviso ao criar trigger:', err.message);
             } else {
                 console.log('✅ Trigger de timestamp configurado');
+            }
+        });
+    });
+}
+
+// Trigger para atualizar status_updated_at quando status mudar
+function createStatusUpdateTrigger(): void {
+    db.run(`DROP TRIGGER IF EXISTS update_status_timestamp`, (err) => {
+        if (err && !err.message.includes('no such trigger')) {
+            console.warn('⚠️ Aviso ao remover trigger de status:', err.message);
+        }
+        
+        db.run(`
+            CREATE TRIGGER IF NOT EXISTS update_status_timestamp
+            AFTER UPDATE OF status ON leads
+            FOR EACH ROW
+            WHEN NEW.status != OLD.status
+            BEGIN
+                UPDATE leads 
+                SET status_updated_at = CURRENT_TIMESTAMP 
+                WHERE id = NEW.id;
+            END;
+        `, (err) => {
+            if (err) {
+                console.warn('⚠️ Aviso ao criar trigger de status:', err.message);
+            } else {
+                console.log('✅ Trigger de status_updated_at configurado');
             }
         });
     });

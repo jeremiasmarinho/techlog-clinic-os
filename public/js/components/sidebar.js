@@ -6,11 +6,13 @@
 class MedicalSidebar extends HTMLElement {
     constructor() {
         super();
-        this.activePage = this.getAttribute('active') || 'admin';
-        this.showDateFilter = this.getAttribute('show-date-filter') === 'true';
     }
 
     connectedCallback() {
+        // Read attributes here, when they are guaranteed to be available
+        this.activePage = this.getAttribute('active') || 'admin';
+        this.showDateFilter = this.getAttribute('show-date-filter') === 'true';
+        
         this.render();
         this.initSidebar();
         this.loadUserName();
@@ -134,7 +136,9 @@ class MedicalSidebar extends HTMLElement {
     }
 
     initSidebar() {
-        const sidebarExpanded = localStorage.getItem('sidebarExpanded') === 'true';
+        // Default: expanded (true) - user can close if they want
+        const savedState = localStorage.getItem('sidebarExpanded');
+        const sidebarExpanded = savedState === null ? true : savedState === 'true';
         const sidebar = this.querySelector('#sidebar');
         
         if (sidebarExpanded) {

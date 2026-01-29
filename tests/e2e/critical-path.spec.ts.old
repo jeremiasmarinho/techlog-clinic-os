@@ -466,8 +466,14 @@ test.describe('Admin Kanban Board', () => {
   });
 
   test('should filter kanban by date period', async ({ page }) => {
-    // Wait for initial load
-    await page.waitForTimeout(2000);
+    // Wait for Web Component to render and populate DOM
+    // Check if the sidebar has been fully rendered by waiting for its internal content
+    await page.waitForFunction(() => {
+      const sidebar = document.querySelector('medical-sidebar');
+      return sidebar && sidebar.querySelector('#dateFilter');
+    }, { timeout: 10000 });
+    
+    await page.waitForTimeout(500);
     
     // Verify date filter exists
     const dateFilter = page.locator('#dateFilter');
@@ -500,6 +506,14 @@ test.describe('Admin Kanban Board', () => {
   });
 
   test('should persist date filter after page reload', async ({ page }) => {
+    // Wait for Web Component to render and populate DOM
+    await page.waitForFunction(() => {
+      const sidebar = document.querySelector('medical-sidebar');
+      return sidebar && sidebar.querySelector('#dateFilter');
+    }, { timeout: 10000 });
+    
+    await page.waitForTimeout(500);
+    
     // Set filter to "30 days"
     await page.selectOption('#dateFilter', '30days');
     await page.waitForTimeout(1000);
@@ -523,8 +537,13 @@ test.describe('Admin Kanban Board', () => {
   });
 
   test('should always show active leads regardless of date filter', async ({ page }) => {
-    // Wait for initial load
-    await page.waitForTimeout(2000);
+    // Wait for Web Component to render and populate DOM
+    await page.waitForFunction(() => {
+      const sidebar = document.querySelector('medical-sidebar');
+      return sidebar && sidebar.querySelector('#dateFilter');
+    }, { timeout: 10000 });
+    
+    await page.waitForTimeout(500);
     
     // Change to "Today" (most restrictive filter)
     await page.selectOption('#dateFilter', 'today');

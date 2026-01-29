@@ -47,6 +47,72 @@ function handleDateFilterChange() {
 window.handleDateFilterChange = handleDateFilterChange;
 
 // ============================================
+// Timer Calculation - Time in Status Feature
+// ============================================
+
+function calculateTimer(lead) {
+    // CASE A: Status = 'agendado' → Countdown or Delay monitor
+    if (lead.status === 'agendado' && lead.appointment_date) {
+        const appointmentDate = new Date(lead.appointment_date);
+        const now = new Date();
+        const diff = appointmentDate - now;
+        const diffMs = Math.abs(diff);
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        
+        if (diff > 0) {
+            // Upcoming appointment - countdown
+            return {
+                text: `Faltam ${hours}h ${minutes}m`,
+                classes: 'text-blue-400 font-medium',
+                tooltip: `Agendado para ${appointmentDate.toLocaleString('pt-BR')}`
+            };
+        } else {
+            // Overdue appointment
+            return {
+                text: `Atraso: ${hours}h ${minutes}m`,
+                classes: 'text-red-500 font-bold animate-pulse',
+                tooltip: `Deveria ter ocorrido em ${appointmentDate.toLocaleString('pt-BR')}`
+            };
+        }
+    }
+    
+    // CASE B: Other statuses → Time in current status (SLA Monitor)
+    const statusDate = new Date(lead.status_updated_at || lead.created_at);
+    const now = new Date();
+    const diffMs = now - statusDate;
+    const totalMinutes = Math.floor(diffMs / (1000 * 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    const days = Math.floor(hours / 24);
+    
+    let timeText = '';
+    if (days > 0) {
+        timeText = `${days}d ${hours % 24}h`;
+    } else if (hours > 0) {
+        timeText = `${hours}h ${minutes}m`;
+    } else {
+        timeText = `${minutes}m`;
+    }
+    
+    // SLA Color Coding: Green < 2h | Yellow 2h-24h | Red > 24h
+    let classes = '';
+    if (hours < 2) {
+        classes = 'text-green-400 font-medium';
+    } else if (hours < 24) {
+        classes = 'text-yellow-400 font-bold';
+    } else {
+        classes = 'text-red-500 font-bold animate-pulse';
+    }
+    
+    return {
+        text: timeText,
+        classes: classes,
+        tooltip: `Neste status há ${timeText} (desde ${statusDate.toLocaleString('pt-BR')})`
+    };
+}
+
+// ============================================
 // Financial Helper Functions
 // ============================================
 
@@ -276,22 +342,11 @@ function createLeadCard(lead) {
         typeBadge = '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400"><i class="fas fa-question mr-1"></i>' + (lead.type || 'Geral') + '</span>';
     }
 
-    // WAIT TIME TRACKER
-    const createdDate = new Date(lead.created_at);
-    const now = new Date();
-    const diffMs = now - createdDate;
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-    const hours = Math.floor(diffMinutes / 60);
-    const minutes = diffMinutes % 60;
-    
-    let timeString = '';
-    if (hours > 0) {
-        timeString = `${hours}h ${minutes}m`;
-    } else {
-        timeString = `${minutes}m`;
-    }
-
-    let timeClasses = diffMinutes < 15 ? 'text-gray-200 font-medium' : 'text-red-400 font-bold animate-pulse';
+    // INTELLIGENT TIMER - Time in Status Feature
+    const timer = calculateTimer(lead);
+    const timeString = timer.text;
+    const timeClasses = timer.classes;
+    const timeTooltip = timer.tooltip;
 
     // SMART REMINDER - Check for upcoming appointments
     let reminderButton = '';
@@ -387,7 +442,7 @@ function createLeadCard(lead) {
             <div class="flex items-center flex-wrap gap-1">
                 ${typeBadge}
             </div>
-            <small class="${timeClasses}">🕒 ${timeString}</small>
+            <small class="${timeClasses}" title="${timeTooltip}">🕒 ${timeString}</small>
         </div>
         
         <!-- Consulta Details (if new format) -->

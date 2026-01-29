@@ -87,13 +87,19 @@ export class LeadController {
                       created_at DESC
                 `;
             } else {
-                // No date filter (period = 'all'): Return all active + finalized from last 24h
+                // No date filter (period = 'all'): Return ALL non-archived leads
                 query = `
                     SELECT * FROM leads 
                     WHERE status != 'archived'
-                      AND (status NOT IN ('finalizado', 'Finalizado') 
-                       OR (status IN ('finalizado', 'Finalizado') AND datetime(created_at) >= datetime('now', '-1 day')))
-                    ORDER BY created_at DESC
+                    ORDER BY 
+                      CASE 
+                        WHEN status = 'novo' THEN 1
+                        WHEN status = 'em_atendimento' THEN 2
+                        WHEN status = 'agendado' THEN 3
+                        WHEN status IN ('finalizado', 'Finalizado') THEN 4
+                        ELSE 5
+                      END,
+                      created_at DESC
                 `;
             }
         }
@@ -135,6 +141,7 @@ export class LeadController {
         if (status !== undefined) {
             updates.push('status = ?');
             values.push(status);
+            updates.push('status_updated_at = CURRENT_TIMESTAMP');
         }
         if (appointment_date !== undefined) {
             updates.push('appointment_date = ?');
