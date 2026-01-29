@@ -9,6 +9,120 @@ if (!token) {
 }
 
 // ============================================
+// Date Filter State & Persistence
+// ============================================
+
+// Load saved date filter from localStorage (default: 7days)
+let currentDateFilter = localStorage.getItem('kanbanDateFilter') || '7days';
+
+// Handle date filter change
+function handleDateFilterChange() {
+    const dateFilterSelect = document.getElementById('dateFilter');
+    if (!dateFilterSelect) return;
+    
+    currentDateFilter = dateFilterSelect.value;
+    
+    // Save preference to localStorage
+    localStorage.setItem('kanbanDateFilter', currentDateFilter);
+    
+    // Visual feedback
+    showLoading(true);
+    
+    // Reload leads with new filter
+    loadLeads();
+    
+    // User feedback toast
+    const filterLabels = {
+        'today': 'Hoje',
+        '7days': 'Últimos 7 Dias',
+        '30days': 'Últimos 30 Dias',
+        'thisMonth': 'Este Mês',
+        'all': 'Todo o Histórico'
+    };
+    
+    showNotification(`📅 Filtro atualizado: ${filterLabels[currentDateFilter]}`, 'info');
+}
+
+// Expose function globally for onclick handler
+window.handleDateFilterChange = handleDateFilterChange;
+
+// ============================================
+// Financial Helper Functions
+// ============================================
+
+// Toggle insurance field visibility based on payment type
+function toggleInsuranceField() {
+    const paymentType = document.getElementById('editPaymentType').value;
+    const insuranceContainer = document.getElementById('insuranceNameContainer');
+    
+    if (paymentType === 'plano') {
+        insuranceContainer.classList.remove('hidden');
+    } else {
+        insuranceContainer.classList.add('hidden');
+        document.getElementById('editInsuranceName').value = '';
+    }
+}
+
+// Format currency to Brazilian Real (R$ X.XXX,XX)
+function formatCurrency(value) {
+    if (!value) return '';
+    const number = parseCurrency(value);
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(number);
+}
+
+// Parse currency string to number
+function parseCurrency(value) {
+    if (typeof value === 'number') return value;
+    if (!value) return 0;
+    return parseFloat(value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+}
+
+// Parse financial data from notes JSON
+function parseFinancialData(notes) {
+    if (!notes) return { paymentType: '', insuranceName: '', paymentValue: '' };
+    
+    try {
+        // Look for JSON embedded in notes like: {"financial":{"paymentType":"particular","value":"250.00"}}
+        const match = notes.match(/\{"financial":\{[^}]+\}\}/);
+        if (match) {
+            const data = JSON.parse(match[0]);
+            return {
+                paymentType: data.financial.paymentType || '',
+                insuranceName: data.financial.insuranceName || '',
+                paymentValue: data.financial.value || ''
+            };
+        }
+    } catch (e) {
+        console.log('No financial data found in notes');
+    }
+    
+    return { paymentType: '', insuranceName: '', paymentValue: '' };
+}
+
+// Encode financial data into notes as JSON
+function encodeFinancialData(notes, financialData) {
+    // Remove any existing financial JSON
+    const cleanNotes = notes.replace(/\{"financial":\{[^}]+\}\}/g, '').trim();
+    
+    // Add new financial JSON if data exists
+    if (financialData.paymentType || financialData.paymentValue) {
+        const financialJson = JSON.stringify({
+            financial: {
+                paymentType: financialData.paymentType,
+                insuranceName: financialData.insuranceName || '',
+                value: financialData.paymentValue || ''
+            }
+        });
+        return `${cleanNotes}\n${financialJson}`.trim();
+    }
+    
+    return cleanNotes;
+}
+
+// ============================================
 // WhatsApp Integration (using shared helper)
 // ============================================
 
@@ -41,7 +155,17 @@ async function loadLeads() {
     showLoading(true);
     
     try {
-        const response = await fetch(`${API_URL}?view=kanban`, {
+        // Build URL with date filter
+        let url = `${API_URL}?view=kanban`;
+        
+        // Add date filter parameter
+        if (currentDateFilter && currentDateFilter !== 'all') {
+            url += `&period=${currentDateFilter}`;
+        }
+        
+        console.log('Loading leads with filter:', currentDateFilter);
+        
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -216,6 +340,36 @@ function createLeadCard(lead) {
         </span>
     ` : '';
     
+    // Financial badges from notes
+    const financialData = parseFinancialData(lead.notes);
+    let financialBadges = '';
+    
+    if (financialData.paymentType) {
+        const paymentIcons = {
+            'particular': '💵 Particular',
+            'plano': `🏥 ${financialData.insuranceName || 'Plano'}`,
+            'retorno': '🔄 Retorno'
+        };
+        const paymentLabel = paymentIcons[financialData.paymentType] || financialData.paymentType;
+        
+        financialBadges += `
+            <div class="flex items-center gap-2 mb-2 flex-wrap">
+                <span class="px-2 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    ${paymentLabel}
+                </span>
+        `;
+        
+        if (financialData.paymentValue && parseFloat(financialData.paymentValue) > 0) {
+            financialBadges += `
+                <span class="px-2 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-300 border border-green-500/30">
+                    💰 ${formatCurrency(financialData.paymentValue)}
+                </span>
+            `;
+        }
+        
+        financialBadges += `</div>`;
+    }
+    
     // Attendance status badge
     const attendanceLabels = {
         'compareceu': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-green-400/20 text-green-300 border border-green-400/30"><i class="fas fa-check mr-1"></i>Compareceu</span>',
@@ -239,18 +393,37 @@ function createLeadCard(lead) {
         <!-- Consulta Details (if new format) -->
         ${consultaDetails}
         
+        <!-- Financial Badges (payment info) -->
+        ${financialBadges}
+        
         <!-- Attendance Status Badge (if exists) -->
         ${attendanceBadge ? `<div class="mb-2">${attendanceBadge}</div>` : ''}
         
         <!-- Edit/Delete/Move buttons -->
         <div class="flex items-center justify-end space-x-2 mb-2">
-            <button onclick="openMoveModal(${lead.id}, '${lead.status || 'novo'}', '${lead.name}')" class="md:hidden text-gray-300 hover:text-purple-400 transition" title="Mover">
+            <button 
+                class="md:hidden text-gray-300 hover:text-purple-400 transition lead-move-btn" 
+                title="Mover"
+                data-lead-id="${lead.id}"
+                data-lead-status="${lead.status || 'novo'}"
+                data-lead-name="${lead.name || ''}">
                 <i class="fas fa-arrows-alt text-xs"></i>
             </button>
-            <button onclick="openEditModal(${lead.id}, '${lead.name}', '${lead.appointment_date || ''}', '${lead.doctor || ''}', \`${(lead.notes || '').replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`, '${lead.type || ''}')" class="text-gray-300 hover:text-blue-400 transition" title="Editar">
+            <button 
+                class="text-gray-300 hover:text-blue-400 transition lead-edit-btn" 
+                title="Editar"
+                data-lead-id="${lead.id}"
+                data-lead-name="${lead.name || ''}"
+                data-lead-date="${lead.appointment_date || ''}"
+                data-lead-doctor="${lead.doctor || ''}"
+                data-lead-notes="${(lead.notes || '').replace(/"/g, '&quot;')}"
+                data-lead-type="${lead.type || ''}">
                 <i class="fas fa-pen text-xs"></i>
             </button>
-            <button onclick="deleteLead(${lead.id})" class="text-gray-300 hover:text-red-400 transition" title="Excluir">
+            <button 
+                class="text-gray-300 hover:text-red-400 transition lead-delete-btn" 
+                title="Excluir"
+                data-lead-id="${lead.id}">
                 <i class="fas fa-trash text-xs"></i>
             </button>
         </div>
@@ -550,7 +723,40 @@ function openEditModal(leadId, leadName, appointmentDate, doctor, notes, type) {
     document.getElementById('editLeadName').value = leadName;
     document.getElementById('editAppointmentDate').value = appointmentDate || '';
     document.getElementById('editDoctor').value = doctor || '';
-    document.getElementById('editNotes').value = notes || '';
+    
+    // Parse financial data from notes
+    const financialData = parseFinancialData(notes);
+    
+    // Remove financial JSON from notes display
+    const cleanNotes = notes ? notes.replace(/\{"financial":\{[^}]+\}\}/g, '').trim() : '';
+    document.getElementById('editNotes').value = cleanNotes;
+    
+    // Set financial fields
+    document.getElementById('editPaymentType').value = financialData.paymentType || '';
+    document.getElementById('editInsuranceName').value = financialData.insuranceName || '';
+    document.getElementById('editPaymentValue').value = financialData.paymentValue ? formatCurrency(financialData.paymentValue) : '';
+    
+    // Toggle insurance field visibility
+    toggleInsuranceField();
+    
+    // Store original values to detect changes
+    const originalDoctorInput = document.getElementById('editOriginalDoctor') || (() => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.id = 'editOriginalDoctor';
+        document.getElementById('editForm').appendChild(input);
+        return input;
+    })();
+    originalDoctorInput.value = doctor || '';
+    
+    const originalNotesInput = document.getElementById('editOriginalNotes') || (() => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.id = 'editOriginalNotes';
+        document.getElementById('editForm').appendChild(input);
+        return input;
+    })();
+    originalNotesInput.value = notes || '';
     
     // Store original type in a hidden field
     const originalTypeInput = document.getElementById('editOriginalType') || (() => {
@@ -602,6 +808,12 @@ function getTimeAgo(date) {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize date filter from localStorage
+    const dateFilterSelect = document.getElementById('dateFilter');
+    if (dateFilterSelect) {
+        dateFilterSelect.value = currentDateFilter;
+    }
+    
     // Edit Form Submit Handler
     const editForm = document.getElementById('editForm');
     if (editForm) {
@@ -614,6 +826,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const notes = document.getElementById('editNotes').value;
             const typeSelect = document.getElementById('editType').value;
             const originalType = document.getElementById('editOriginalType')?.value || '';
+            const originalDoctor = document.getElementById('editOriginalDoctor')?.value || '';
+            const originalNotes = document.getElementById('editOriginalNotes')?.value || '';
+            
+            // Get financial data
+            const paymentType = document.getElementById('editPaymentType').value;
+            const insuranceName = document.getElementById('editInsuranceName').value;
+            const paymentValue = document.getElementById('editPaymentValue').value;
 
             // Convert appointmentDate to ISO format if provided
             let isoDate = null;
@@ -633,16 +852,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('Salvando lead:', { leadId, isoDate, doctor, notes, finalType, originalType });
 
-            // Build update object only with fields that should be updated
-            const updateData = {
-                appointment_date: isoDate,
-                doctor: doctor || null,
-                notes: notes || null
+            // Encode financial data into notes
+            const financialData = {
+                paymentType: paymentType,
+                insuranceName: insuranceName,
+                paymentValue: parseCurrency(paymentValue).toFixed(2)
             };
+            const finalNotes = encodeFinancialData(notes, financialData);
+
+            // Build update object only with fields that were actually changed
+            // This preserves existing data that wasn't modified
+            const updateData = {};
+            
+            // Always update appointment_date if changed (including clearing it)
+            if (isoDate !== null) {
+                updateData.appointment_date = isoDate;
+            }
+            
+            // Only update doctor if it was changed from original
+            if (doctor !== originalDoctor) {
+                updateData.doctor = doctor.trim() || null;
+            }
+            
+            // Only update notes if it was changed from original
+            // Compare final notes (with financial data) to original notes
+            if (finalNotes !== originalNotes) {
+                updateData.notes = finalNotes.trim() || null;
+            }
             
             // Only include type if it was explicitly changed
             if (typeSelect) {
                 updateData.type = typeSelect;
+            }
+            
+            // If nothing changed, just close modal
+            if (Object.keys(updateData).length === 0) {
+                showNotification('ℹ️ Nenhuma alteração foi feita', 'info');
+                closeEditModal();
+                return;
             }
 
             try {
@@ -671,6 +918,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Event delegation for lead card buttons
+    document.addEventListener('click', (e) => {
+        // Edit button
+        const editBtn = e.target.closest('.lead-edit-btn');
+        if (editBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const leadId = parseInt(editBtn.dataset.leadId);
+            const leadName = editBtn.dataset.leadName || '';
+            const leadDate = editBtn.dataset.leadDate || '';
+            const leadDoctor = editBtn.dataset.leadDoctor || '';
+            const leadNotes = (editBtn.dataset.leadNotes || '').replace(/&quot;/g, '"');
+            const leadType = editBtn.dataset.leadType || '';
+            console.log('Edit button clicked:', { leadId, leadName, leadDate, leadDoctor, leadType });
+            openEditModal(leadId, leadName, leadDate, leadDoctor, leadNotes, leadType);
+            return;
+        }
+
+        // Delete button
+        const deleteBtn = e.target.closest('.lead-delete-btn');
+        if (deleteBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const leadId = parseInt(deleteBtn.dataset.leadId);
+            console.log('Delete button clicked:', leadId);
+            deleteLead(leadId);
+            return;
+        }
+
+        // Move button
+        const moveBtn = e.target.closest('.lead-move-btn');
+        if (moveBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            const leadId = parseInt(moveBtn.dataset.leadId);
+            const leadStatus = moveBtn.dataset.leadStatus || 'novo';
+            const leadName = moveBtn.dataset.leadName || '';
+            console.log('Move button clicked:', { leadId, leadStatus, leadName });
+            openMoveModal(leadId, leadStatus, leadName);
+            return;
+        }
+    });
 
     // Load leads on page load
     loadLeads();

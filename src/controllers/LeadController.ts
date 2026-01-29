@@ -11,6 +11,7 @@ export class LeadController {
         const showArchived = req.query.show_archived === 'true';
         const date = req.query.date as string; // Para agenda: YYYY-MM-DD
         const doctor = req.query.doctor as string; // Filtro por profissional
+        const period = req.query.period as string; // NEW: Date filter (today, 7days, 30days, thisMonth, all)
 
         let query = "SELECT * FROM leads WHERE status != 'archived' ORDER BY created_at DESC";
         const params: any[] = [];
@@ -32,22 +33,79 @@ export class LeadController {
             params.push(targetDate);
             if (doctor) params.push(doctor);
         }
-        // If view=kanban: Return active leads + finalized leads from last 24 hours only (exclude archived)
+        // If view=kanban: Apply intelligent date filtering
         else if (view === 'kanban') {
-            query = `
-                SELECT * FROM leads 
-                WHERE status != 'archived'
-                  AND (status != 'Finalizado' 
-                   OR (status = 'Finalizado' AND datetime(created_at) >= datetime('now', '-1 day')))
-                ORDER BY created_at DESC
-            `;
+            let dateFilter = '';
+            
+            // Build date filter SQL based on period
+            if (period && period !== 'all') {
+                switch (period) {
+                    case 'today':
+                        dateFilter = "datetime('now', 'start of day')";
+                        break;
+                    case '7days':
+                        dateFilter = "datetime('now', '-7 days')";
+                        break;
+                    case '30days':
+                        dateFilter = "datetime('now', '-30 days')";
+                        break;
+                    case 'thisMonth':
+                        dateFilter = "datetime('now', 'start of month')";
+                        break;
+                    default:
+                        dateFilter = "datetime('now', '-7 days')";
+                }
+            }
+            
+            if (dateFilter) {
+                // With date filter: Intelligent filtering by status
+                query = `
+                    SELECT * FROM leads 
+                    WHERE status != 'archived'
+                      AND (
+                        status IN ('novo', 'em_atendimento')
+                        OR
+                        (status = 'agendado' 
+                         AND appointment_date IS NOT NULL
+                         AND datetime(appointment_date) >= ${dateFilter})
+                        OR
+                        (status IN ('finalizado', 'Finalizado')
+                         AND (
+                           (updated_at IS NOT NULL AND datetime(updated_at) >= ${dateFilter})
+                           OR
+                           (updated_at IS NULL AND datetime(created_at) >= ${dateFilter})
+                         ))
+                      )
+                    ORDER BY 
+                      CASE 
+                        WHEN status = 'novo' THEN 1
+                        WHEN status = 'em_atendimento' THEN 2
+                        WHEN status = 'agendado' THEN 3
+                        WHEN status IN ('finalizado', 'Finalizado') THEN 4
+                        ELSE 5
+                      END,
+                      created_at DESC
+                `;
+            } else {
+                // No date filter (period = 'all'): Return all active + finalized from last 24h
+                query = `
+                    SELECT * FROM leads 
+                    WHERE status != 'archived'
+                      AND (status NOT IN ('finalizado', 'Finalizado') 
+                       OR (status IN ('finalizado', 'Finalizado') AND datetime(created_at) >= datetime('now', '-1 day')))
+                    ORDER BY created_at DESC
+                `;
+            }
         }
         
         db.all(query, params, (err, rows) => {
             if (err) {
+                console.error('Database error:', err);
                 res.status(500).json({ error: err.message });
                 return;
             }
+            
+            console.log(`Query returned ${rows.length} leads for view=${view}, period=${period || 'none'}`);
             res.json(rows);
         });
     }

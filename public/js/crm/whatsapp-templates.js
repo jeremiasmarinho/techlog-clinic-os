@@ -50,8 +50,21 @@ function getWhatsAppTemplates(lead) {
  * @param {HTMLElement} containerElement - Container element to append menu to
  */
 function openWhatsAppMenu(buttonElement, lead, containerElement) {
-    // Close any open menus
-    document.querySelectorAll('.whatsapp-menu').forEach(menu => menu.remove());
+    // Check if menu is already open for this container
+    const existingMenu = containerElement.querySelector('.whatsapp-menu');
+    if (existingMenu) {
+        // Toggle: close the menu if it's already open
+        existingMenu.remove();
+        containerElement.style.zIndex = '';
+        return;
+    }
+    
+    // Close any other open menus
+    document.querySelectorAll('.whatsapp-menu').forEach(menu => {
+        const parent = menu.parentElement;
+        menu.remove();
+        if (parent) parent.style.zIndex = '';
+    });
     
     const templates = getWhatsAppTemplates(lead);
     
@@ -83,11 +96,13 @@ function openWhatsAppMenu(buttonElement, lead, containerElement) {
     
     // Close menu when clicking outside
     setTimeout(() => {
-        document.addEventListener('click', function closeMenu() {
-            menu.remove();
-            // Reset z-index when menu closes
-            containerElement.style.zIndex = '';
-            document.removeEventListener('click', closeMenu);
+        document.addEventListener('click', function closeMenu(e) {
+            // Don't close if clicking inside the menu
+            if (!menu.contains(e.target) && e.target !== buttonElement) {
+                menu.remove();
+                containerElement.style.zIndex = '';
+                document.removeEventListener('click', closeMenu);
+            }
         });
     }, 100);
 }

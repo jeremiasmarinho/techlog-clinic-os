@@ -10,6 +10,8 @@
     "migrate": "ts-node scripts/fix_db_schema.ts",
     "reset-db": "ts-node scripts/reset_db.ts",
     "reset-db-quick": "ts-node scripts/reset_db_quick.ts",
+    "reset-db-with-seed": "ts-node scripts/reset_db_with_seed.ts && npm start",
+    "seed": "ts-node scripts/force_seed.ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:unit": "jest --testPathPattern=tests/.*\\.test\\.ts$",

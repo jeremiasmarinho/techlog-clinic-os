@@ -174,6 +174,149 @@
             filter: blur(4px);
             transition: filter 0.3s;
         }
+        
+        /* Date Filter - Custom Select Styling */
+        #dateFilter {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2306b6d4' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
+        
+        #dateFilter:hover {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+        }
+        
+        #dateFilter:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+        }
+        
+        #dateFilter option {
+            background: #1e293b;
+            color: white;
+            padding: 8px;
+        }
+        
+        /* Modal Dark Glassmorphism Styles */
+        #editModal select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+        
+        #editModal input:focus,
+        #editModal select:focus,
+        #editModal textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1), 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+        
+        #editModal::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        /* Modern Vertical Sidebar Styles */
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(6, 182, 212, 0.15);
+            color: #06b6d4;
+            transform: translateX(2px);
+        }
+        
+        .sidebar-item i {
+            width: 1.25rem;
+            font-size: 1.125rem;
+            text-align: center;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-item:hover i {
+            transform: scale(1.1);
+        }
+        
+        .sidebar-item span {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar:hover .sidebar-item span {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        #sidebar .user-info span,
+        #sidebar .user-info p {
+            opacity: 0;
+            transition: opacity 0.3s ease 0.1s;
+        }
+        
+        #sidebar:hover .user-info span,
+        #sidebar:hover .user-info p {
+            opacity: 1;
+        }
+        
+        /* Mobile overlay */
+        #sidebarOverlay {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+            
+            #sidebar.open {
+                transform: translateX(0);
+                width: 16rem;
+            }
+            
+            #sidebarOverlay.show {
+                display: block;
+            }
+        }
+        
+        #editModal::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+        }
+        
+        #editModal::-webkit-scrollbar-thumb {
+            background: rgba(6, 182, 212, 0.5);
+            border-radius: 10px;
+        }
+        
+        #editModal::-webkit-scrollbar-thumb:hover {
+            background: rgba(6, 182, 212, 0.7);
+        }
+        
+        #editModal input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
     </style>
     <script>
         tailwind.config = {
@@ -187,26 +330,121 @@
         }
     </script>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex">
 
-    <!-- Header -->
-    <header class="glass-header sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex justify-between items-center">
-                <!-- Mobile Hamburger Menu Button -->
-                <button id="mobileMenuButton" onclick="toggleMobileMenu()" class="block md:hidden text-cyan-400 p-2 hover:bg-white/10 rounded-lg transition">
-                    <i class="fas fa-bars text-2xl"></i>
+    <!-- Modern Vertical Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-screen w-20 hover:w-64 bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 transition-all duration-300 z-50 group overflow-hidden">
+        <div class="flex flex-col h-full py-6">
+            <!-- Logo -->
+            <div class="px-5 mb-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-hospital text-white text-lg"></i>
+                    </div>
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">
+                        <h2 class="text-white font-bold text-sm">Medical CRM</h2>
+                        <p class="text-cyan-400 text-xs">Gestão</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="px-5 mb-6 pb-6 border-b border-slate-700/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user-circle text-cyan-400 text-xl"></i>
+                    </div>
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">
+                        <p class="text-white text-sm font-medium">Olá,</p>
+                        <p id="userName" class="text-cyan-400 text-xs font-bold">Admin</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Filter -->
+            <div class="px-5 mb-6">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-calendar-alt text-cyan-400 text-lg"></i>
+                    </div>
+                    <span class="text-gray-300 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Período</span>
+                </div>
+                <select 
+                    id="dateFilter" 
+                    onchange="handleDateFilterChange()"
+                    class="w-full bg-slate-800/90 border border-slate-700 text-white text-xs font-semibold rounded-lg px-3 py-2 hover:bg-slate-700/90 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 transition-all cursor-pointer"
+                    title="Filtrar por período"
+                >
+                    <option value="today">Hoje</option>
+                    <option value="7days" selected>7 Dias</option>
+                    <option value="30days">30 Dias</option>
+                    <option value="thisMonth">Este Mês</option>
+                    <option value="all">Tudo</option>
+                </select>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-3 space-y-2">
+                <a href="agenda.html" class="sidebar-item">
+                    <i class="fas fa-calendar-day"></i>
+                    <span>Agenda</span>
+                </a>
+                
+                <a href="patients.html" class="sidebar-item">
+                    <i class="fas fa-users"></i>
+                    <span>Pacientes</span>
+                </a>
+                
+                <button id="teamButton" onclick="openTeamModal()" class="sidebar-item hidden">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Equipe</span>
                 </button>
                 
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-hospital text-cyan-400 text-2xl hidden md:block"></i>
-                    <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Medical CRM <span class="text-cyan-400 hidden sm:inline">| Gestão</span></h1>
-                </div>
-                <div class="flex items-center space-x-2 md:space-x-4">
-                    <!-- User Greeting -->
-                    <div class="text-xs md:text-sm text-gray-300 hidden sm:block">
-                        <span class="font-medium">Olá, </span>
-                        <span id="userName" class="font-bold text-cyan-400">Usuário</span>
+                <button onclick="openDashboard()" class="sidebar-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Relatórios</span>
+                </button>
+                
+                <button id="togglePrivacy" onclick="togglePrivacyMode()" class="sidebar-item" title="Modo Privacidade">
+                    <i class="fas fa-eye" id="privacyIcon"></i>
+                    <span>Privacidade</span>
+                </button>
+                
+                <button onclick="loadLeads()" class="sidebar-item">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Atualizar</span>
+                </button>
+            </nav>
+
+            <!-- Logout -->
+            <div class="px-3 pt-6 border-t border-slate-700/50">
+                <button onclick="logout()" class="sidebar-item bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-600 hover:to-red-700">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 ml-20 transition-all duration-300">
+        <!-- Top Bar (minimal) -->
+        <div class="bg-slate-900/50 backdrop-blur-xl border-b border-slate-700/50 px-6 py-4">
+            <div class="flex justify-between items-center">
+                <button onclick="toggleSidebar()" class="lg:hidden text-cyan-400 p-2 hover:bg-white/10 rounded-lg transition">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h1 class="text-xl font-bold text-white">
+                    <i class="fas fa-th-large text-cyan-400 mr-2"></i>
+                    Kanban Board
+                </h1>
+                <div class="w-10"></div>
+            </div>
+        </div>
+                        </select>
                     </div>
                     
                     <!-- Navigation -->
@@ -474,103 +712,170 @@
         </div>
     </div>
 
-    <!-- Edit Lead Modal -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full mx-4">
-            <div class="bg-gradient-to-r from-clinic-teal to-teal-700 text-white px-6 py-4 flex justify-between items-center rounded-t-xl">
+    <!-- Edit Lead Modal - Dark Glassmorphism with Financial Fields -->
+    <div id="editModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <!-- Header -->
+            <div class="sticky top-0 z-10 bg-gradient-to-r from-cyan-600 to-teal-600 px-6 py-4 flex justify-between items-center rounded-t-2xl border-b border-cyan-500/30">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-edit text-2xl"></i>
-                    <h2 class="text-xl font-bold">Editar Agendamento</h2>
+                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-edit text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Editar Agendamento</h2>
+                        <p class="text-xs text-cyan-100/80">Atualize os dados do paciente</p>
+                    </div>
                 </div>
-                <button onclick="closeEditModal()" class="hover:bg-white/20 rounded-full p-2 transition">
-                    <i class="fas fa-times text-xl"></i>
+                <button onclick="closeEditModal()" class="hover:bg-white/20 rounded-lg p-2 transition-all duration-200">
+                    <i class="fas fa-times text-white text-xl"></i>
                 </button>
             </div>
             
-            <div class="p-6">
-                <form id="editForm" class="space-y-4">
+            <!-- Form Content -->
+            <div class="p-6 space-y-5">
+                <form id="editForm" class="space-y-5">
                     <input type="hidden" id="editLeadId">
                     
-                    <!-- Nome (readonly) -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-user mr-2 text-clinic-teal"></i>Paciente
+                    <!-- Patient Name (readonly) -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-user mr-2"></i>Paciente
                         </label>
-                        <input type="text" id="editLeadName" readonly class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg bg-gray-50 text-gray-700">
+                        <input 
+                            type="text" 
+                            id="editLeadName" 
+                            readonly 
+                            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white font-medium focus:outline-none"
+                        >
                     </div>
 
-                    <!-- Data/Hora do Agendamento -->
-                    <div>
-                        <label for="editAppointmentDate" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-calendar-alt mr-2 text-clinic-teal"></i>Data e Hora do Agendamento
+                    <!-- Appointment Date & Time -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                        <label for="editAppointmentDate" class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-calendar-check mr-2"></i>Data e Hora do Agendamento
                         </label>
                         <input 
                             type="datetime-local" 
                             id="editAppointmentDate" 
-                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition"
+                            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200"
                         >
                     </div>
 
-                    <!-- Médico -->
-                    <div>
-                        <label for="editDoctor" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-user-md mr-2 text-clinic-teal"></i>Médico Responsável
+                    <!-- Doctor -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                        <label for="editDoctor" class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-user-md mr-2"></i>Médico Responsável
                         </label>
                         <select 
                             id="editDoctor" 
-                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition bg-white"
+                            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200"
                         >
-                            <option value="">Selecione um médico</option>
-                            <option value="Dr. Edmar">Dr. Edmar</option>
-                            <option value="Dr. Cleber">Dr. Cleber</option>
-                            <option value="Dra. Ana">Dra. Ana</option>
+                            <option value="" class="bg-slate-900">Selecione um médico</option>
+                            <option value="Dr. Edmar" class="bg-slate-900">Dr. Edmar</option>
+                            <option value="Dr. Cleber" class="bg-slate-900">Dr. Cleber</option>
+                            <option value="Dra. Ana" class="bg-slate-900">Dra. Ana</option>
                         </select>
                     </div>
 
-                    <!-- Tipo de Atendimento -->
-                    <div>
-                        <label for="editType" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-stethoscope mr-2 text-clinic-teal"></i>Tipo de Atendimento
+                    <!-- Appointment Type -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                        <label for="editType" class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-stethoscope mr-2"></i>Tipo de Atendimento
                         </label>
                         <select 
                             id="editType" 
-                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition bg-white"
+                            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200"
                         >
-                            <option value="">Selecione um tipo</option>
-                            <option value="primeira_consulta">⭐ Primeira Consulta</option>
-                            <option value="retorno">🔄 Retorno</option>
-                            <option value="recorrente">🔁 Sessão/Recorrente</option>
-                            <option value="exame">🔬 Exame</option>
+                            <option value="" class="bg-slate-900">Selecione um tipo</option>
+                            <option value="primeira_consulta" class="bg-slate-900">⭐ Primeira Consulta</option>
+                            <option value="retorno" class="bg-slate-900">🔄 Retorno</option>
+                            <option value="recorrente" class="bg-slate-900">🔁 Sessão/Recorrente</option>
+                            <option value="exame" class="bg-slate-900">🔬 Exame</option>
                         </select>
                     </div>
 
-                    <!-- Observações -->
-                    <div>
-                        <label for="editNotes" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-notes-medical mr-2 text-clinic-teal"></i>Observações / Sintomas
+                    <!-- Financial Information Section -->
+                    <div class="bg-gradient-to-br from-emerald-900/30 to-teal-900/30 border border-emerald-700/50 rounded-xl p-5">
+                        <h3 class="text-sm font-bold text-emerald-300 mb-4 flex items-center">
+                            <i class="fas fa-dollar-sign mr-2"></i>Informações Financeiras
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Payment Type -->
+                            <div>
+                                <label for="editPaymentType" class="block text-sm font-semibold text-emerald-200 mb-2">
+                                    <i class="fas fa-credit-card mr-2"></i>Tipo de Pagamento
+                                </label>
+                                <select 
+                                    id="editPaymentType" 
+                                    onchange="toggleInsuranceField()"
+                                    class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                >
+                                    <option value="" class="bg-slate-900">Selecione...</option>
+                                    <option value="particular" class="bg-slate-900">💵 Particular</option>
+                                    <option value="plano" class="bg-slate-900">🏥 Plano de Saúde</option>
+                                    <option value="retorno" class="bg-slate-900">🔄 Retorno (Gratuito)</option>
+                                </select>
+                            </div>
+
+                            <!-- Insurance Name (conditional) -->
+                            <div id="insuranceNameContainer" class="hidden">
+                                <label for="editInsuranceName" class="block text-sm font-semibold text-emerald-200 mb-2">
+                                    <i class="fas fa-hospital mr-2"></i>Nome do Plano
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="editInsuranceName" 
+                                    placeholder="Ex: Unimed, Amil, Bradesco Saúde..."
+                                    class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                >
+                            </div>
+
+                            <!-- Payment Value -->
+                            <div>
+                                <label for="editPaymentValue" class="block text-sm font-semibold text-emerald-200 mb-2">
+                                    <i class="fas fa-money-bill-wave mr-2"></i>Valor da Consulta
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="editPaymentValue" 
+                                    placeholder="R$ 0,00"
+                                    class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes / Symptoms -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                        <label for="editNotes" class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-notes-medical mr-2"></i>Observações / Sintomas
                         </label>
                         <textarea 
                             id="editNotes" 
                             rows="4" 
                             placeholder="Digite sintomas, histórico ou observações relevantes..."
-                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition resize-none"
+                            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 resize-none"
                         ></textarea>
+                        <p class="text-xs text-slate-400 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>Os dados financeiros são salvos automaticamente nas observações
+                        </p>
                     </div>
 
-                    <!-- Buttons -->
-                    <div class="flex space-x-3 pt-4">
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-3 pt-2">
                         <button 
                             type="button" 
                             onclick="closeEditModal()" 
-                            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-6 rounded-lg transition"
+                            class="flex-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center"
                         >
-                            Cancelar
+                            <i class="fas fa-times mr-2"></i>Cancelar
                         </button>
                         <button 
                             type="submit" 
-                            class="flex-1 bg-clinic-teal hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+                            class="flex-1 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center shadow-lg shadow-cyan-500/30"
                         >
-                            <i class="fas fa-save mr-2"></i>Salvar
+                            <i class="fas fa-save mr-2"></i>Salvar Alterações
                         </button>
                     </div>
                 </form>
@@ -822,6 +1127,19 @@
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Sidebar Toggle for Mobile -->
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+        
+        // Close sidebar when clicking overlay
+        document.getElementById('sidebarOverlay')?.addEventListener('click', toggleSidebar);
+    </script>
     
     <!-- CRM Application JavaScript Modules -->
     <script src="./js/crm/dialogs.js"></script>
