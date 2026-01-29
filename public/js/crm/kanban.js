@@ -537,7 +537,7 @@ function createLeadCard(lead) {
                 </button>
                 <button 
                     onclick="archiveLead(${lead.id})"
-                    class="flex-1 bg-gray-500/20 hover:bg-gray-600 text-gray-300 hover:text-white px-3 py-2 rounded text-xs transition border border-gray-500/30 hover:border-gray-600"
+                    class="flex-1 bg-slate-500/20 hover:bg-slate-600 text-slate-300 hover:text-white px-3 py-2 rounded text-xs transition border border-slate-500/30 hover:border-slate-600"
                     title="Arquivar Lead">
                     <i class="fas fa-archive mr-1"></i>Arquivar
                 </button>

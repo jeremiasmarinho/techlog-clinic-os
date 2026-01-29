@@ -106,7 +106,7 @@ export function createLeadCard(lead, dragStart, dragEnd) {
             <button onclick="setupReturn(${lead.id})" class="flex-1 glass-card p-2.5 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-white rounded-lg transition-all border border-cyan-500/30 hover:border-cyan-500 group" title="Agendar Retorno">
                 <i class="fas fa-calendar-plus mr-1 group-hover:animate-pulse"></i>Retorno
             </button>
-            <button onclick="archiveLead(${lead.id})" class="flex-1 glass-card p-2.5 bg-gray-500/20 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-all border border-gray-500/30 hover:border-gray-600 group" title="Arquivar Lead">
+            <button onclick="archiveLead(${lead.id})" class="flex-1 glass-card p-2.5 bg-slate-500/20 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg transition-all border border-slate-500/30 hover:border-slate-600 group" title="Arquivar Lead">
                 <i class="fas fa-archive mr-1 group-hover:animate-pulse"></i>Arquivar
             </button>
         </div>
