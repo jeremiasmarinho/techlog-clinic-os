@@ -33,18 +33,40 @@ export function createLeadCard(lead, dragStart, dragEnd) {
         typeBadge = `<span class="inline-block px-3 py-1 bg-gray-500/20 text-gray-300 rounded-full text-xs font-semibold">? ${lead.type || 'Geral'}</span>`;
     }
 
-    // Attendance status badge (for Finalizado)
+    // Attendance status badge - STRICT RULES
     let attendanceBadge = '';
     if (lead.attendance_status) {
+        const currentStatus = (lead.status || '').toLowerCase().trim();
+        const attendanceStatus = lead.attendance_status.toLowerCase().trim();
+        
         const statusMap = {
             'compareceu': { icon: '✅', text: 'Compareceu', color: 'green' },
             'nao_compareceu': { icon: '❌', text: 'Não veio', color: 'red' },
-            'cancelado': { icon: '🚫', text: 'Cancelado', color: 'yellow' },
-            'remarcado': { icon: '📅', text: 'Remarcado', color: 'blue' }
+            'cancelado': { icon: '🚫', text: 'Cancelado', color: 'gray' },
+            'remarcado': { icon: '📅', text: 'Remarcado', color: 'yellow' }
         };
-        const status = statusMap[lead.attendance_status] || { icon: '❓', text: lead.attendance_status, color: 'gray' };
-        attendanceBadge = `<span class="inline-block px-2 py-1 bg-${status.color}-500/20 text-${status.color}-300 rounded-full text-xs font-semibold ml-2">${status.icon} ${status.text}</span>`;
+        
+        // STRICT RULE 1: Outcome badges (Compareceu, Não veio, Cancelado) ONLY in Finalizados
+        const outcomeStatuses = ['compareceu', 'nao_compareceu', 'cancelado'];
+        if (outcomeStatuses.includes(attendanceStatus)) {
+            if (currentStatus === 'finalizado') {
+                const status = statusMap[attendanceStatus];
+                attendanceBadge = `<span class="inline-block px-2 py-1 bg-${status.color}-500/20 text-${status.color}-300 rounded-full text-xs font-semibold ml-2">${status.icon} ${status.text}</span>`;
+            }
+            // Else: DON'T show outcome badges outside Finalizados
+        }
+        // STRICT RULE 2: Remarcado badge ONLY in Agendado/Em Atendimento
+        else if (attendanceStatus === 'remarcado') {
+            if (currentStatus === 'agendado' || currentStatus === 'em_atendimento') {
+                const status = statusMap['remarcado'];
+                attendanceBadge = `<span class="inline-block px-2 py-1 bg-${status.color}-500/20 text-${status.color}-300 rounded-full text-xs font-semibold ml-2">${status.icon} ${status.text}</span>`;
+            }
+            // Else: DON'T show remarcado badge in Novos/Finalizados
+        }
     }
+
+    // Current status for conditional rendering
+    const currentStatus = (lead.status || '').toLowerCase().trim();
 
     // Time ago badge
     const timeAgo = getTimeAgo(lead.created_at);
@@ -77,6 +99,18 @@ export function createLeadCard(lead, dragStart, dragEnd) {
         <p class="lead-phone text-gray-300 text-sm mb-3 flex items-center">
             <i class="fas fa-phone mr-2 text-cyan-400"></i>${formatPhone(lead.phone)}
         </p>
+
+        <!-- Post-Attendance Actions (ONLY for Finalizados) -->
+        ${currentStatus === 'finalizado' ? `
+        <div class="flex space-x-2 mb-3">
+            <button onclick="setupReturn(${lead.id})" class="flex-1 glass-card p-2.5 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-white rounded-lg transition-all border border-cyan-500/30 hover:border-cyan-500 group" title="Agendar Retorno">
+                <i class="fas fa-calendar-plus mr-1 group-hover:animate-pulse"></i>Retorno
+            </button>
+            <button onclick="archiveLead(${lead.id})" class="flex-1 glass-card p-2.5 bg-gray-500/20 hover:bg-gray-600 text-gray-300 hover:text-white rounded-lg transition-all border border-gray-500/30 hover:border-gray-600 group" title="Arquivar Lead">
+                <i class="fas fa-archive mr-1 group-hover:animate-pulse"></i>Arquivar
+            </button>
+        </div>
+        ` : ''}
 
         <div class="flex space-x-2">
             <button onclick="openEditModal(${lead.id}, '${lead.name}', '${lead.appointment_date || ''}', '${lead.doctor || ''}', \`${(lead.notes || '').replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`, '${lead.type || ''}')" class="text-gray-300 hover:text-blue-400 transition" title="Editar">

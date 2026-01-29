@@ -426,14 +426,33 @@ function createLeadCard(lead) {
         financialBadges += `</div>`;
     }
     
-    // Attendance status badge
-    const attendanceLabels = {
-        'compareceu': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-green-400/20 text-green-300 border border-green-400/30"><i class="fas fa-check mr-1"></i>Compareceu</span>',
-        'nao_compareceu': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-400/20 text-red-300 border border-red-400/30"><i class="fas fa-times mr-1"></i>Não veio</span>',
-        'cancelado': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-400/20 text-gray-300 border border-gray-400/30"><i class="fas fa-ban mr-1"></i>Cancelado</span>',
-        'remarcado': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-400/20 text-yellow-300 border border-yellow-400/30"><i class="fas fa-calendar-alt mr-1"></i>Remarcado</span>'
-    };
-    const attendanceBadge = lead.attendance_status ? attendanceLabels[lead.attendance_status] || '' : '';
+    // Attendance status badge - STRICT RULES
+    const currentStatus = (lead.status || '').toLowerCase().trim();
+    let attendanceBadge = '';
+    
+    if (lead.attendance_status) {
+        const attendanceStatus = lead.attendance_status.toLowerCase().trim();
+        const attendanceLabels = {
+            'compareceu': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-green-400/20 text-green-300 border border-green-400/30"><i class="fas fa-check mr-1"></i>Compareceu</span>',
+            'nao_compareceu': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-400/20 text-red-300 border border-red-400/30"><i class="fas fa-times mr-1"></i>Não veio</span>',
+            'cancelado': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-400/20 text-gray-300 border border-gray-400/30"><i class="fas fa-ban mr-1"></i>Cancelado</span>',
+            'remarcado': '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-400/20 text-yellow-300 border border-yellow-400/30"><i class="fas fa-calendar-alt mr-1"></i>Remarcado</span>'
+        };
+        
+        // STRICT RULE 1: Outcome badges ONLY in Finalizados
+        const outcomeStatuses = ['compareceu', 'nao_compareceu', 'cancelado'];
+        if (outcomeStatuses.includes(attendanceStatus)) {
+            if (currentStatus === 'finalizado') {
+                attendanceBadge = attendanceLabels[attendanceStatus] || '';
+            }
+        }
+        // STRICT RULE 2: Remarcado badge ONLY in Agendado/Em Atendimento
+        else if (attendanceStatus === 'remarcado') {
+            if (currentStatus === 'agendado' || currentStatus === 'em_atendimento') {
+                attendanceBadge = attendanceLabels['remarcado'];
+            }
+        }
+    }
 
     card.innerHTML = `
         ${notesIndicator}
@@ -506,6 +525,24 @@ function createLeadCard(lead) {
             
             <!-- Smart Reminder Button -->
             ${reminderButton}
+            
+            <!-- Post-Attendance Actions (ONLY for Finalizados) -->
+            ${currentStatus === 'finalizado' ? `
+            <div class="flex space-x-2 mt-2">
+                <button 
+                    onclick="setupReturn(${lead.id})"
+                    class="flex-1 bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-white px-3 py-2 rounded text-xs transition border border-cyan-500/30 hover:border-cyan-500"
+                    title="Agendar Retorno">
+                    <i class="fas fa-calendar-plus mr-1"></i>Retorno
+                </button>
+                <button 
+                    onclick="archiveLead(${lead.id})"
+                    class="flex-1 bg-gray-500/20 hover:bg-gray-600 text-gray-300 hover:text-white px-3 py-2 rounded text-xs transition border border-gray-500/30 hover:border-gray-600"
+                    title="Arquivar Lead">
+                    <i class="fas fa-archive mr-1"></i>Arquivar
+                </button>
+            </div>
+            ` : ''}
         </div>
     `;
     
@@ -729,6 +766,96 @@ async function deleteLead(id) {
     } catch (error) {
         console.error('Erro ao deletar lead:', error);
         showNotification('❌ Erro ao remover lead', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Setup Return - Pre-fill modal for return appointment
+async function setupReturn(leadId) {
+    // Find lead data from the card
+    const card = document.querySelector(`[data-id="${leadId}"]`);
+    if (!card) {
+        showNotification('❌ Lead não encontrado', 'error');
+        return;
+    }
+    
+    // Get lead data from card
+    const leadName = card.querySelector('.lead-name').textContent;
+    const leadPhone = card.querySelector('.lead-phone').textContent.replace(/\D/g, '');
+    const currentType = card.dataset.type || '';
+    const currentNotes = card.dataset.notes || '';
+    
+    // Pre-fill the edit modal with return type
+    openEditModal(
+        leadId,
+        leadName,
+        '', // No appointment date initially
+        '', // No doctor initially
+        currentNotes,
+        'retorno' // Set type as return
+    );
+    
+    // Change lead status to "Novo" (will restart the flow)
+    try {
+        showLoading(true);
+        const response = await fetch(`${API_URL}/${leadId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                status: 'novo',
+                type: 'retorno'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erro ao configurar retorno');
+        }
+        
+        showNotification('🔄 Lead configurado para retorno! Complete os dados no modal.', 'success');
+        loadLeads();
+        
+    } catch (error) {
+        console.error('Erro ao configurar retorno:', error);
+        showNotification('❌ Erro ao configurar retorno', 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Archive Lead - Move to archived status
+async function archiveLead(leadId) {
+    if (!confirm('Deseja arquivar este lead? Ele será movido para a área de arquivados.')) {
+        return;
+    }
+    
+    showLoading(true);
+    
+    try {
+        const response = await fetch(`${API_URL}/${leadId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                status: 'archived'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erro ao arquivar lead');
+        }
+        
+        showNotification('📦 Lead arquivado com sucesso!', 'success');
+        loadLeads();
+        
+    } catch (error) {
+        console.error('Erro ao arquivar lead:', error);
+        showNotification('❌ Erro ao arquivar lead', 'error');
     } finally {
         showLoading(false);
     }
