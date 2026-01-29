@@ -8,10 +8,18 @@
     "dev": "ts-node src/server.ts",
     "watch": "tsc -w",
     "migrate": "ts-node scripts/fix_db_schema.ts",
+    "reset-db": "ts-node scripts/reset_db.ts",
+    "reset-db-quick": "ts-node scripts/reset_db_quick.ts",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:unit": "jest --testPathPattern=tests/.*\\.test\\.ts$",
-    "test:verbose": "jest --coverage --verbose"
+    "test:verbose": "jest --coverage --verbose",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +37,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",

@@ -9,8 +9,12 @@ import authRoutes from './routes/auth.routes'; // Rotas de autenticação JWT
 import metricsRoutes from './routes/metrics.routes'; // Rotas de métricas
 import './database'; // Inicia o banco de dados
 
-// Load environment variables
+// Load environment variables (preserve NODE_ENV if already set)
+const preservedNodeEnv = process.env.NODE_ENV;
 dotenv.config();
+if (preservedNodeEnv) {
+    process.env.NODE_ENV = preservedNodeEnv;
+}
 
 export class Server {
     public app: express.Application;
@@ -22,17 +26,28 @@ export class Server {
     }
 
     private config(): void {
-        // Rate Limiting for auth endpoints
-        const authLimiter = rateLimit({
-            windowMs: 15 * 60 * 1000, // 15 minutos
-            max: 5, // Máximo 5 tentativas
-            message: { error: 'Muitas tentativas de login. Tente novamente em 15 minutos.' },
-            standardHeaders: true,
-            legacyHeaders: false,
-        });
+        // Rate Limiting for auth endpoints (disabled in test environment)
+        if (process.env.NODE_ENV !== 'test') {
+            const authLimiter = rateLimit({
+                windowMs: 15 * 60 * 1000, // 15 minutos
+                max: 5, // Máximo 5 tentativas
+                message: { error: 'Muitas tentativas de login. Tente novamente em 15 minutos.' },
+                standardHeaders: true,
+                legacyHeaders: false,
+            });
 
-        // Apply rate limiting to auth routes
-        this.app.use('/api/auth/login', authLimiter);
+            // Apply rate limiting to auth routes
+            this.app.use('/api/auth/login', authLimiter);
+        } else {
+            // In test mode, use a very high limit to avoid blocking E2E tests
+            const testLimiter = rateLimit({
+                windowMs: 1 * 60 * 1000, // 1 minuto
+                max: 1000, // 1000 tentativas por minuto
+                standardHeaders: false,
+                legacyHeaders: false,
+            });
+            this.app.use('/api/auth/login', testLimiter);
+        }
         
         // CORS Configuration - Restricted in production
         const allowedOrigins = process.env.ALLOWED_ORIGINS 
