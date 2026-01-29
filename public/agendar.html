@@ -3,29 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Clínica Viva - Agende sua consulta ou exame online. Atendimento rápido e humanizado.">
-    <title>Clínica Viva | Agendamento Online</title>
+    <meta name="description" content="Sua Clínica Aqui - Agende sua consulta online. Atendimento rápido e humanizado.">
+    <title>Agendamento Online | Sua Clínica Aqui</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         * {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
         }
         
-        .gradient-bg {
-            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+        html { scroll-behavior: smooth; }
+        body { background: #0a0e1a; position: relative; overflow-x: hidden; }
+        
+        /* Aurora Background */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0a192f 0%, #0d1b2a 25%, #0f2f3f 50%, #134e4a 75%, #0d1b2a 100%);
+            z-index: -2;
+        }
+        
+        body::after {
+            content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(13, 148, 136, 0.2) 0%, transparent 50%);
+            animation: aurora 20s ease-in-out infinite; z-index: -1;
+        }
+        
+        @keyframes aurora {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+            50% { transform: translate(-5%, 10%) rotate(180deg); opacity: 0.9; }
+        }
+        
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        .neon-button {
+            position: relative;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.8) 0%, rgba(13, 148, 136, 0.9) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .neon-button:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+            transform: translateY(-1px);
         }
         
         input:focus, select:focus {
             outline: none;
-            border-color: #0d9488;
-            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+            border-color: rgba(6, 182, 212, 0.8);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+        }
+        
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+        
+        .step-indicator.active {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(13, 148, 136, 0.4));
+            border-color: rgba(6, 182, 212, 0.5);
         }
         
         .success-checkmark {
@@ -40,13 +89,13 @@
             position: relative;
             border-radius: 50%;
             box-sizing: content-box;
-            border: 5px solid #10b981;
-            background: #fff;
+            border: 5px solid #06b6d4;
+            background: rgba(6, 182, 212, 0.1);
         }
         
         .success-checkmark .check-icon .icon-line {
             height: 5px;
-            background-color: #10b981;
+            background-color: #06b6d4;
             display: block;
             border-radius: 2px;
             position: absolute;
@@ -84,149 +133,260 @@
             100% { width: 55px; right: 10px; top: 45px; }
         }
         
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 20px;
-            height: 20px;
-            animation: spin 0.6s linear infinite;
-            display: inline-block;
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'clinic-teal': '#0d9488',
-                    }
-                }
-            }
-        }
-    <!-- Site Agendar Script -->
-    <script src="./js/site/agendar.js"></script>
+</head>
+<body class="min-h-screen text-gray-100">
 
     <!-- Header -->
-    <header class="gradient-bg text-white py-6 shadow-lg">
-        <div class="max-w-md mx-auto px-4">
-            <div class="flex items-center justify-center space-x-3">
-                <i class="fas fa-hospital text-4xl"></i>
-                <div>
-                    <h1 class="text-2xl font-bold">Clínica Viva</h1>
-                    <p class="text-sm opacity-90">Agendamento Online</p>
-                </div>
+    <header class="fixed w-full top-0 z-50 bg-opacity-90 bg-[#0a0e1a] backdrop-blur-md border-b border-white/10">
+        <nav class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 md:h-20">
+                <a href="/" class="flex items-center space-x-2 md:space-x-3">
+                    <svg class="w-6 h-6 md:w-8 md:h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    <div>
+                        <h1 class="text-base md:text-2xl font-bold">Sua Clínica <span class="text-cyan-400">Aqui</span></h1>
+                    </div>
+                </a>
+                <a href="/" class="text-gray-300 hover:text-cyan-400 transition text-sm md:text-base">
+                    ← Voltar ao Início
+                </a>
             </div>
-        </div>
+        </nav>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow flex items-center justify-center px-4 py-8">
-        <div class="max-w-md w-full">
+    <main class="pt-24 pb-12 px-4">
+        <div class="max-w-2xl mx-auto">
             
             <!-- Form Container -->
-            <div id="formContainer" class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+            <div id="formContainer" class="glass-card rounded-3xl p-6 md:p-10 fade-in">
                 <!-- Header -->
-                <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-teal-100 rounded-full mb-4">
-                        <i class="fas fa-calendar-check text-clinic-teal text-2xl"></i>
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-cyan-400/10 rounded-full mb-4 border border-cyan-400/20">
+                        <svg class="w-10 h-10 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Agende sua Consulta</h2>
-                    <p class="text-gray-600">Preencha os dados abaixo e entraremos em contato rapidamente</p>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-3">Agende sua Consulta</h2>
+                    <p class="text-gray-400">Preencha os dados e entraremos em contato rapidamente</p>
                 </div>
 
-                <!-- Form -->
-                <form id="appointmentForm" class="space-y-5">
-                    <!-- Nome Completo -->
-                    <div>
-                        <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-user mr-2 text-clinic-teal"></i>Nome Completo
+                <!-- Multi-Step Form -->
+                <form id="appointmentForm" class="space-y-6">
+                    
+                    <!-- Step 1: Especialidade -->
+                    <div id="step1" class="form-step">
+                        <label class="block text-lg font-semibold text-gray-200 mb-4">
+                            Para qual especialidade você precisa de consulta?
                         </label>
-                        <input 
-                            type="text" 
-                            id="name" 
-                            name="name" 
-                            required 
-                            placeholder="Digite seu nome completo"
-                            class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition"
-                        >
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <button type="button" onclick="selectSpecialty('Clínica Geral')" class="specialty-btn glass-card p-4 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition text-left">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">👨‍⚕️</span>
+                                    <span class="font-medium">Clínica Geral</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectSpecialty('Ginecologia')" class="specialty-btn glass-card p-4 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition text-left">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">👩‍⚕️</span>
+                                    <span class="font-medium">Ginecologia</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectSpecialty('Cardiologia')" class="specialty-btn glass-card p-4 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition text-left">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">❤️</span>
+                                    <span class="font-medium">Cardiologia</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectSpecialty('Oftalmologia')" class="specialty-btn glass-card p-4 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition text-left">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">👁️</span>
+                                    <span class="font-medium">Oftalmologia</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectSpecialty('Ortopedia')" class="specialty-btn glass-card p-4 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition text-left">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">🦴</span>
+                                    <span class="font-medium">Ortopedia</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectSpecialty('Pediatria')" class="specialty-btn glass-card p-4 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition text-left">
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-2xl">👶</span>
+                                    <span class="font-medium">Pediatria</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- WhatsApp -->
-                    <div>
-                        <label for="phone" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fab fa-whatsapp mr-2 text-clinic-teal"></i>WhatsApp
+                    <!-- Step 2: Tipo de Pagamento -->
+                    <div id="step2" class="form-step hidden">
+                        <label class="block text-lg font-semibold text-gray-200 mb-4">
+                            O atendimento será por plano de saúde ou particular?
                         </label>
-                        <input 
-                            type="tel" 
-                            id="phone" 
-                            name="phone" 
-                            required 
-                            placeholder="(00) 00000-0000"
-                            maxlength="15"
-                            class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition"
-                        >
-                        <p class="text-xs text-gray-500 mt-1">Entraremos em contato pelo WhatsApp</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <button type="button" onclick="selectPayment('Plano de saúde')" class="glass-card p-6 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition">
+                                <div class="text-center">
+                                    <span class="text-3xl mb-2 block">🏥</span>
+                                    <span class="font-medium">Plano de Saúde</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectPayment('Particular')" class="glass-card p-6 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition">
+                                <div class="text-center">
+                                    <span class="text-3xl mb-2 block">💳</span>
+                                    <span class="font-medium">Particular</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Tipo de Agendamento -->
-                    <div>
-                        <label for="type" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fas fa-stethoscope mr-2 text-clinic-teal"></i>Tipo de Atendimento
+                    <!-- Step 3: Período -->
+                    <div id="step3" class="form-step hidden">
+                        <label class="block text-lg font-semibold text-gray-200 mb-4">
+                            Qual período você prefere ser atendido?
                         </label>
-                        <select 
-                            id="type" 
-                            name="type" 
-                            required
-                            class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:border-clinic-teal transition bg-white"
-                        >
-                            <option value="">Selecione uma opção</option>
-                            <option value="primeira_consulta">⭐ Primeira Consulta</option>
-                            <option value="retorno">🔄 Retorno</option>
-                            <option value="recorrente">🔁 Sessão/Recorrente</option>
-                            <option value="exame">🔬 Exame</option>
-                        </select>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <button type="button" onclick="selectPeriod('Manhã')" class="glass-card p-6 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition">
+                                <div class="text-center">
+                                    <span class="text-3xl mb-2 block">🌅</span>
+                                    <span class="font-medium">Manhã</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectPeriod('Tarde')" class="glass-card p-6 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition">
+                                <div class="text-center">
+                                    <span class="text-3xl mb-2 block">☀️</span>
+                                    <span class="font-medium">Tarde</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectPeriod('Tanto faz')" class="glass-card p-6 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition">
+                                <div class="text-center">
+                                    <span class="text-3xl mb-2 block">⏰</span>
+                                    <span class="font-medium">Tanto faz</span>
+                                </div>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        id="submitBtn"
-                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-lg py-4 px-6 rounded-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center justify-center"
-                    >
-                        <i class="fas fa-paper-plane mr-2"></i>
-                        <span id="btnText">Agendar Agora</span>
-                        <div id="btnSpinner" class="spinner ml-2 hidden"></div>
-                    </button>
+                    <!-- Step 4: Dias -->
+                    <div id="step4" class="form-step hidden">
+                        <label class="block text-lg font-semibold text-gray-200 mb-4">
+                            Em quais dias você prefere ser atendido?
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <button type="button" onclick="selectDay('Segunda a Sexta')" class="glass-card p-6 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition">
+                                <div class="text-center">
+                                    <span class="text-3xl mb-2 block">📅</span>
+                                    <span class="font-medium">Seg a Sex</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectDay('Apenas Sábado')" class="glass-card p-6 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition">
+                                <div class="text-center">
+                                    <span class="text-3xl mb-2 block">📆</span>
+                                    <span class="font-medium">Sábado</span>
+                                </div>
+                            </button>
+                            <button type="button" onclick="selectDay('Tanto faz')" class="glass-card p-6 rounded-xl hover:bg-cyan-400/10 border border-white/10 hover:border-cyan-400/30 transition">
+                                <div class="text-center">
+                                    <span class="text-3xl mb-2 block">🗓️</span>
+                                    <span class="font-medium">Tanto faz</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Dados Pessoais -->
+                    <div id="step5" class="form-step hidden space-y-5">
+                        <label class="block text-lg font-semibold text-gray-200 mb-4">
+                            Agora preciso de alguns dados para finalizarmos
+                        </label>
+                        
+                        <!-- Nome -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-300 mb-2">Nome Completo</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                required 
+                                placeholder="Digite seu nome e sobrenome"
+                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:bg-white/10 transition"
+                            >
+                        </div>
+
+                        <!-- WhatsApp -->
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-300 mb-2">WhatsApp (com DDD)</label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                required 
+                                placeholder="(11) 99999-9999"
+                                maxlength="15"
+                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:bg-white/10 transition"
+                            >
+                            <p class="text-xs text-gray-500 mt-1">Entraremos em contato pelo WhatsApp</p>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button 
+                            type="submit" 
+                            id="submitBtn"
+                            class="neon-button w-full font-bold text-lg py-4 px-6 rounded-xl text-white flex items-center justify-center"
+                        >
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span id="btnText">Confirmar Agendamento</span>
+                        </button>
+                    </div>
+
                 </form>
 
+                <!-- Progress Indicator -->
+                <div id="progressBar" class="mt-8 flex justify-center space-x-2">
+                    <div class="step-indicator active w-3 h-3 rounded-full border-2 border-cyan-400"></div>
+                    <div class="step-indicator w-3 h-3 rounded-full border-2 border-white/20"></div>
+                    <div class="step-indicator w-3 h-3 rounded-full border-2 border-white/20"></div>
+                    <div class="step-indicator w-3 h-3 rounded-full border-2 border-white/20"></div>
+                    <div class="step-indicator w-3 h-3 rounded-full border-2 border-white/20"></div>
+                </div>
+
                 <!-- Trust Badges -->
-                <div class="mt-6 pt-6 border-t border-gray-200">
-                    <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                <div class="mt-8 pt-6 border-t border-white/10">
+                    <div class="flex items-center justify-center flex-wrap gap-4 text-xs text-gray-400">
                         <div class="flex items-center">
-                            <i class="fas fa-shield-alt text-green-600 mr-1"></i>
+                            <svg class="w-4 h-4 text-cyan-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
                             <span>Dados Seguros</span>
                         </div>
                         <div class="flex items-center">
-                            <i class="fas fa-clock text-green-600 mr-1"></i>
+                            <svg class="w-4 h-4 text-cyan-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
                             <span>Resposta Rápida</span>
                         </div>
                         <div class="flex items-center">
-                            <i class="fas fa-check-circle text-green-600 mr-1"></i>
+                            <svg class="w-4 h-4 text-cyan-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
                             <span>Sem Compromisso</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Success Message (Hidden by Default) -->
-            <div id="successContainer" class="bg-white rounded-2xl shadow-xl p-8 hidden">
+            <!-- Success Container -->
+            <div id="successContainer" class="glass-card rounded-3xl p-10 hidden fade-in">
                 <div class="text-center">
                     <!-- Animated Checkmark -->
                     <div class="success-checkmark">
@@ -237,25 +397,33 @@
                     </div>
 
                     <!-- Success Message -->
-                    <h2 class="text-2xl font-bold text-gray-900 mb-3">
-                        Agendamento Recebido!
-                    </h2>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        <i class="fab fa-whatsapp text-green-600 text-xl mr-2"></i>
+                    <h2 class="text-3xl font-bold mb-4">Agendamento Recebido!</h2>
+                    <p class="text-gray-400 mb-8 text-lg">
                         Recebemos seu pedido! Entraremos em contato pelo WhatsApp em breve para confirmar seu agendamento.
                     </p>
+
+                    <!-- Summary -->
+                    <div class="glass-card p-6 rounded-xl mb-8 text-left">
+                        <h3 class="font-semibold text-cyan-400 mb-3">Resumo do Agendamento:</h3>
+                        <div class="space-y-2 text-sm">
+                            <p id="summarySpecialty"></p>
+                            <p id="summaryPayment"></p>
+                            <p id="summaryPeriod"></p>
+                            <p id="summaryDay"></p>
+                        </div>
+                    </div>
 
                     <!-- CTA Buttons -->
                     <div class="space-y-3">
                         <button 
                             onclick="resetForm()" 
-                            class="w-full bg-clinic-teal hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition"
+                            class="neon-button w-full font-semibold py-3 px-6 rounded-xl text-white"
                         >
-                            <i class="fas fa-plus mr-2"></i>Fazer Novo Agendamento
+                            Fazer Novo Agendamento
                         </button>
                         <a 
                             href="/" 
-                            class="block w-full border-2 border-gray-300 hover:border-clinic-teal text-gray-700 font-semibold py-3 px-6 rounded-lg transition text-center"
+                            class="block w-full glass-card border border-white/20 hover:border-cyan-400/50 font-semibold py-3 px-6 rounded-xl transition text-center"
                         >
                             Voltar ao Início
                         </a>
@@ -267,120 +435,191 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 py-6">
-        <div class="max-w-md mx-auto px-4 text-center">
-            <p class="text-gray-600 text-sm mb-2">
-                <i class="fas fa-phone-alt text-clinic-teal mr-2"></i>
-                Dúvidas? Entre em contato: <strong>(00) 0000-0000</strong>
-            </p>
-            <p class="text-gray-500 text-xs">
-                © 2026 Clínica Viva. Todos os direitos reservados.
+    <footer class="bg-black/20 border-t border-white/5 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p class="text-gray-400 text-sm mb-2">
+                © 2026 Sua Clínica Aqui - Todos os direitos reservados
             </p>
         </div>
     </footer>
 
-    <!-- JavaScript -->
     <script>
-        const form = document.getElementById('appointmentForm');
-        const phoneInput = document.getElementById('phone');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const btnSpinner = document.getElementById('btnSpinner');
-        const formContainer = document.getElementById('formContainer');
-        const successContainer = document.getElementById('successContainer');
-
-        // Phone Mask (XX) XXXXX-XXXX
-        phoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
+        // Form state
+        let formData = {
+            specialty: '',
+            payment: '',
+            period: '',
+            day: '',
+            name: '',
+            phone: ''
+        };
+        
+        let currentStep = 1;
+        
+        // Step navigation
+        function showStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`step${step}`).classList.remove('hidden');
             
-            if (value.length > 11) {
-                value = value.slice(0, 11);
-            }
-            
-            let formatted = '';
-            if (value.length > 0) {
-                formatted = '(' + value.substring(0, 2);
-                if (value.length >= 3) {
-                    formatted += ') ' + value.substring(2, 7);
+            // Update progress
+            document.querySelectorAll('.step-indicator').forEach((el, idx) => {
+                if (idx < step) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
                 }
-                if (value.length >= 8) {
-                    formatted += '-' + value.substring(7, 11);
-                }
-            }
+            });
             
-            e.target.value = formatted;
-        });
-
-        // Form Submit
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Get form data
-            const name = document.getElementById('name').value.trim();
-            const phone = phoneInput.value.replace(/\D/g, ''); // Remove formatting
-            const type = document.getElementById('type').value;
-
-            // Validation
-            if (!name || !phone || !type) {
-                alert('Por favor, preencha todos os campos.');
-                return;
-            }
-
-            if (phone.length < 10) {
-                alert('Por favor, digite um número de WhatsApp válido com DDD.');
-                phoneInput.focus();
-                return;
-            }
-
-            // Show loading state
-            submitBtn.disabled = true;
-            btnText.textContent = 'Enviando...';
-            btnSpinner.classList.remove('hidden');
-
-            try {
-                // Send POST request to API (PUBLIC ROUTE - NO TOKEN)
-                const response = await fetch('/api/leads', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        phone: phone,
-                        type: type
-                    })
+            currentStep = step;
+        }
+        
+        // Specialty selection
+        function selectSpecialty(specialty) {
+            formData.specialty = specialty;
+            showStep(2);
+        }
+        
+        // Payment selection
+        function selectPayment(payment) {
+            formData.payment = payment;
+            showStep(3);
+        }
+        
+        // Period selection
+        function selectPeriod(period) {
+            formData.period = period;
+            showStep(4);
+        }
+        
+        // Day selection
+        function selectDay(day) {
+            formData.day = day;
+            showStep(5);
+        }
+        
+        // Phone mask
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    
+                    if (value.length > 11) {
+                        value = value.slice(0, 11);
+                    }
+                    
+                    let formatted = '';
+                    if (value.length > 0) {
+                        formatted = '(' + value.substring(0, 2);
+                        if (value.length >= 3) {
+                            formatted += ') ' + value.substring(2, 7);
+                        }
+                        if (value.length >= 8) {
+                            formatted += '-' + value.substring(7, 11);
+                        }
+                    }
+                    
+                    e.target.value = formatted;
                 });
-
-                if (!response.ok) {
-                    throw new Error('Erro ao enviar agendamento');
-                }
-
-                const data = await response.json();
-                console.log('Agendamento criado:', data);
-
-                // Show success message
-                formContainer.classList.add('hidden');
-                successContainer.classList.remove('hidden');
-
-                // Reset form
-                form.reset();
-
-            } catch (error) {
-                console.error('Erro:', error);
-                alert('❌ Erro ao enviar agendamento. Por favor, tente novamente.');
-            } finally {
-                // Reset button state
-                submitBtn.disabled = false;
-                btnText.textContent = 'Agendar Agora';
-                btnSpinner.classList.add('hidden');
             }
         });
-
-        // Reset form function
+        
+        // Form submit
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('appointmentForm');
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const name = document.getElementById('name').value.trim();
+                    const phone = document.getElementById('phone').value.replace(/\D/g, '');
+                    
+                    if (!name || name.split(' ').length < 2) {
+                        alert('Por favor, digite seu nome e sobrenome completos.');
+                        return;
+                    }
+                    
+                    if (phone.length < 10) {
+                        alert('Por favor, digite um número de WhatsApp válido com DDD.');
+                        return;
+                    }
+                    
+                    formData.name = name;
+                    formData.phone = phone;
+                    
+                    // Monta o tipo de lead
+                    const type = `Consulta - ${formData.specialty} - ${formData.payment} - ${formData.period} - ${formData.day}`;
+                    
+                    const submitBtn = document.getElementById('submitBtn');
+                    const btnText = document.getElementById('btnText');
+                    
+                    submitBtn.disabled = true;
+                    btnText.textContent = 'Enviando...';
+                    
+                    try {
+                        const response = await fetch('/api/leads', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                name: name,
+                                phone: phone,
+                                type: type
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('Erro ao enviar agendamento');
+                        }
+                        
+                        const data = await response.json();
+                        console.log('Agendamento criado:', data);
+                        
+                        // Show success
+                        document.getElementById('formContainer').classList.add('hidden');
+                        document.getElementById('successContainer').classList.remove('hidden');
+                        
+                        // Update summary
+                        document.getElementById('summarySpecialty').textContent = `📋 Especialidade: ${formData.specialty}`;
+                        document.getElementById('summaryPayment').textContent = `💳 Pagamento: ${formData.payment}`;
+                        document.getElementById('summaryPeriod').textContent = `🕐 Período: ${formData.period}`;
+                        document.getElementById('summaryDay').textContent = `📅 Dias: ${formData.day}`;
+                        
+                        // Scroll to top
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        
+                    } catch (error) {
+                        console.error('Erro:', error);
+                        alert('❌ Erro ao enviar agendamento. Por favor, tente novamente.');
+                    } finally {
+                        submitBtn.disabled = false;
+                        btnText.textContent = 'Confirmar Agendamento';
+                    }
+                });
+            }
+        });
+        
+        // Reset form
         function resetForm() {
-            formContainer.classList.remove('hidden');
-            successContainer.classList.add('hidden');
-            form.reset();
+            formData = {
+                specialty: '',
+                payment: '',
+                period: '',
+                day: '',
+                name: '',
+                phone: ''
+            };
+            
+            document.getElementById('name').value = '';
+            document.getElementById('phone').value = '';
+            
+            document.getElementById('formContainer').classList.remove('hidden');
+            document.getElementById('successContainer').classList.add('hidden');
+            
+            showStep(1);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 

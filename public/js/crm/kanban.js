@@ -354,6 +354,7 @@ function createLeadCard(lead) {
     
     if (lead.appointment_date) {
         const appointmentDate = new Date(lead.appointment_date);
+        const now = new Date(); // FIX: Declare now variable
         const formattedDate = appointmentDate.toLocaleDateString('pt-BR', { 
             day: '2-digit', 
             month: '2-digit',
