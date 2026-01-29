@@ -177,10 +177,14 @@
         
         /* Date Filter - Custom Select Styling */
         #dateFilter {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2306b6d4' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
             background-position: right 0.5rem center;
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
         }
         
         #dateFilter:hover {
@@ -220,6 +224,33 @@
         }
         
         /* Modern Vertical Sidebar Styles */
+        #sidebar {
+            width: 5rem; /* 80px collapsed */
+        }
+        
+        #sidebar.expanded {
+            width: 16rem; /* 256px expanded */
+        }
+        
+        #mainContent {
+            margin-left: 5rem;
+        }
+        
+        #mainContent.expanded {
+            margin-left: 16rem;
+        }
+        
+        .sidebar-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar.expanded .sidebar-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
         .sidebar-item {
             display: flex;
             align-items: center;
@@ -263,20 +294,18 @@
             transition: all 0.3s ease;
         }
         
-        #sidebar:hover .sidebar-item span {
+        #sidebar.expanded .sidebar-item span {
             opacity: 1;
             transform: translateX(0);
         }
         
-        #sidebar .user-info span,
-        #sidebar .user-info p {
-            opacity: 0;
-            transition: opacity 0.3s ease 0.1s;
+        /* Toggle button icon rotation */
+        #sidebar.expanded #toggleIcon {
+            transform: rotate(180deg);
         }
         
-        #sidebar:hover .user-info span,
-        #sidebar:hover .user-info p {
-            opacity: 1;
+        #toggleIcon {
+            transition: transform 0.3s ease;
         }
         
         /* Mobile overlay */
@@ -292,6 +321,12 @@
             #sidebar.open {
                 transform: translateX(0);
                 width: 16rem;
+            }
+            
+            #sidebar.open .sidebar-text,
+            #sidebar.open .sidebar-item span {
+                opacity: 1;
+                transform: translateX(0);
             }
             
             #sidebarOverlay.show {
@@ -329,224 +364,15 @@
             }
         }
     </script>
+    <script src="./js/components/sidebar.js"></script>
 </head>
 <body class="min-h-screen flex">
 
-    <!-- Modern Vertical Sidebar -->
-    <aside id="sidebar" class="fixed left-0 top-0 h-screen w-20 hover:w-64 bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 transition-all duration-300 z-50 group overflow-hidden">
-        <div class="flex flex-col h-full py-6">
-            <!-- Logo -->
-            <div class="px-5 mb-8">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-hospital text-white text-lg"></i>
-                    </div>
-                    <div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">
-                        <h2 class="text-white font-bold text-sm">Medical CRM</h2>
-                        <p class="text-cyan-400 text-xs">Gestão</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- User Info -->
-            <div class="px-5 mb-6 pb-6 border-b border-slate-700/50">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-user-circle text-cyan-400 text-xl"></i>
-                    </div>
-                    <div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap overflow-hidden">
-                        <p class="text-white text-sm font-medium">Olá,</p>
-                        <p id="userName" class="text-cyan-400 text-xs font-bold">Admin</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Date Filter -->
-            <div class="px-5 mb-6">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-calendar-alt text-cyan-400 text-lg"></i>
-                    </div>
-                    <span class="text-gray-300 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Período</span>
-                </div>
-                <select 
-                    id="dateFilter" 
-                    onchange="handleDateFilterChange()"
-                    class="w-full bg-slate-800/90 border border-slate-700 text-white text-xs font-semibold rounded-lg px-3 py-2 hover:bg-slate-700/90 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 transition-all cursor-pointer"
-                    title="Filtrar por período"
-                >
-                    <option value="today">Hoje</option>
-                    <option value="7days" selected>7 Dias</option>
-                    <option value="30days">30 Dias</option>
-                    <option value="thisMonth">Este Mês</option>
-                    <option value="all">Tudo</option>
-                </select>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="flex-1 px-3 space-y-2">
-                <a href="agenda.html" class="sidebar-item">
-                    <i class="fas fa-calendar-day"></i>
-                    <span>Agenda</span>
-                </a>
-                
-                <a href="patients.html" class="sidebar-item">
-                    <i class="fas fa-users"></i>
-                    <span>Pacientes</span>
-                </a>
-                
-                <button id="teamButton" onclick="openTeamModal()" class="sidebar-item hidden">
-                    <i class="fas fa-user-cog"></i>
-                    <span>Equipe</span>
-                </button>
-                
-                <button onclick="openDashboard()" class="sidebar-item">
-                    <i class="fas fa-chart-pie"></i>
-                    <span>Relatórios</span>
-                </button>
-                
-                <button id="togglePrivacy" onclick="togglePrivacyMode()" class="sidebar-item" title="Modo Privacidade">
-                    <i class="fas fa-eye" id="privacyIcon"></i>
-                    <span>Privacidade</span>
-                </button>
-                
-                <button onclick="loadLeads()" class="sidebar-item">
-                    <i class="fas fa-sync-alt"></i>
-                    <span>Atualizar</span>
-                </button>
-            </nav>
-
-            <!-- Logout -->
-            <div class="px-3 pt-6 border-t border-slate-700/50">
-                <button onclick="logout()" class="sidebar-item bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-600 hover:to-red-700">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Sair</span>
-                </button>
-            </div>
-        </div>
-    </aside>
-
-    <!-- Mobile Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden" onclick="toggleSidebar()"></div>
+    <!-- Sidebar Component -->
+    <medical-sidebar active="admin" show-date-filter="true"></medical-sidebar>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-20 transition-all duration-300">
-        <!-- Top Bar (minimal) -->
-        <div class="bg-slate-900/50 backdrop-blur-xl border-b border-slate-700/50 px-6 py-4">
-            <div class="flex justify-between items-center">
-                <button onclick="toggleSidebar()" class="lg:hidden text-cyan-400 p-2 hover:bg-white/10 rounded-lg transition">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-                <h1 class="text-xl font-bold text-white">
-                    <i class="fas fa-th-large text-cyan-400 mr-2"></i>
-                    Kanban Board
-                </h1>
-                <div class="w-10"></div>
-            </div>
-        </div>
-                        </select>
-                    </div>
-                    
-                    <!-- Navigation -->
-                    <a href="agenda.html" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
-                        <i class="fas fa-calendar-alt"></i><span class="ml-2 hidden lg:inline"> Agenda</span>
-                    </a>
-                    
-                    <a href="patients.html" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
-                        <i class="fas fa-users"></i><span class="ml-2 hidden lg:inline"> Pacientes</span>
-                    </a>
-                    
-                    <!-- Team Management (Admin Only) -->
-                    <button id="teamButton" onclick="openTeamModal()" class="neon-button hidden items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
-                        <i class="fas fa-user-cog"></i><span class="ml-2 hidden lg:inline"> Equipe</span>
-                    </button>
-                    
-                    <button id="togglePrivacy" onclick="togglePrivacyMode()" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium" title="Modo Privacidade (LGPD)">
-                        <i class="fas fa-eye" id="privacyIcon"></i>
-                    </button>
-                    <button onclick="openDashboard()" class="neon-button hidden md:flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
-                        <i class="fas fa-chart-pie"></i><span class="ml-2 hidden lg:inline"> Relatórios</span>
-                    </button>
-                    <button onclick="loadLeads()" class="neon-button flex items-center px-2 md:px-4 py-2 text-white rounded-lg font-medium">
-                        <i class="fas fa-sync-alt"></i><span class="ml-2 hidden lg:inline"> Atualizar</span>
-                    </button>
-                    <button onclick="logout()" class="flex items-center px-2 md:px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 backdrop-blur-xl text-white rounded-lg font-medium hover:brightness-110 active:scale-95 transition-all border border-red-500/30">
-                        <i class="fas fa-sign-out-alt"></i><span class="ml-2 hidden lg:inline"> Sair</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Mobile Sidebar Menu -->
-    <div id="mobileSidebar" class="fixed inset-0 z-50 hidden">
-        <!-- Backdrop Overlay -->
-        <div id="mobileBackdrop" onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
-        
-        <!-- Sidebar Panel -->
-        <div id="mobileSidebarPanel" class="absolute top-0 left-0 h-full w-80 max-w-[85vw] glass-card shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out">
-            <div class="flex flex-col h-full">
-                <!-- Sidebar Header -->
-                <div class="bg-gradient-to-r from-cyan-500/20 to-teal-600/20 backdrop-blur-xl text-white px-6 py-4 flex items-center justify-between border-b border-white/10">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-hospital text-2xl text-cyan-400"></i>
-                        <h2 class="text-xl font-bold tracking-tight">Menu</h2>
-                    </div>
-                    <button onclick="toggleMobileMenu()" class="hover:bg-white/20 rounded-full p-2 transition">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                
-                <!-- User Info -->
-                <div class="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 px-6 py-4 border-b border-white/10">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-400">Olá,</p>
-                            <p id="userNameSidebar" class="font-bold text-white tracking-tight">Usuário</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Navigation Menu -->
-                <nav class="flex-1 overflow-y-auto px-4 py-6 space-y-2">
-                    <a href="patients.html" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
-                        <i class="fas fa-users text-xl w-6"></i>
-                        <span class="font-medium">Pacientes</span>
-                    </a>
-                    
-                    <button id="teamButtonSidebar" onclick="openTeamModal(); toggleMobileMenu();" class="hidden w-full items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
-                        <i class="fas fa-user-cog text-xl w-6"></i>
-                        <span class="font-medium">Gerenciar Equipe</span>
-                    </button>
-                    
-                    <button onclick="openDashboard(); toggleMobileMenu();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
-                        <i class="fas fa-chart-pie text-xl w-6"></i>
-                        <span class="font-medium">Relatórios</span>
-                    </button>
-                    
-                    <button onclick="togglePrivacyMode()" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
-                        <i class="fas fa-eye text-xl w-6" id="privacyIconSidebar"></i>
-                        <span class="font-medium">Modo Privacidade</span>
-                    </button>
-                    
-                    <button onclick="loadLeads(); toggleMobileMenu();" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-300 hover:text-cyan-400 transition-all duration-300">
-                        <i class="fas fa-sync-alt text-xl w-6"></i>
-                        <span class="font-medium">Atualizar</span>
-                    </button>
-                    
-                    <div class="border-t border-white/10 my-4"></div>
-                    
-                    <button onclick="logout()" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all duration-300">
-                        <i class="fas fa-sign-out-alt text-xl w-6"></i>
-                        <span class="font-medium">Sair</span>
-                    </button>
-                </nav>
-            </div>
-        </div>
-    </div>
+    <main id="mainContent" class="flex-1 ml-20 transition-all duration-300">
 
     <!-- Dashboard Modal -->
     <div id="dashboardModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
@@ -1127,19 +953,6 @@
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Sidebar Toggle for Mobile -->
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('show');
-        }
-        
-        // Close sidebar when clicking overlay
-        document.getElementById('sidebarOverlay')?.addEventListener('click', toggleSidebar);
-    </script>
     
     <!-- CRM Application JavaScript Modules -->
     <script src="./js/crm/dialogs.js"></script>

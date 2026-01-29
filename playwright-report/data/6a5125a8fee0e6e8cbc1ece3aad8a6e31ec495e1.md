@@ -1,0 +1,487 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - complementary [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e7]: 
+          - generic:
+            - heading "Medical CRM" [level=2]
+            - paragraph: Gestão
+        - button "" [ref=e8] [cursor=pointer]:
+          - generic [ref=e9]: 
+      - generic [ref=e11]:
+        - generic [ref=e13]: 
+        - generic:
+          - paragraph: Olá,
+          - paragraph: Administrador
+      - navigation [ref=e14]:
+        - link " Kanban" [ref=e15] [cursor=pointer]:
+          - /url: admin.html
+          - generic [ref=e16]: 
+          - generic [ref=e17]: Kanban
+        - link " Agenda" [ref=e18] [cursor=pointer]:
+          - /url: agenda.html
+          - generic [ref=e19]: 
+          - generic [ref=e20]: Agenda
+        - link " Pacientes" [ref=e21] [cursor=pointer]:
+          - /url: patients.html
+          - generic [ref=e22]: 
+          - generic [ref=e23]: Pacientes
+        - text: 
+        - button " Relatórios" [ref=e24] [cursor=pointer]:
+          - generic [ref=e25]: 
+          - generic [ref=e26]: Relatórios
+        - button " Privacidade" [ref=e27] [cursor=pointer]:
+          - generic [ref=e28]: 
+          - generic [ref=e29]: Privacidade
+        - button " Atualizar" [ref=e30] [cursor=pointer]:
+          - generic [ref=e31]: 
+          - generic [ref=e32]: Atualizar
+      - button " Sair" [ref=e34] [cursor=pointer]:
+        - generic [ref=e35]: 
+        - generic [ref=e36]: Sair
+  - main [ref=e37]:
+    - text:       $                 
+    - main [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - heading "Taxa de Conversão" [level=3] [ref=e42]
+            - generic [ref=e44]: 
+          - generic [ref=e45]: 81%
+          - paragraph [ref=e46]: 13 de 16 leads
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - heading "Faltas (No-show)" [level=3] [ref=e49]
+            - generic [ref=e51]: 
+          - generic [ref=e52]: "0"
+          - paragraph [ref=e53]: este mês
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - heading "Consultas Agendadas" [level=3] [ref=e56]
+            - generic [ref=e58]: 
+          - generic [ref=e59]: "7"
+          - paragraph [ref=e60]: próximos 7 dias
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]: 
+              - generic [ref=e66]: Novos
+            - generic [ref=e67]: "4"
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - 'generic "Paciente novo. Primeira consulta marcada para hoje. {\"financial\":{\"paymentType\":\"plano\",\"insuranceName\":\"Unimed\",\"value\":\"300.00\"}}" [ref=e70]': 📄
+              - generic [ref=e71]:
+                - generic [ref=e73]:
+                  - generic [ref=e74]: 
+                  - text: Primeira Consulta
+                - generic [ref=e75]: 🕒 5h 33m
+              - generic [ref=e76]:
+                - generic [ref=e77]: 🏥 Unimed
+                - generic [ref=e78]: 💰 R$ 30.000,00
+              - generic [ref=e79]:
+                - text: 
+                - button "" [ref=e80] [cursor=pointer]:
+                  - generic [ref=e81]: 
+                - button "" [ref=e82] [cursor=pointer]:
+                  - generic [ref=e83]: 
+              - heading "Anna Victória" [level=3] [ref=e84]
+              - generic [ref=e85]: 📅 29/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e87]:
+                - generic [ref=e88]:
+                  - generic [ref=e89]: 
+                  - text: (63) 99236-1047
+                - button " WhatsApp " [ref=e90] [cursor=pointer]:
+                  - generic [ref=e91]: 
+                  - text: WhatsApp
+                  - generic [ref=e92]: 
+            - generic [ref=e93]:
+              - generic "Solicitação de exames laboratoriais. Aguardando agendamento." [ref=e94]: 📄
+              - generic [ref=e95]:
+                - generic [ref=e97]:
+                  - generic [ref=e98]: "?"
+                  - text: exame
+                - generic [ref=e99]: 🕒 5h 33m
+              - generic [ref=e100]:
+                - text: 
+                - button "" [ref=e101] [cursor=pointer]:
+                  - generic [ref=e102]: 
+                - button "" [ref=e103] [cursor=pointer]:
+                  - generic [ref=e104]: 
+              - heading "Carlos Eduardo Souza" [level=3] [ref=e105]
+              - generic [ref=e107]:
+                - generic [ref=e108]:
+                  - generic [ref=e109]: 
+                  - text: (11) 99988-7766
+                - button " WhatsApp " [ref=e110] [cursor=pointer]:
+                  - generic [ref=e111]: 
+                  - text: WhatsApp
+                  - generic [ref=e112]: 
+            - generic [ref=e113]:
+              - generic "Contato inicial via WhatsApp. Aguardando retorno." [ref=e114]: 📄
+              - generic [ref=e115]:
+                - generic [ref=e117]: Atend. Humano
+                - generic [ref=e118]: 🕒 29h 33m
+              - generic [ref=e119]:
+                - text: 
+                - button "" [ref=e120] [cursor=pointer]:
+                  - generic [ref=e121]: 
+                - button "" [ref=e122] [cursor=pointer]:
+                  - generic [ref=e123]: 
+              - heading "Jeremias Marinho" [level=3] [ref=e124]
+              - generic [ref=e126]:
+                - generic [ref=e127]:
+                  - generic [ref=e128]: 
+                  - text: (63) 99236-1046
+                - button " WhatsApp " [ref=e129] [cursor=pointer]:
+                  - generic [ref=e130]: 
+                  - text: WhatsApp
+                  - generic [ref=e131]: 
+            - generic [ref=e132]:
+              - 'generic "Paciente com histórico de procedimentos anteriores. Urgente. {\"financial\":{\"paymentType\":\"plano\",\"insuranceName\":\"Unimed\"}}" [ref=e133]': 📄
+              - generic [ref=e134]:
+                - generic [ref=e136]: Atend. Humano
+                - generic [ref=e137]: 🕒 53h 33m
+              - generic [ref=e139]: 🏥 Unimed
+              - generic [ref=e140]:
+                - text: 
+                - button "" [ref=e141] [cursor=pointer]:
+                  - generic [ref=e142]: 
+                - button "" [ref=e143] [cursor=pointer]:
+                  - generic [ref=e144]: 
+              - heading "Maria de Jesus" [level=3] [ref=e145]
+              - generic [ref=e147]:
+                - generic [ref=e148]:
+                  - generic [ref=e149]: 
+                  - text: (63) 99253-2686
+                - button " WhatsApp " [ref=e150] [cursor=pointer]:
+                  - generic [ref=e151]: 
+                  - text: WhatsApp
+                  - generic [ref=e152]: 
+        - generic [ref=e153]:
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - generic [ref=e156]: 
+              - generic [ref=e157]: Em Atendimento
+            - generic [ref=e158]: "3"
+          - generic [ref=e159]:
+            - generic [ref=e160]:
+              - generic "Consulta de rotina em andamento." [ref=e161]: 📄
+              - generic [ref=e162]:
+                - generic [ref=e164]:
+                  - generic [ref=e165]: 
+                  - text: Consulta
+                - generic [ref=e166]: 🕒 53h 33m
+              - generic [ref=e167]:
+                - text: 
+                - button "" [ref=e168] [cursor=pointer]:
+                  - generic [ref=e169]: 
+                - button "" [ref=e170] [cursor=pointer]:
+                  - generic [ref=e171]: 
+              - heading "Roberto Carlos Mendes" [level=3] [ref=e172]
+              - generic [ref=e173]: 📅 29/01, 00:00 👨‍⚕️ Dra. Marina Santos
+              - generic [ref=e175]:
+                - generic [ref=e176]:
+                  - generic [ref=e177]: 
+                  - text: (11) 95432-1098
+                - button " WhatsApp " [ref=e178] [cursor=pointer]:
+                  - generic [ref=e179]: 
+                  - text: WhatsApp
+                  - generic [ref=e180]: 
+            - generic [ref=e181]:
+              - generic "Atendimento iniciado ontem. Em andamento." [ref=e182]: 📄
+              - generic [ref=e183]:
+                - generic [ref=e185]:
+                  - generic [ref=e186]: 
+                  - text: Primeira Consulta
+                - generic [ref=e187]: 🕒 173h 33m
+              - generic [ref=e188]:
+                - text: 
+                - button "" [ref=e189] [cursor=pointer]:
+                  - generic [ref=e190]: 
+                - button "" [ref=e191] [cursor=pointer]:
+                  - generic [ref=e192]: 
+              - heading "João Pedro Oliveira" [level=3] [ref=e193]
+              - generic [ref=e194]: 📅 28/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e196]:
+                - generic [ref=e197]:
+                  - generic [ref=e198]: 
+                  - text: (11) 97654-3210
+                - button " WhatsApp " [ref=e199] [cursor=pointer]:
+                  - generic [ref=e200]: 
+                  - text: WhatsApp
+                  - generic [ref=e201]: 
+            - generic [ref=e202]:
+              - 'generic "Paciente em tratamento contínuo. 5ª sessão. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e203]': 📄
+              - generic [ref=e204]:
+                - generic [ref=e206]:
+                  - generic [ref=e207]: 
+                  - text: Sessão/Recorrente
+                - generic [ref=e208]: 🕒 173h 33m
+              - generic [ref=e210]: 💵 Particular
+              - generic [ref=e211]:
+                - text: 
+                - button "" [ref=e212] [cursor=pointer]:
+                  - generic [ref=e213]: 
+                - button "" [ref=e214] [cursor=pointer]:
+                  - generic [ref=e215]: 
+              - heading "Patricia Ferreira Lima" [level=3] [ref=e216]
+              - generic [ref=e217]: 📅 29/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e219]:
+                - generic [ref=e220]:
+                  - generic [ref=e221]: 
+                  - text: (11) 98877-6655
+                - button " WhatsApp " [ref=e222] [cursor=pointer]:
+                  - generic [ref=e223]: 
+                  - text: WhatsApp
+                  - generic [ref=e224]: 
+        - generic [ref=e225]:
+          - generic [ref=e226]:
+            - generic [ref=e227]:
+              - generic [ref=e228]: 
+              - generic [ref=e229]: Agendados
+            - generic [ref=e230]: "4"
+          - generic [ref=e231]:
+            - generic [ref=e232]:
+              - generic "Agendamento confirmado para amanhã. Primeira consulta." [ref=e233]: 📄
+              - generic [ref=e234]:
+                - generic [ref=e236]:
+                  - generic [ref=e237]: 
+                  - text: Primeira Consulta
+                - generic [ref=e238]: 🕒 5h 33m
+              - generic [ref=e239]:
+                - text: 
+                - button "" [ref=e240] [cursor=pointer]:
+                  - generic [ref=e241]: 
+                - button "" [ref=e242] [cursor=pointer]:
+                  - generic [ref=e243]: 
+              - heading "Rebeca Aquino" [level=3] [ref=e244]
+              - generic [ref=e245]: 📅 30/01, 00:00
+              - generic [ref=e247]:
+                - generic [ref=e248]:
+                  - generic [ref=e249]: 
+                  - text: (63) 99200-0000
+                - button " WhatsApp " [ref=e250] [cursor=pointer]:
+                  - generic [ref=e251]: 
+                  - text: WhatsApp
+                  - generic [ref=e252]: 
+            - generic [ref=e253]:
+              - 'generic "Consulta de retorno agendada. Plano de saúde confirmado. {\"financial\":{\"paymentType\":\"plano\",\"insuranceName\":\"Unimed\"}}" [ref=e254]': 📄
+              - generic [ref=e255]:
+                - generic [ref=e257]:
+                  - generic [ref=e258]: 
+                  - text: Consulta
+                - generic [ref=e259]: 🕒 5h 33m
+              - generic [ref=e261]: 🏥 Unimed
+              - generic [ref=e262]:
+                - text: 
+                - button "" [ref=e263] [cursor=pointer]:
+                  - generic [ref=e264]: 
+                - button "" [ref=e265] [cursor=pointer]:
+                  - generic [ref=e266]: 
+              - heading "Jeremias Marinho Jr" [level=3] [ref=e267]
+              - generic [ref=e268]: 📅 31/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e270]:
+                - generic [ref=e271]:
+                  - generic [ref=e272]: 
+                  - text: (63) 99236-1048
+                - button " WhatsApp " [ref=e273] [cursor=pointer]:
+                  - generic [ref=e274]: 
+                  - text: WhatsApp
+                  - generic [ref=e275]: 
+            - generic [ref=e276]:
+              - 'generic "Retorno após cirurgia. Sem cobrança. {\"financial\":{\"paymentType\":\"retorno\"}}" [ref=e277]': 📄
+              - generic [ref=e278]:
+                - generic [ref=e280]:
+                  - generic [ref=e281]: 
+                  - text: Retorno
+                - generic [ref=e282]: 🕒 29h 33m
+              - generic [ref=e284]: 🔄 Retorno
+              - generic [ref=e285]:
+                - text: 
+                - button "" [ref=e286] [cursor=pointer]:
+                  - generic [ref=e287]: 
+                - button "" [ref=e288] [cursor=pointer]:
+                  - generic [ref=e289]: 
+              - heading "Fernanda Costa Silva" [level=3] [ref=e290]
+              - generic [ref=e291]: 📅 30/01, 00:00 👨‍⚕️ Dra. Marina Santos
+              - generic [ref=e293]:
+                - generic [ref=e294]:
+                  - generic [ref=e295]: 
+                  - text: (11) 97766-5544
+                - button " WhatsApp " [ref=e296] [cursor=pointer]:
+                  - generic [ref=e297]: 
+                  - text: WhatsApp
+                  - generic [ref=e298]: 
+            - generic [ref=e299]:
+              - 'generic "Exame de sangue completo. Agendado para depois de amanhã. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e300]': 📄
+              - generic [ref=e301]:
+                - generic [ref=e303]:
+                  - generic [ref=e304]: "?"
+                  - text: exame
+                - generic [ref=e305]: 🕒 29h 33m
+              - generic [ref=e307]: 💵 Particular
+              - generic [ref=e308]:
+                - text: 
+                - button "" [ref=e309] [cursor=pointer]:
+                  - generic [ref=e310]: 
+                - button "" [ref=e311] [cursor=pointer]:
+                  - generic [ref=e312]: 
+              - heading "Ricardo Alves Pereira" [level=3] [ref=e313]
+              - generic [ref=e314]: 📅 31/01, 00:00
+              - generic [ref=e316]:
+                - generic [ref=e317]:
+                  - generic [ref=e318]: 
+                  - text: (11) 96655-4433
+                - button " WhatsApp " [ref=e319] [cursor=pointer]:
+                  - generic [ref=e320]: 
+                  - text: WhatsApp
+                  - generic [ref=e321]: 
+        - generic [ref=e322]:
+          - generic [ref=e323]:
+            - generic [ref=e324]:
+              - generic [ref=e325]: 
+              - generic [ref=e326]: Finalizados
+            - generic [ref=e327]: "5"
+          - generic [ref=e328]:
+            - generic [ref=e329]:
+              - 'generic "Procedimento cirúrgico realizado com sucesso. Paciente compareceu. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e330]': 📄
+              - generic [ref=e331]:
+                - generic [ref=e333]:
+                  - generic [ref=e334]: 
+                  - text: Primeira Consulta
+                - generic [ref=e335]: 🕒 29h 33m
+              - generic [ref=e337]: 💵 Particular
+              - generic [ref=e339]:
+                - generic [ref=e340]: 
+                - text: Compareceu
+              - generic [ref=e341]:
+                - text: 
+                - button "" [ref=e342] [cursor=pointer]:
+                  - generic [ref=e343]: 
+                - button "" [ref=e344] [cursor=pointer]:
+                  - generic [ref=e345]: 
+              - heading "Larissa Cristina Nunes" [level=3] [ref=e346]
+              - generic [ref=e347]: 📅 28/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e349]:
+                - generic [ref=e350]:
+                  - generic [ref=e351]: 
+                  - text: (11) 94321-0986
+                - button " WhatsApp " [ref=e352] [cursor=pointer]:
+                  - generic [ref=e353]: 
+                  - text: WhatsApp
+                  - generic [ref=e354]: 
+            - generic [ref=e355]:
+              - 'generic "Paciente NÃO compareceu ao exame agendado. Tentar reagendar. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e356]': 📄
+              - generic [ref=e357]:
+                - generic [ref=e359]:
+                  - generic [ref=e360]: "?"
+                  - text: exame
+                - generic [ref=e361]: 🕒 29h 33m
+              - generic [ref=e363]: 💵 Particular
+              - generic [ref=e365]:
+                - generic [ref=e366]: 
+                - text: Não veio
+              - generic [ref=e367]:
+                - text: 
+                - button "" [ref=e368] [cursor=pointer]:
+                  - generic [ref=e369]: 
+                - button "" [ref=e370] [cursor=pointer]:
+                  - generic [ref=e371]: 
+              - heading "Marcos Paulo Andrade" [level=3] [ref=e372]
+              - generic [ref=e373]: 📅 28/01, 00:00
+              - generic [ref=e375]:
+                - generic [ref=e376]:
+                  - generic [ref=e377]: 
+                  - text: (11) 92109-8765
+                - button " WhatsApp " [ref=e378] [cursor=pointer]:
+                  - generic [ref=e379]: 
+                  - text: WhatsApp
+                  - generic [ref=e380]: 
+            - generic [ref=e381]:
+              - 'generic "Consulta realizada. Paciente compareceu e pagou em dinheiro. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e382]': 📄
+              - generic [ref=e383]:
+                - generic [ref=e385]:
+                  - generic [ref=e386]: 
+                  - text: Consulta
+                - generic [ref=e387]: 🕒 53h 33m
+              - generic [ref=e389]: 💵 Particular
+              - generic [ref=e391]:
+                - generic [ref=e392]: 
+                - text: Compareceu
+              - generic [ref=e393]:
+                - text: 
+                - button "" [ref=e394] [cursor=pointer]:
+                  - generic [ref=e395]: 
+                - button "" [ref=e396] [cursor=pointer]:
+                  - generic [ref=e397]: 
+              - heading "Daniel Henrique Santos" [level=3] [ref=e398]
+              - generic [ref=e399]: 📅 27/01, 00:00
+              - generic [ref=e401]:
+                - generic [ref=e402]:
+                  - generic [ref=e403]: 
+                  - text: (11) 91098-7653
+                - button " WhatsApp " [ref=e404] [cursor=pointer]:
+                  - generic [ref=e405]: 
+                  - text: WhatsApp
+                  - generic [ref=e406]: 
+            - generic [ref=e407]:
+              - 'generic "Retorno pós-operatório. Tudo OK. Sem cobrança. {\"financial\":{\"paymentType\":\"retorno\"}}" [ref=e408]': 📄
+              - generic [ref=e409]:
+                - generic [ref=e411]:
+                  - generic [ref=e412]: 
+                  - text: Retorno
+                - generic [ref=e413]: 🕒 53h 33m
+              - generic [ref=e415]: 🔄 Retorno
+              - generic [ref=e417]:
+                - generic [ref=e418]: 
+                - text: Compareceu
+              - generic [ref=e419]:
+                - text: 
+                - button "" [ref=e420] [cursor=pointer]:
+                  - generic [ref=e421]: 
+                - button "" [ref=e422] [cursor=pointer]:
+                  - generic [ref=e423]: 
+              - heading "Juliana Martins Costa" [level=3] [ref=e424]
+              - generic [ref=e425]: 📅 27/01, 00:00 👨‍⚕️ Dra. Marina Santos
+              - generic [ref=e427]:
+                - generic [ref=e428]:
+                  - generic [ref=e429]: 
+                  - text: (11) 93210-9876
+                - button " WhatsApp " [ref=e430] [cursor=pointer]:
+                  - generic [ref=e431]: 
+                  - text: WhatsApp
+                  - generic [ref=e432]: 
+            - generic [ref=e433]:
+              - 'generic "Consulta remarcada a pedido do paciente. Novo horário pendente. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e434]': 📄
+              - generic [ref=e435]:
+                - generic [ref=e437]:
+                  - generic [ref=e438]: 
+                  - text: Primeira Consulta
+                - generic [ref=e439]: 🕒 53h 33m
+              - generic [ref=e441]: 💵 Particular
+              - generic [ref=e443]:
+                - generic [ref=e444]: 
+                - text: Remarcado
+              - generic [ref=e445]:
+                - text: 
+                - button "" [ref=e446] [cursor=pointer]:
+                  - generic [ref=e447]: 
+                - button "" [ref=e448] [cursor=pointer]:
+                  - generic [ref=e449]: 
+              - heading "Beatriz Souza Oliveira" [level=3] [ref=e450]
+              - generic [ref=e451]: 📅 27/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e453]:
+                - generic [ref=e454]:
+                  - generic [ref=e455]: 
+                  - text: (11) 99887-7665
+                - button " WhatsApp " [ref=e456] [cursor=pointer]:
+                  - generic [ref=e457]: 
+                  - text: WhatsApp
+                  - generic [ref=e458]: 
+    - text:      
+```

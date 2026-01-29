@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Medical CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Modern Vertical Sidebar Styles */
+        #sidebar {
+            width: 5rem;
+        }
+        
+        #sidebar.expanded {
+            width: 16rem;
+        }
+        
+        #mainContent {
+            margin-left: 5rem;
+        }
+        
+        #mainContent.expanded {
+            margin-left: 16rem;
+        }
+        
+        .sidebar-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar.expanded .sidebar-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(6, 182, 212, 0.15);
+            color: #06b6d4;
+            transform: translateX(2px);
+        }
+        
+        .sidebar-item i {
+            width: 1.25rem;
+            font-size: 1.125rem;
+            text-align: center;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-item:hover i {
+            transform: scale(1.1);
+        }
+        
+        .sidebar-item span {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar.expanded .sidebar-item span {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        #sidebar.expanded #toggleIcon {
+            transform: rotate(180deg);
+        }
+        
+        #toggleIcon {
+            transition: transform 0.3s ease;
+        }
+        
+        #sidebarOverlay {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+            
+            #sidebar.open {
+                transform: translateX(0);
+                width: 16rem;
+            }
+            
+            #sidebar.open .sidebar-text,
+            #sidebar.open .sidebar-item span {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            
+            #sidebarOverlay.show {
+                display: block;
+            }
+            
+            #mainContent {
+                margin-left: 0;
+            }
+        }
+    </style>
+    <script src="./js/components/sidebar.js"></script>
+</head>
+<body class="min-h-screen flex">
+
+    <!-- Sidebar Component -->
+    <medical-sidebar active="relatorios" show-date-filter="false"></medical-sidebar>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="flex-1 ml-20 transition-all duration-300">
+        <div class="p-6">
+
+        <!-- Page Title -->
+        <div class="mb-6">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-chart-line text-cyan-400 text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Dashboard de Métricas</h1>
+            </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Total de Leads -->
+            <div class="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-90">Total de Leads</p>
+                        <h3 id="totalLeads" class="text-4xl font-bold mt-2">0</h3>
+                    </div>
+                    <i class="fas fa-users text-5xl opacity-30"></i>
+                </div>
+            </div>
+
+            <!-- Potencial de Receita -->
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-90">Potencial de Receita</p>
+                        <h3 id="revenueEstimate" class="text-4xl font-bold mt-2">R$ 0</h3>
+                    </div>
+                    <i class="fas fa-dollar-sign text-5xl opacity-30"></i>
+                </div>
+            </div>
+            
+            <!-- Taxa de Presença -->
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-6 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm opacity-90">Taxa de Presença</p>
+                        <h3 id="attendanceRate" class="text-4xl font-bold mt-2">0%</h3>
+                        <p class="text-xs opacity-75 mt-1" id="attendanceDetail">--</p>
+                    </div>
+                    <i class="fas fa-user-check text-5xl opacity-30"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="glass-card rounded-lg p-4 backdrop-blur-sm">
+                <h3 class="text-base font-bold text-white mb-4 flex items-center">
+                    <i class="fas fa-circle-notch mr-2 text-cyan-400"></i>
+                    Distribuição por Status
+                </h3>
+                <div class="relative" style="height: 250px;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="glass-card rounded-lg p-4 backdrop-blur-sm">
+                <h3 class="text-base font-bold text-white mb-4 flex items-center">
+                    <i class="fas fa-chart-bar mr-2 text-purple-400"></i>
+                    Tipos de Atendimento
+                </h3>
+                <div class="relative" style="height: 250px;">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Chart (Full Width) -->
+        <div class="glass-card rounded-lg p-4 mb-6 backdrop-blur-sm">
+            <h3 class="text-base font-bold text-white mb-4 flex items-center">
+                <i class="fas fa-chart-line mr-2 text-cyan-400"></i>
+                Evolução dos Últimos 7 Dias
+            </h3>
+            <div class="relative" style="height: 250px;">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Quick Reports Section -->
+        <div class="border-t border-white/10 pt-6">
+            <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+                <i class="fas fa-file-alt mr-3 text-cyan-400"></i>
+                Relatórios Rápidos
+            </h3>
+            <p class="text-sm text-gray-300 mb-6">Textos prontos para copiar e compartilhar</p>
+            
+            <div class="grid grid-cols-1 gap-4">
+                <!-- Weekly Summary Report -->
+                <div class="bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-400/30 rounded-lg p-5 backdrop-blur-sm">
+                    <div class="flex items-start justify-between mb-3">
+                        <h4 class="text-lg font-bold text-blue-200 flex items-center">
+                            <i class="fas fa-calendar-week mr-2"></i>
+                            Resumo da Semana
+                        </h4>
+                        <button 
+                            onclick="copyReportText('weeklyReportText')"
+                            class="flex items-center px-3 py-1 bg-blue-500/80 text-white text-sm rounded-lg hover:bg-blue-600/80 transition backdrop-blur-sm"
+                        >
+                            <i class="fas fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                    <p id="weeklyReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                        Carregando...
+                    </p>
+                </div>
+                
+                <!-- Status Funnel Report -->
+                <div class="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-400/30 rounded-lg p-5 backdrop-blur-sm">
+                    <div class="flex items-start justify-between mb-3">
+                        <h4 class="text-lg font-bold text-purple-200 flex items-center">
+                            <i class="fas fa-filter mr-2"></i>
+                            Funil por Status
+                        </h4>
+                        <button 
+                            onclick="copyReportText('statusReportText')"
+                            class="flex items-center px-3 py-1 bg-purple-500/80 text-white text-sm rounded-lg hover:bg-purple-600/80 transition backdrop-blur-sm"
+                        >
+                            <i class="fas fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                    <p id="statusReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                        Carregando...
+                    </p>
+                </div>
+                
+                <!-- Service Types Report -->
+                <div class="bg-gradient-to-br from-green-600/20 to-emerald-600/20 border border-green-400/30 rounded-lg p-5 backdrop-blur-sm">
+                    <div class="flex items-start justify-between mb-3">
+                        <h4 class="text-lg font-bold text-green-200 flex items-center">
+                            <i class="fas fa-stethoscope mr-2"></i>
+                            Tipos de Atendimento
+                        </h4>
+                        <button 
+                            onclick="copyReportText('typesReportText')"
+                            class="flex items-center px-3 py-1 bg-green-500/80 text-white text-sm rounded-lg hover:bg-green-600/80 transition backdrop-blur-sm"
+                        >
+                            <i class="fas fa-copy mr-1"></i> Copiar
+                        </button>
+                    </div>
+                    <p id="typesReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                        Carregando...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </main>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script src="./js/crm/dialogs.js"></script>
+    <script src="./js/crm/api.js"></script>
+    <!-- Auth.js removed to avoid auto-redirect -->
+    <script src="./js/crm/dashboard.js"></script>
+    
+    <script>
+        // Logout function
+        function logout() {
+            if (confirm('Deseja realmente sair do sistema?')) {
+                sessionStorage.clear();
+                localStorage.clear();
+                window.location.href = '/login.html';
+            }
+        }
+        
+        // Check authentication and load dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Verify authentication
+            const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+            if (!token) {
+                console.log('No token found, redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Load user name
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const userNameEl = document.getElementById('userName');
+                if (userNameEl && payload.name) {
+                    userNameEl.textContent = payload.name;
+                }
+            } catch (e) {
+                console.error('Error parsing token:', e);
+            }
+            
+            // Load dashboard data
+            try {
+                await loadDashboardData();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        });
+    </script>
+</body>
+</html>

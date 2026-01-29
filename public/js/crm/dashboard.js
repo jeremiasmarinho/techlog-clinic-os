@@ -35,6 +35,75 @@ async function loadSummaryMetrics() {
     }
 }
 
+// New function to load dashboard data for the standalone page
+async function loadDashboardData() {
+    try {
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+        const response = await fetch('/api/leads/dashboard', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Erro ao carregar métricas');
+        }
+
+        const data = await response.json();
+        
+        // Update total
+        const totalLeadsElement = document.getElementById('totalLeads');
+        if (totalLeadsElement) {
+            totalLeadsElement.textContent = data.total;
+        }
+
+        // Calculate potential revenue
+        const consultas = data.byType.find(t => t.type === 'Consulta')?.count || 0;
+        const exames = data.byType.find(t => t.type === 'Exame')?.count || 0;
+        const revenue = (consultas * 300) + (exames * 150);
+        
+        const revenueElement = document.getElementById('revenueEstimate');
+        if (revenueElement) {
+            revenueElement.textContent = `R$ ${revenue.toLocaleString('pt-BR')}`;
+        }
+        
+        // Update attendance metrics
+        const attended = data.byAttendanceStatus?.find(a => a.attendance_status === 'compareceu')?.count || 0;
+        const noShow = data.byAttendanceStatus?.find(a => a.attendance_status === 'nao_compareceu')?.count || 0;
+        const canceled = data.byAttendanceStatus?.find(a => a.attendance_status === 'cancelado')?.count || 0;
+        const total = attended + noShow + canceled;
+        const attendanceRate = total > 0 ? Math.round((attended / total) * 100) : 0;
+        
+        const attendanceRateElement = document.getElementById('attendanceRate');
+        if (attendanceRateElement) {
+            attendanceRateElement.textContent = `${attendanceRate}%`;
+        }
+        
+        const attendanceDetailElement = document.getElementById('attendanceDetail');
+        if (attendanceDetailElement) {
+            attendanceDetailElement.textContent = `${attended} de ${total} compareceram`;
+        }
+
+        // Create charts
+        createStatusChart(data.byStatus);
+        createTypeChart(data.byType);
+        
+        // Create history chart
+        if (data.history && data.history.length > 0) {
+            createHistoryChart(data.history);
+        }
+        
+        // Generate quick reports
+        generateQuickReports(data);
+
+    } catch (error) {
+        console.error('Erro ao carregar dashboard:', error);
+        showNotification('Erro ao carregar dashboard', 'error');
+    }
+}
+
 async function openDashboard() {
     const modal = document.getElementById('dashboardModal');
     if (modal) {

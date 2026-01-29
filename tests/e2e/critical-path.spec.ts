@@ -227,11 +227,11 @@ test.describe('Admin Kanban Board', () => {
   });
 
   test('should display user name in sidebar', async ({ page }) => {
-    // Hover over sidebar to reveal user name
-    const sidebar = page.locator('#sidebar');
-    await sidebar.hover();
+    // Expand sidebar by clicking toggle button
+    const toggleBtn = page.locator('#toggleSidebarBtn');
+    await toggleBtn.click();
     
-    // Wait a bit for transition
+    // Wait for transition
     await page.waitForTimeout(400);
     
     // Verify user name appears

@@ -112,6 +112,119 @@
         tr:hover {
             background-color: rgba(6, 182, 212, 0.05);
         }
+        
+        /* Modern Vertical Sidebar Styles */
+        #sidebar {
+            width: 5rem;
+        }
+        
+        #sidebar.expanded {
+            width: 16rem;
+        }
+        
+        #mainContent {
+            margin-left: 5rem;
+        }
+        
+        #mainContent.expanded {
+            margin-left: 16rem;
+        }
+        
+        .sidebar-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar.expanded .sidebar-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(6, 182, 212, 0.15);
+            color: #06b6d4;
+            transform: translateX(2px);
+        }
+        
+        .sidebar-item i {
+            width: 1.25rem;
+            font-size: 1.125rem;
+            text-align: center;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-item:hover i {
+            transform: scale(1.1);
+        }
+        
+        .sidebar-item span {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar.expanded .sidebar-item span {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        #sidebar.expanded #toggleIcon {
+            transform: rotate(180deg);
+        }
+        
+        #toggleIcon {
+            transition: transform 0.3s ease;
+        }
+        
+        #sidebarOverlay {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+            }
+            
+            #sidebar.open {
+                transform: translateX(0);
+                width: 16rem;
+            }
+            
+            #sidebar.open .sidebar-text,
+            #sidebar.open .sidebar-item span {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            
+            #sidebarOverlay.show {
+                display: block;
+            }
+            
+            #mainContent {
+                margin-left: 0;
+            }
+        }
     </style>
     <script>
         tailwind.config = {
@@ -124,39 +237,24 @@
             }
         }
     </script>
+    <script src="./js/components/sidebar.js"></script>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex">
 
-    <!-- Header -->
-    <header class="glass-header sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-database text-cyan-400 text-2xl"></i>
-                    <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Base de Pacientes</h1>
-                </div>
-                <div class="flex items-center space-x-2 md:space-x-4">
-                    <!-- User Greeting -->
-                    <div class="text-xs md:text-sm text-gray-300 hidden sm:block">
-                        <span class="font-medium">Olá, </span>
-                        <span id="userName" class="font-bold text-cyan-400">Usuário</span>
-                    </div>
-                    
-                    <!-- Navigation -->
-                    <a href="admin.html" class="neon-button flex items-center px-3 md:px-4 py-2 text-white rounded-lg font-medium">
-                        <i class="fas fa-columns mr-2"></i><span class="hidden md:inline"> Kanban</span>
-                    </a>
-                    
-                    <button onclick="logout()" class="flex items-center px-3 md:px-4 py-2 bg-gradient-to-r from-red-600/80 to-red-700/80 backdrop-blur-xl text-white rounded-lg font-medium hover:brightness-110 transition border border-red-500/30">
-                        <i class="fas fa-sign-out-alt mr-2"></i><span class="hidden md:inline"> Sair</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
+    <!-- Sidebar Component -->
+    <medical-sidebar active="patients" show-date-filter="false"></medical-sidebar>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main id="mainContent" class="flex-1 ml-20 transition-all duration-300">
+        <div class="p-6">
+
+        <!-- Page Title -->
+        <div class="mb-6">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-database text-cyan-400 text-2xl"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Base de Pacientes</h1>
+            </div>
+        </div>
         
         <!-- Search Bar -->
         <div class="glass-card rounded-xl p-6 mb-6">
@@ -402,6 +500,9 @@
             </div>
         </div>
     </div>
+    
+    </div><!-- Close content container -->
+    </main><!-- Close main content -->
 
     <!-- JavaScript Modules -->
     <script src="./js/crm/dialogs.js"></script>
