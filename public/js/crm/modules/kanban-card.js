@@ -82,7 +82,7 @@ export function createLeadCard(lead, dragStart, dragEnd) {
             <button onclick="openEditModal(${lead.id}, '${lead.name}', '${lead.appointment_date || ''}', '${lead.doctor || ''}', \`${(lead.notes || '').replace(/`/g, '\\`').replace(/\n/g, '\\n')}\`, '${lead.type || ''}')" class="text-gray-300 hover:text-blue-400 transition" title="Editar">
                 <i class="fas fa-edit"></i>
             </button>
-            <button onclick="openWhatsAppMenuKanban(${lead.id}, event)" class="text-gray-300 hover:text-green-400 transition" title="WhatsApp">
+            <button onclick="openWhatsAppMenuKanban(${lead.id}, event)" class="text-gray-300 hover:text-green-400 transition" title="Abrir WhatsApp">
                 <i class="fab fa-whatsapp"></i>
             </button>
             <button onclick="deleteLead(${lead.id})" class="text-gray-300 hover:text-red-400 transition ml-auto" title="Excluir">

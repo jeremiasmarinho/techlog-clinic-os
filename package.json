@@ -22,6 +22,8 @@
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
+    "test:e2e:strict": "playwright test tests/e2e/09-ui-strict.spec.ts",
+    "test:e2e:strict:headed": "playwright test tests/e2e/09-ui-strict.spec.ts --headed",
     "postinstall": "npm run build"
   },
   "keywords": [],

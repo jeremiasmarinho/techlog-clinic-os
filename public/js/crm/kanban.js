@@ -498,9 +498,9 @@ function createLeadCard(lead) {
                 </span>
                 <button 
                     onclick="openWhatsAppMenuKanban(${lead.id}, event)"
-                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs transition flex items-center relative">
-                    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
-                    <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                    class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs transition flex items-center relative"
+                    title="Abrir WhatsApp">
+                    <i class="fab fa-whatsapp text-lg"></i>
                 </button>
             </div>
             
