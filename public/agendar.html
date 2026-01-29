@@ -331,7 +331,8 @@
                                 required 
                                 placeholder="(11) 99999-9999"
                                 maxlength="15"
-                                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:bg-white/10 transition"
+                                class="mask-phone w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:bg-white/10 transition"
+                                inputmode="tel"
                             >
                             <p class="text-xs text-gray-500 mt-1">Entraremos em contato pelo WhatsApp</p>
                         </div>
@@ -622,6 +623,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
+    
+    <!-- Input Masks Utility (Event Delegation) -->
+    <script src="js/utils/masks.js"></script>
 
 </body>
 </html>

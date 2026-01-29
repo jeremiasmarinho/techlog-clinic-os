@@ -1,0 +1,214 @@
+
+> techlog-api@1.0.0 test:e2e:nightly
+> playwright test tests/e2e/13-nightly-check.spec.ts
+
+
+Running 7 tests using 1 worker
+
+
+🔍 VALIDATING LAYOUT (Fixed Sidebar 256px)
+  ✘  1 [chromium] › tests/e2e/13-nightly-check.spec.ts:29:7 › 🌙 Nightly System Check (Complete Validation) › 1️⃣ Layout: Fixed sidebar without content overlap (11.2s)
+
+🔍 VALIDATING INPUT MASKS (Event Delegation)
+  ✘  2 [chromium] › tests/e2e/13-nightly-check.spec.ts:77:7 › 🌙 Nightly System Check (Complete Validation) › 2️⃣ UX: Input masks work on dynamic elements (30.2s)
+
+🔍 VALIDATING UI RULES (WhatsApp Icon-only, Badge Placement)
+  ✘  3 [chromium] › tests/e2e/13-nightly-check.spec.ts:135:7 › 🌙 Nightly System Check (Complete Validation) › 3️⃣ UI: Strict design rules enforced (30.2s)
+
+🔍 VALIDATING DATA INTEGRITY (Date Formatting)
+  ✘  4 [chromium] › tests/e2e/13-nightly-check.spec.ts:203:7 › 🌙 Nightly System Check (Complete Validation) › 4️⃣ Data: Date formatting in edit modal (30.2s)
+
+🔍 VALIDATING PERFORMANCE (Load Times)
+  ✘  5 [chromium] › tests/e2e/13-nightly-check.spec.ts:240:7 › 🌙 Nightly System Check (Complete Validation) › 5️⃣ Performance: Page load times under threshold (30.2s)
+
+🔍 VALIDATING SECURITY (JWT Tokens)
+  ✘  6 [chromium] › tests/e2e/13-nightly-check.spec.ts:266:7 › 🌙 Nightly System Check (Complete Validation) › 6️⃣ Security: JWT authentication tokens valid (30.2s)
+
+📊 NIGHTLY CHECK SUMMARY
+═══════════════════════════════════════════════════════════
+
+| CHECK                           | STATUS    | DETAIL                          |
+|-------------------------------- |---------- |-------------------------------- |
+| Layout (Fixed Sidebar)          | ✅ PASS    | 256px margin, no overlap        |
+| Input Masks (Event Delegation)  | ✅ PASS    | Currency & Phone formatting     |
+| UI Rules (Design Consistency)   | ✅ PASS    | Icon-only buttons, correct badges |
+| Data Integrity (Date Format)    | ✅ PASS    | YYYY-MM-DDTHH:mm format         |
+| Performance (Load Times)        | ✅ PASS    | All pages < 3000ms              |
+| Security (JWT Auth)             | ✅ PASS    | Valid token structure           |
+
+═══════════════════════════════════════════════════════════
+🚀 DEPLOYMENT STATUS: READY
+📅 Last Check: 29/01/2026, 10:26:22
+═══════════════════════════════════════════════════════════
+
+  ✓  7 [chromium] › tests/e2e/13-nightly-check.spec.ts:296:7 › 🌙 Nightly System Check (Complete Validation) › 7️⃣ Summary: System deployment readiness (4.5s)
+
+
+  1) [chromium] › tests/e2e/13-nightly-check.spec.ts:29:7 › 🌙 Nightly System Check (Complete Validation) › 1️⃣ Layout: Fixed sidebar without content overlap 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('medical-sidebar, #sidebar')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('medical-sidebar, #sidebar')[22m
+
+
+      44 |       
+      45 |       // Check sidebar exists
+    > 46 |       await expect(sidebar).toBeVisible();
+         |                             ^
+      47 |       console.log(`  ✅ ${pageInfo.name}: Sidebar visible`);
+      48 |       
+      49 |       // Check main content margin (desktop: 256px, mobile: 0px)
+        at /home/techlog-api/tests/e2e/13-nightly-check.spec.ts:46:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-82d8e-bar-without-content-overlap-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-82d8e-bar-without-content-overlap-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/13-nightly-check-🌙-Nightl-82d8e-bar-without-content-overlap-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/13-nightly-check.spec.ts:77:7 › 🌙 Nightly System Check (Complete Validation) › 2️⃣ UX: Input masks work on dynamic elements 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.waitForLoadState: Test timeout of 30000ms exceeded.
+
+      80 |     // Test 1: Currency mask in Admin page modal
+      81 |     await page.goto('http://localhost:3000/admin.html');
+    > 82 |     await page.waitForLoadState('networkidle');
+         |                ^
+      83 |     
+      84 |     const firstCard = page.locator('.kanban-card').first();
+      85 |     await firstCard.waitFor({ state: 'visible' });
+        at /home/techlog-api/tests/e2e/13-nightly-check.spec.ts:82:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-2556d-ks-work-on-dynamic-elements-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-2556d-ks-work-on-dynamic-elements-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/13-nightly-check-🌙-Nightl-2556d-ks-work-on-dynamic-elements-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/13-nightly-check.spec.ts:135:7 › 🌙 Nightly System Check (Complete Validation) › 3️⃣ UI: Strict design rules enforced 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.waitForLoadState: Test timeout of 30000ms exceeded.
+
+      137 |     
+      138 |     await page.goto('http://localhost:3000/admin.html');
+    > 139 |     await page.waitForLoadState('networkidle');
+          |                ^
+      140 |     
+      141 |     // Rule 1: WhatsApp buttons must be icon-only (no text)
+      142 |     const whatsappButtons = page.locator('button.btn-whatsapp');
+        at /home/techlog-api/tests/e2e/13-nightly-check.spec.ts:139:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-4accc-trict-design-rules-enforced-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-4accc-trict-design-rules-enforced-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/13-nightly-check-🌙-Nightl-4accc-trict-design-rules-enforced-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/13-nightly-check.spec.ts:203:7 › 🌙 Nightly System Check (Complete Validation) › 4️⃣ Data: Date formatting in edit modal 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.waitForLoadState: Test timeout of 30000ms exceeded.
+
+      205 |     
+      206 |     await page.goto('http://localhost:3000/admin.html');
+    > 207 |     await page.waitForLoadState('networkidle');
+          |                ^
+      208 |     
+      209 |     // Open edit modal
+      210 |     const firstCard = page.locator('.kanban-card').first();
+        at /home/techlog-api/tests/e2e/13-nightly-check.spec.ts:207:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-11bd9-te-formatting-in-edit-modal-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-11bd9-te-formatting-in-edit-modal-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/13-nightly-check-🌙-Nightl-11bd9-te-formatting-in-edit-modal-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/13-nightly-check.spec.ts:240:7 › 🌙 Nightly System Check (Complete Validation) › 5️⃣ Performance: Page load times under threshold 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.waitForLoadState: Test timeout of 30000ms exceeded.
+
+      250 |       const startTime = Date.now();
+      251 |       await page.goto(pageInfo.url);
+    > 252 |       await page.waitForLoadState('networkidle');
+          |                  ^
+      253 |       const loadTime = Date.now() - startTime;
+      254 |       
+      255 |       console.log(`  ⏱️  ${pageInfo.name}: ${loadTime}ms`);
+        at /home/techlog-api/tests/e2e/13-nightly-check.spec.ts:252:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-058b2--load-times-under-threshold-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-058b2--load-times-under-threshold-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/13-nightly-check-🌙-Nightl-058b2--load-times-under-threshold-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/13-nightly-check.spec.ts:266:7 › 🌙 Nightly System Check (Complete Validation) › 6️⃣ Security: JWT authentication tokens valid 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.waitForLoadState: Test timeout of 30000ms exceeded.
+
+      268 |     
+      269 |     await page.goto('http://localhost:3000/admin.html');
+    > 270 |     await page.waitForLoadState('networkidle');
+          |                ^
+      271 |     
+      272 |     // Check JWT token exists
+      273 |     const token = await page.evaluate(() => sessionStorage.getItem('token'));
+        at /home/techlog-api/tests/e2e/13-nightly-check.spec.ts:270:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-70e03-authentication-tokens-valid-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/13-nightly-check-🌙-Nightl-70e03-authentication-tokens-valid-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/13-nightly-check-🌙-Nightl-70e03-authentication-tokens-valid-chromium/error-context.md
+
+  6 failed
+    [chromium] › tests/e2e/13-nightly-check.spec.ts:29:7 › 🌙 Nightly System Check (Complete Validation) › 1️⃣ Layout: Fixed sidebar without content overlap 
+    [chromium] › tests/e2e/13-nightly-check.spec.ts:77:7 › 🌙 Nightly System Check (Complete Validation) › 2️⃣ UX: Input masks work on dynamic elements 
+    [chromium] › tests/e2e/13-nightly-check.spec.ts:135:7 › 🌙 Nightly System Check (Complete Validation) › 3️⃣ UI: Strict design rules enforced 
+    [chromium] › tests/e2e/13-nightly-check.spec.ts:203:7 › 🌙 Nightly System Check (Complete Validation) › 4️⃣ Data: Date formatting in edit modal 
+    [chromium] › tests/e2e/13-nightly-check.spec.ts:240:7 › 🌙 Nightly System Check (Complete Validation) › 5️⃣ Performance: Page load times under threshold 
+    [chromium] › tests/e2e/13-nightly-check.spec.ts:266:7 › 🌙 Nightly System Check (Complete Validation) › 6️⃣ Security: JWT authentication tokens valid 
+  1 passed (3.0m)
+
+[36m  Serving HTML report at http://localhost:38131. Press Ctrl+C to quit.[39m

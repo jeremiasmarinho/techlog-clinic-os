@@ -667,7 +667,8 @@
                                     type="text" 
                                     id="editPaymentValue" 
                                     placeholder="R$ 0,00"
-                                    class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                    class="mask-money w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                    inputmode="numeric"
                                 >
                             </div>
                         </div>
@@ -954,6 +955,9 @@
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Input Masks Utility (Event Delegation) -->
+    <script src="./js/utils/masks.js"></script>
     
     <!-- CRM Application JavaScript Modules -->
     <script src="./js/crm/dialogs.js"></script>

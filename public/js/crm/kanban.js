@@ -900,11 +900,112 @@ function togglePrivacyMode() {
     }
 }
 
+// ============================================
+// DATE FORMATTING HELPERS
+// ============================================
+
+/**
+ * Format date for datetime-local input
+ * Handles multiple input formats (ISO 8601, SQL, Unix timestamp)
+ * @param {string|Date|number} dateValue - Date in any format
+ * @returns {string} Formatted date for datetime-local input (YYYY-MM-DDTHH:mm)
+ */
+function formatDateForInput(dateValue) {
+    if (!dateValue) return '';
+    
+    try {
+        // Handle different input types
+        let dateObj;
+        
+        if (typeof dateValue === 'number') {
+            // Unix timestamp (milliseconds)
+            dateObj = new Date(dateValue);
+        } else if (typeof dateValue === 'string') {
+            // Handle SQL format: "YYYY-MM-DD HH:mm:ss"
+            if (dateValue.includes(' ') && !dateValue.includes('T')) {
+                dateValue = dateValue.replace(' ', 'T');
+            }
+            
+            // Parse string to Date
+            dateObj = new Date(dateValue);
+        } else if (dateValue instanceof Date) {
+            dateObj = dateValue;
+        } else {
+            console.warn('⚠️ Unknown date format:', dateValue);
+            return '';
+        }
+        
+        // Validate date
+        if (isNaN(dateObj.getTime())) {
+            console.warn('⚠️ Invalid date:', dateValue);
+            return '';
+        }
+        
+        // Format to YYYY-MM-DDTHH:mm (required by datetime-local)
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+        
+    } catch (error) {
+        console.error('❌ Error formatting date:', error, dateValue);
+        return '';
+    }
+}
+
+/**
+ * Parse datetime-local input to ISO 8601 string
+ * @param {string} inputValue - Value from datetime-local input
+ * @returns {string|null} ISO 8601 formatted date string
+ */
+function parseDateFromInput(inputValue) {
+    if (!inputValue) return null;
+    
+    try {
+        // datetime-local format: YYYY-MM-DDTHH:mm
+        const dateObj = new Date(inputValue);
+        
+        if (isNaN(dateObj.getTime())) {
+            console.warn('⚠️ Invalid input date:', inputValue);
+            return null;
+        }
+        
+        return dateObj.toISOString();
+        
+    } catch (error) {
+        console.error('❌ Error parsing input date:', error, inputValue);
+        return null;
+    }
+}
+
+// ============================================
+// EDIT MODAL FUNCTIONS
+// ============================================
+
 // Edit Modal Functions
 function openEditModal(leadId, leadName, appointmentDate, doctor, notes, type) {
     document.getElementById('editLeadId').value = leadId;
     document.getElementById('editLeadName').value = leadName;
-    document.getElementById('editAppointmentDate').value = appointmentDate || '';
+    
+    // ============================================
+    // FIX: DATE FORMATTING FOR datetime-local INPUT
+    // ============================================
+    
+    // The datetime-local input requires format: "YYYY-MM-DDTHH:mm"
+    // Use helper function to format date correctly
+    const formattedDate = formatDateForInput(appointmentDate);
+    document.getElementById('editAppointmentDate').value = formattedDate;
+    
+    if (appointmentDate && formattedDate) {
+        console.log('✅ Date formatted for input:', {
+            original: appointmentDate,
+            formatted: formattedDate
+        });
+    }
+    
     document.getElementById('editDoctor').value = doctor || '';
     
     // Parse financial data from notes
