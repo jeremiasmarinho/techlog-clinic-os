@@ -16,7 +16,7 @@ test.describe('Scheduling Page - Multi-step Flow', () => {
         // Check header exists
         const header = page.locator('header');
         await expect(header).toBeVisible();
-        await expect(header).toContainText('Sua Clínica Aqui');
+        await expect(header).toContainText('Clínica Viva');
     });
 
     test('Step 1: Select specialty', async ({ page }) => {

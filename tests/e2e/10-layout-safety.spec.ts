@@ -33,7 +33,7 @@ test.describe('Layout Safety Check - Sidebar Overlap', () => {
       await page.waitForTimeout(1000);
       
       // Check if sidebar exists
-      const sidebar = page.locator('#sidebar, medical-sidebar');
+      const sidebar = page.locator('medical-sidebar .sidebar, aside.sidebar').first();
       const sidebarExists = await sidebar.count() > 0;
       
       if (!sidebarExists) {
@@ -118,7 +118,7 @@ test.describe('Layout Safety Check - Sidebar Overlap', () => {
     await page.goto('/admin.html');
     await page.waitForTimeout(500);
     
-    const sidebar = page.locator('#sidebar, medical-sidebar');
+    const sidebar = page.locator('medical-sidebar .sidebar, aside.sidebar').first();
     
     if (await sidebar.count() > 0) {
       const zIndex = await sidebar.evaluate((el) => {
@@ -158,7 +158,7 @@ test.describe('Layout Safety Check - Sidebar Overlap', () => {
     await page.goto('/admin.html');
     await page.waitForTimeout(500);
     
-    const sidebar = page.locator('#sidebar, medical-sidebar');
+    const sidebar = page.locator('medical-sidebar .sidebar, aside.sidebar').first();
     
     if (await sidebar.count() > 0) {
       const position = await sidebar.evaluate((el) => {

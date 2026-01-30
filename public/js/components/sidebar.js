@@ -46,7 +46,7 @@ class MedicalSidebar extends HTMLElement {
 
         this.innerHTML = `
             <!-- Modern Vertical Sidebar -->
-            <aside id="sidebar" class="fixed left-0 top-0 h-screen w-20 bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 transition-all duration-300 z-50 overflow-hidden">
+            <aside class="sidebar fixed left-0 top-0 h-screen w-20 bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 transition-all duration-300 z-50 overflow-hidden">
                 <div class="flex flex-col h-full py-6">
                     <!-- Logo + Toggle Button -->
                     <div class="px-5 mb-8">
@@ -139,7 +139,7 @@ class MedicalSidebar extends HTMLElement {
         // Default: expanded (true) - user can close if they want
         const savedState = localStorage.getItem('sidebarExpanded');
         const sidebarExpanded = savedState === null ? true : savedState === 'true';
-        const sidebar = this.querySelector('#sidebar');
+        const sidebar = this.querySelector('.sidebar');
         
         if (sidebarExpanded) {
             sidebar.classList.add('expanded');

@@ -97,43 +97,25 @@ test.describe('System Fixes Verification', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
     
-    // Navigate through steps to reach phone input
+    // Navigate through steps to reach phone input (Step 5)
     // Step 1: Select specialty
-    const especialidadeBtn = page.locator('button:has-text("Clínica Geral"), .specialty-option:has-text("Clínica Geral")').first();
-    if (await especialidadeBtn.count() > 0) {
-      await especialidadeBtn.click();
-      await page.waitForTimeout(300);
-    }
+    await page.getByText('Clínica Geral').click();
+    await page.waitForTimeout(300);
     
     // Step 2: Select payment
-    const pagamentoBtn = page.locator('button:has-text("Particular"), .payment-option:has-text("Particular")').first();
-    if (await pagamentoBtn.count() > 0) {
-      await pagamentoBtn.click();
-      await page.waitForTimeout(300);
-    }
+    await page.getByText('Plano de Saúde').first().click();
+    await page.waitForTimeout(300);
     
     // Step 3: Select period
-    const periodoBtn = page.locator('button:has-text("Manhã"), .period-option:has-text("Manhã")').first();
-    if (await periodoBtn.count() > 0) {
-      await periodoBtn.click();
-      await page.waitForTimeout(300);
-    }
+    await page.getByText('Manhã').first().click();
+    await page.waitForTimeout(300);
     
     // Step 4: Select day
-    const diaBtn = page.locator('button:has-text("Segunda"), .day-option').first();
-    if (await diaBtn.count() > 0) {
-      await diaBtn.click();
-      await page.waitForTimeout(300);
-    }
+    await page.getByText('Segunda a Sexta').first().click();
+    await page.waitForTimeout(300);
     
-    // Step 5: Phone input should be visible
-    const phoneInput = page.locator('#phone, input[type="tel"], input.mask-phone').first();
-    
-    if (await phoneInput.count() === 0) {
-      console.log('  ⚠ Phone input not found, skipping test');
-      return;
-    }
-    
+    // Step 5: Phone input should now be visible
+    const phoneInput = page.locator('#phone');
     await expect(phoneInput).toBeVisible();
     
     // Test 1: Type "11999887766" → Should format to "(11) 99988-7766"
