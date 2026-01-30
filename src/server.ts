@@ -1,10 +1,6 @@
 // Load environment variables FIRST (before any imports)
 import dotenv from 'dotenv';
-const preservedNodeEnv = process.env.NODE_ENV;
 dotenv.config();
-if (preservedNodeEnv) {
-    process.env.NODE_ENV = preservedNodeEnv;
-}
 
 import express from 'express';
 import cors from 'cors';

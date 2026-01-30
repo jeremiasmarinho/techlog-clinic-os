@@ -89,9 +89,25 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    sessionStorage.setItem('MEDICAL_CRM_TOKEN', data.token);
+                    // Armazenar todos os dados do usuário e clínica
+                    sessionStorage.setItem('token', data.token);
+                    sessionStorage.setItem('userId', data.user.id);
                     sessionStorage.setItem('userName', data.user.name);
-                    window.location.href = '/admin.html';
+                    sessionStorage.setItem('userRole', data.user.role);
+                    sessionStorage.setItem('clinicId', data.user.clinicId || data.user.clinic?.id || '');
+                    sessionStorage.setItem('clinicName', data.user.clinic?.name || '');
+                    sessionStorage.setItem('clinicSlug', data.user.clinic?.slug || '');
+                    sessionStorage.setItem('isOwner', data.user.isOwner ? 'true' : 'false');
+
+                    // Manter token antigo para compatibilidade
+                    sessionStorage.setItem('MEDICAL_CRM_TOKEN', data.token);
+
+                    // Redirecionar baseado no role
+                    if (data.user.role === 'super_admin') {
+                        window.location.href = '/saas-admin.html';
+                    } else {
+                        window.location.href = '/admin.html';
+                    }
                 } else {
                     throw new Error(data.error || 'Erro desconhecido');
                 }

@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 
 // Rate limiting storage (in-memory, simple implementation)
 const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
-const MAX_ATTEMPTS = 5;
+const MAX_ATTEMPTS = process.env.NODE_ENV === 'production' ? 5 : 100; // 100 attempts in development for E2E tests
 const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
 
 export class AuthController {
@@ -18,22 +18,25 @@ export class AuthController {
             return;
         }
 
-        // Check rate limiting
-        const attempts = loginAttempts.get(email);
-        if (attempts) {
-            const timeSinceLastAttempt = Date.now() - attempts.lastAttempt;
-            
-            if (attempts.count >= MAX_ATTEMPTS && timeSinceLastAttempt < LOCKOUT_TIME) {
-                const remainingTime = Math.ceil((LOCKOUT_TIME - timeSinceLastAttempt) / 60000);
-                res.status(429).json({ 
-                    error: `Muitas tentativas de login. Tente novamente em ${remainingTime} minutos.` 
-                });
-                return;
-            }
-            
-            // Reset if lockout time has passed
-            if (timeSinceLastAttempt >= LOCKOUT_TIME) {
-                loginAttempts.delete(email);
+        // Check rate limiting (disabled in development for E2E tests)
+        console.log('🔍 NODE_ENV:', process.env.NODE_ENV, 'Rate limiting:', process.env.NODE_ENV === 'production' ? 'ACTIVE' : 'DISABLED');
+        if (process.env.NODE_ENV === 'production') {
+            const attempts = loginAttempts.get(email);
+            if (attempts) {
+                const timeSinceLastAttempt = Date.now() - attempts.lastAttempt;
+                
+                if (attempts.count >= MAX_ATTEMPTS && timeSinceLastAttempt < LOCKOUT_TIME) {
+                    const remainingTime = Math.ceil((LOCKOUT_TIME - timeSinceLastAttempt) / 60000);
+                    res.status(429).json({ 
+                        error: `Muitas tentativas de login. Tente novamente em ${remainingTime} minutos.` 
+                    });
+                    return;
+                }
+                
+                // Reset if lockout time has passed
+                if (timeSinceLastAttempt >= LOCKOUT_TIME) {
+                    loginAttempts.delete(email);
+                }
             }
         }
         

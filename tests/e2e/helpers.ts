@@ -6,8 +6,20 @@ import { Page } from '@playwright/test';
 
 export const CREDENTIALS = {
   valid: {
-    username: 'admin@medicalcrm.com',
+    username: 'admin',
     password: 'Mudar123!'
+  },
+  superAdmin: {
+    username: 'admin',
+    password: 'Mudar123!'
+  },
+  clinicAdmin: {
+    username: 'joao.silva',
+    password: 'Mudar123!'
+  },
+  staff: {
+    username: '',
+    password: ''
   },
   invalid: {
     username: 'wrong@user.com',
@@ -41,6 +53,46 @@ export async function loginAsAdmin(page: Page) {
   
   // Wait for kanban board to load
   await page.waitForTimeout(2000);
+}
+
+/**
+ * Generic login helper for any user role
+ */
+export async function loginAs(page: Page, username: string, password: string) {
+  await page.context().clearCookies();
+  await page.goto('/login.html');
+  await page.evaluate(() => {
+    sessionStorage.clear();
+    localStorage.clear();
+  });
+  
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForTimeout(500);
+  
+  await page.fill('#email', username);
+  await page.fill('#password', password);
+  await page.click('button[type="submit"]');
+  
+  // Wait for redirect
+  await page.waitForTimeout(3000);
+}
+
+/**
+ * Get user session data from page context
+ */
+export async function getUserSession(page: Page) {
+  return await page.evaluate(() => {
+    return {
+      token: sessionStorage.getItem('token'),
+      userId: sessionStorage.getItem('userId'),
+      userName: sessionStorage.getItem('userName'),
+      userRole: sessionStorage.getItem('userRole'),
+      clinicId: sessionStorage.getItem('clinicId'),
+      clinicName: sessionStorage.getItem('clinicName'),
+      clinicSlug: sessionStorage.getItem('clinicSlug'),
+      isOwner: sessionStorage.getItem('isOwner')
+    };
+  });
 }
 
 /**
