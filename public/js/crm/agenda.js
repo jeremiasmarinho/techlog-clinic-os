@@ -1,17 +1,175 @@
-// ============================================
-// Agenda - Daily Appointments View
-// ============================================
+/**
+ * Agenda - Advanced Daily Appointments View
+ * Features: JSON parsing, financial badges, CRUD actions, strict badge rules
+ */
 
-const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+// ============================================
+// Authentication Check
+// ============================================
+const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
 if (!token) {
     alert('Sessão inválida. Faça login novamente.');
     window.location.href = '/login.html';
 }
 
+// API_URL is already declared in api.js (loaded before this script)
+
+
 // Store appointments globally for WhatsApp menu
 let currentAppointments = [];
 
-// Initialize
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Parse description/notes field to extract JSON financial data and clean text
+ * @param {string} text - Raw notes field from database
+ * @returns {Object} - { cleanText, financial: { paymentType, insuranceName, value } }
+ */
+function parseDescription(text) {
+    if (!text) return { cleanText: '', financial: null };
+    
+    try {
+        // Try to extract JSON from notes
+        const jsonMatch = text.match(/\{"financial":\{[^}]+\}\}/);
+        
+        if (jsonMatch) {
+            const jsonData = JSON.parse(jsonMatch[0]);
+            const financial = jsonData.financial || {};
+            
+            // Remove JSON from text to get clean observations
+            const cleanText = text.replace(jsonMatch[0], '').trim();
+            
+            console.log('📊 Parsed financial data:', financial);
+            
+            return {
+                cleanText: cleanText || '',
+                financial: {
+                    paymentType: financial.paymentType || null,
+                    insuranceName: financial.insuranceName || null,
+                    value: financial.value || null
+                }
+            };
+        }
+        
+        // No JSON found, return original text
+        return { cleanText: text, financial: null };
+        
+    } catch (error) {
+        console.warn('⚠️ Failed to parse description JSON:', error);
+        return { cleanText: text, financial: null };
+    }
+}
+
+/**
+ * Format currency to Brazilian Real (R$ X.XXX,XX)
+ */
+function formatCurrency(value) {
+    if (!value) return '';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue) || numValue === 0) return '';
+    return `R$ ${numValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * Get financial badges HTML from parsed financial data
+ */
+function getFinancialBadges(financial) {
+    if (!financial) return '';
+    
+    let badges = '';
+    
+    // Payment type badge
+    if (financial.paymentType) {
+        const typeMap = {
+            'particular': { icon: '💵', text: 'Particular', color: 'emerald' },
+            'plano': { icon: '🏥', text: financial.insuranceName || 'Plano', color: 'blue' },
+            'retorno': { icon: '🔄', text: 'Retorno', color: 'purple' }
+        };
+        
+        const type = typeMap[financial.paymentType] || { icon: '💳', text: financial.paymentType, color: 'gray' };
+        
+        badges += `
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-${type.color}-500/20 text-${type.color}-300 border border-${type.color}-500/30">
+                ${type.icon} ${type.text}
+            </span>
+        `;
+    }
+    
+    // Value badge
+    if (financial.value) {
+        const formattedValue = formatCurrency(financial.value);
+        if (formattedValue) {
+            badges += `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30">
+                    💰 ${formattedValue}
+                </span>
+            `;
+        }
+    }
+    
+    return badges;
+}
+
+/**
+ * Get attendance badge with STRICT RULES (same as Kanban/Patients)
+ */
+function getAttendanceBadge(appointment) {
+    const currentStatus = (appointment.status || '').toLowerCase().trim();
+    const attendanceStatus = (appointment.attendance_status || '').toLowerCase().trim();
+    
+    if (!attendanceStatus) return '';
+    
+    // Define outcome badges
+    const outcomeBadges = ['compareceu', 'nao_compareceu', 'cancelado'];
+    
+    // STRICT RULE 1: Outcome badges ONLY in Finalizados
+    if (outcomeBadges.includes(attendanceStatus)) {
+        if (currentStatus !== 'finalizado') {
+            console.log(`⚠️  Blocked outcome badge "${attendanceStatus}" for status "${currentStatus}"`);
+            return '';
+        }
+    }
+    
+    // STRICT RULE 2: Remarcado badge ONLY in Agendado/Em Atendimento
+    if (attendanceStatus === 'remarcado') {
+        if (currentStatus !== 'agendado' && currentStatus !== 'em_atendimento') {
+            console.log(`⚠️  Blocked "remarcado" badge for status "${currentStatus}"`);
+            return '';
+        }
+    }
+    
+    // Badge templates
+    const attendanceLabels = {
+        'compareceu': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30"><i class="fas fa-check mr-1"></i>Compareceu</span>',
+        'nao_compareceu': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-300 border border-red-500/30"><i class="fas fa-times mr-1"></i>Não veio</span>',
+        'cancelado': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-500/20 text-gray-300 border border-gray-500/30"><i class="fas fa-ban mr-1"></i>Cancelado</span>',
+        'remarcado': '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"><i class="fas fa-calendar-alt mr-1"></i>Remarcado</span>'
+    };
+    
+    return attendanceLabels[attendanceStatus] || '';
+}
+
+/**
+ * Format phone number
+ */
+function formatPhone(phone) {
+    if (!phone) return '-';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 11) {
+        return `(${cleaned.slice(0,2)}) ${cleaned.slice(2,7)}-${cleaned.slice(7)}`;
+    }
+    if (cleaned.length === 10) {
+        return `(${cleaned.slice(0,2)}) ${cleaned.slice(2,6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
 document.addEventListener('DOMContentLoaded', () => {
     // Set today as default date
     const today = new Date().toISOString().split('T')[0];
@@ -21,19 +179,24 @@ document.addEventListener('DOMContentLoaded', () => {
     loadAgenda();
 });
 
-// Load doctors for filter
+// ============================================
+// LOAD DOCTORS FOR FILTER
+// ============================================
+
 async function loadDoctors() {
     try {
-        const response = await fetch(`${API_URL}?view=kanban`, {
+        const response = await fetch(`${API_URL}?view=all`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         
-        if (!response.ok) throw new Error('Erro ao carregar dados');
+        if (!response.ok) throw new Error('Erro ao carregar médicos');
         
         const leads = await response.json();
-        const doctors = [...new Set(leads.map(l => l.doctor).filter(Boolean))];
+        
+        // Extract unique doctors
+        const doctors = [...new Set(leads.map(l => l.doctor).filter(d => d))];
         
         const select = document.getElementById('doctorFilter');
         doctors.forEach(doctor => {
@@ -42,12 +205,16 @@ async function loadDoctors() {
             option.textContent = doctor;
             select.appendChild(option);
         });
+        
     } catch (error) {
-        console.error('Erro ao carregar profissionais:', error);
+        console.error('Erro ao carregar médicos:', error);
     }
 }
 
-// Load agenda
+// ============================================
+// LOAD AGENDA
+// ============================================
+
 async function loadAgenda() {
     const loading = document.getElementById('loading');
     const emptyState = document.getElementById('emptyState');
@@ -73,7 +240,9 @@ async function loadAgenda() {
         if (!response.ok) throw new Error('Erro ao carregar agenda');
         
         const appointments = await response.json();
-        currentAppointments = appointments; // Store for WhatsApp menu
+        currentAppointments = appointments;
+        
+        console.log(`✅ Loaded ${appointments.length} appointments with advanced features`);
         
         if (appointments.length === 0) {
             emptyState.classList.remove('hidden');
@@ -90,149 +259,263 @@ async function loadAgenda() {
     }
 }
 
-// Create appointment card
+// ============================================
+// CREATE APPOINTMENT CARD (ADVANCED LAYOUT)
+// ============================================
+
 function createAppointmentCard(appointment) {
     const card = document.createElement('div');
-    card.className = 'glass-card rounded-xl p-4 hover:bg-white/10 transition';
+    card.className = 'glass-card rounded-xl p-5 hover:bg-white/10 transition-all border border-white/10';
     card.dataset.appointmentId = appointment.id;
     
+    // Parse description to extract financial data and clean text
+    const parsed = parseDescription(appointment.notes);
+    const financialBadges = getFinancialBadges(parsed.financial);
+    const cleanNotes = parsed.cleanText;
+    
+    // Format time
     const time = appointment.appointment_date 
         ? new Date(appointment.appointment_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         : '--:--';
     
-    // Attendance status colors
-    const attendanceColors = {
-        'compareceu': 'bg-green-500/20 text-green-300 border-green-500/30',
-        'nao_compareceu': 'bg-red-500/20 text-red-300 border-red-500/30',
-        'cancelado': 'bg-gray-500/20 text-gray-300 border-gray-500/30',
-        'remarcado': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
-    };
+    // Get attendance badge (with strict rules)
+    const attendanceBadge = getAttendanceBadge(appointment);
     
-    const attendanceLabels = {
-        'compareceu': 'Compareceu',
-        'nao_compareceu': 'Não veio',
-        'cancelado': 'Cancelado',
-        'remarcado': 'Remarcado'
-    };
-    
-    // Status colors (fallback)
-    const statusColors = {
-        'agendado': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-        'confirmado': 'bg-green-500/20 text-green-300 border-green-500/30',
-        'em_atendimento': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-        'finalizado': 'bg-purple-500/20 text-purple-300 border-purple-500/30'
-    };
-    
-    // Use attendance_status if available, otherwise use status
-    let statusBadge = '';
-    if (appointment.attendance_status) {
-        const color = attendanceColors[appointment.attendance_status] || 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-        const label = attendanceLabels[appointment.attendance_status] || appointment.attendance_status;
-        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-semibold border ${color}">${label}</span>`;
-    } else {
-        const color = statusColors[appointment.status] || 'bg-gray-500/20 text-gray-300 border-gray-500/30';
-        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-semibold border ${color}">${appointment.status}</span>`;
+    // Type badge
+    let typeBadge = '';
+    if (appointment.type) {
+        if (appointment.type.startsWith('Consulta - ')) {
+            const parts = appointment.type.split(' - ');
+            const specialty = parts[1] || 'Consulta';
+            typeBadge = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">📋 ${specialty}</span>`;
+        } else {
+            const typeMap = {
+                'primeira_consulta': '⭐ Primeira Consulta',
+                'Primeira Consulta': '⭐ Primeira Consulta',
+                'retorno': '🔄 Retorno',
+                'Retorno': '🔄 Retorno',
+                'exame': '🔬 Exame',
+                'Exame': '🔬 Exame',
+                'Consulta': '🩺 Consulta'
+            };
+            const typeText = typeMap[appointment.type] || appointment.type;
+            typeBadge = `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">${typeText}</span>`;
+        }
     }
     
     // Show quick action buttons only if not finalized yet
     const showQuickActions = !appointment.attendance_status && 
                              (appointment.status === 'agendado' || appointment.status === 'em_atendimento');
     
-    const templates = getWhatsAppTemplates(appointment);
-    
     card.innerHTML = `
-        <div class="flex flex-col gap-3">
-            <div class="flex flex-col md:flex-row md:items-center gap-4">
-                <div class="flex items-center space-x-4 flex-1">
-                    <div class="text-3xl font-bold text-cyan-400">${time}</div>
-                    <div class="flex-1">
-                        <h3 class="text-lg font-semibold text-white">${appointment.name}</h3>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="text-sm text-gray-300">
-                                <i class="fas fa-phone mr-1 text-cyan-400"></i>${formatPhone(appointment.phone)}
-                            </span>
-                            ${appointment.doctor ? `
-                                <span class="text-sm text-gray-300">
-                                    <i class="fas fa-user-md mr-1 text-purple-400"></i>${appointment.doctor}
-                                </span>
-                            ` : ''}
-                        </div>
-                        ${appointment.notes ? `
-                            <p class="text-sm text-gray-400 mt-2">
-                                <i class="fas fa-sticky-note mr-1"></i>${appointment.notes}
-                            </p>
-                        ` : ''}
-                    </div>
+        <!-- HEADER ROW: Time | Name | Badges -->
+        <div class="flex flex-col md:flex-row md:items-start gap-4 mb-4">
+            <!-- Time (Large) -->
+            <div class="text-4xl font-bold text-cyan-400 min-w-[100px]">
+                ${time}
+            </div>
+            
+            <!-- Patient Info -->
+            <div class="flex-1">
+                <h3 class="text-xl font-semibold text-white mb-2">${appointment.name}</h3>
+                
+                <!-- Contact & Doctor Row -->
+                <div class="flex flex-wrap items-center gap-3 mb-2">
+                    <span class="text-sm text-gray-300 flex items-center">
+                        <i class="fas fa-phone mr-2 text-cyan-400"></i>
+                        ${formatPhone(appointment.phone)}
+                    </span>
+                    ${appointment.doctor ? `
+                        <span class="text-sm text-gray-300 flex items-center">
+                            <i class="fas fa-user-md mr-2 text-purple-400"></i>
+                            ${appointment.doctor}
+                        </span>
+                    ` : ''}
                 </div>
                 
-                <div class="flex items-center gap-2">
-                    ${statusBadge}
-                    <div class="relative">
-                        <button 
-                            onclick="openWhatsAppMenuAgenda(${appointment.id}, event)"
-                            class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition flex items-center">
-                            <i class="fab fa-whatsapp mr-2"></i>WhatsApp
-                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
-                        </button>
-                    </div>
+                <!-- Badges Row: Type + Attendance + Financial -->
+                <div class="flex flex-wrap items-center gap-2">
+                    ${typeBadge}
+                    ${attendanceBadge}
+                    ${financialBadges}
                 </div>
             </div>
             
-            ${showQuickActions ? `
-                <div class="flex flex-wrap gap-2 pt-2 border-t border-white/10">
-                    <span class="text-xs text-gray-400 self-center mr-2">Resultado:</span>
-                    <button 
-                        onclick="markAttendance(${appointment.id}, 'compareceu')"
-                        class="px-3 py-1 text-xs font-medium rounded-lg bg-green-600/80 hover:bg-green-600 text-white transition flex items-center">
-                        <i class="fas fa-check mr-1"></i> Compareceu
-                    </button>
-                    <button 
-                        onclick="markAttendance(${appointment.id}, 'nao_compareceu')"
-                        class="px-3 py-1 text-xs font-medium rounded-lg bg-red-600/80 hover:bg-red-600 text-white transition flex items-center">
-                        <i class="fas fa-times mr-1"></i> Não veio
-                    </button>
-                    <button 
-                        onclick="markAttendance(${appointment.id}, 'cancelado')"
-                        class="px-3 py-1 text-xs font-medium rounded-lg bg-gray-600/80 hover:bg-gray-600 text-white transition flex items-center">
-                        <i class="fas fa-ban mr-1"></i> Cancelou
-                    </button>
-                </div>
-            ` : ''}
+            <!-- ACTION BUTTONS (Right Side) -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <!-- WhatsApp -->
+                <button 
+                    onclick="openWhatsAppAgenda(${appointment.id})"
+                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center shadow-lg hover:shadow-green-500/50"
+                    title="WhatsApp">
+                    <i class="fab fa-whatsapp mr-2"></i>
+                    <span class="hidden md:inline">WhatsApp</span>
+                </button>
+                
+                <!-- Edit Button -->
+                <button 
+                    onclick="editAppointment(${appointment.id})"
+                    class="bg-blue-500/20 hover:bg-blue-500 text-blue-300 hover:text-white px-4 py-2 rounded-lg transition-all border border-blue-500/30 hover:border-blue-500"
+                    title="Editar Agendamento">
+                    <i class="fas fa-edit"></i>
+                </button>
+                
+                <!-- Archive Button -->
+                <button 
+                    onclick="archiveAppointment(${appointment.id})"
+                    class="bg-gray-500/20 hover:bg-gray-600 text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-all border border-gray-500/30 hover:border-gray-600"
+                    title="Arquivar">
+                    <i class="fas fa-archive"></i>
+                </button>
+                
+                <!-- Delete Button -->
+                <button 
+                    onclick="deleteAppointment(${appointment.id})"
+                    class="bg-red-500/20 hover:bg-red-600 text-red-300 hover:text-white px-4 py-2 rounded-lg transition-all border border-red-500/30 hover:border-red-600"
+                    title="Excluir">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </div>
+        
+        <!-- NOTES ROW (Clean Text) -->
+        ${cleanNotes ? `
+            <div class="bg-gray-800/50 rounded-lg p-3 mb-3">
+                <p class="text-sm text-gray-300 flex items-start">
+                    <i class="fas fa-sticky-note mr-2 text-yellow-400 mt-0.5"></i>
+                    <span>${cleanNotes}</span>
+                </p>
+            </div>
+        ` : ''}
+        
+        <!-- QUICK ATTENDANCE ACTIONS (Only if not finalized) -->
+        ${showQuickActions ? `
+            <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-white/10">
+                <span class="text-xs text-gray-400 font-medium mr-2">
+                    <i class="fas fa-clipboard-check mr-1"></i>
+                    Marcar Resultado:
+                </span>
+                <button 
+                    onclick="markAttendance(${appointment.id}, 'compareceu')"
+                    class="px-3 py-1.5 text-xs font-medium rounded-lg bg-green-600/80 hover:bg-green-600 text-white transition-all flex items-center shadow-sm hover:shadow-green-500/50">
+                    <i class="fas fa-check mr-1"></i> Compareceu
+                </button>
+                <button 
+                    onclick="markAttendance(${appointment.id}, 'nao_compareceu')"
+                    class="px-3 py-1.5 text-xs font-medium rounded-lg bg-red-600/80 hover:bg-red-600 text-white transition-all flex items-center shadow-sm hover:shadow-red-500/50">
+                    <i class="fas fa-times mr-1"></i> Não veio
+                </button>
+                <button 
+                    onclick="markAttendance(${appointment.id}, 'cancelado')"
+                    class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-600/80 hover:bg-gray-600 text-white transition-all flex items-center shadow-sm hover:shadow-gray-500/50">
+                    <i class="fas fa-ban mr-1"></i> Cancelou
+                </button>
+            </div>
+        ` : ''}
     `;
     
     return card;
 }
 
-// WhatsApp Integration (using shared helper)
-function openWhatsAppMenuAgenda(appointmentId, event) {
-    event.stopPropagation();
-    
+// ============================================
+// CRUD ACTIONS
+// ============================================
+
+/**
+ * Edit Appointment
+ */
+async function editAppointment(appointmentId) {
     const appointment = currentAppointments.find(a => a.id === appointmentId);
-    if (!appointment) return;
-    
-    const leadData = {
-        name: appointment.name,
-        phone: appointment.phone.replace(/\D/g, ''),
-        appointment_date: appointment.appointment_date,
-        doctor: appointment.doctor
-    };
-    
-    // Use shared WhatsApp helper
-    const card = event.currentTarget.closest('.glass-card');
-    openWhatsAppMenu(event.currentTarget, leadData, card);
-}
-
-// Helper functions
-function formatPhone(phone) {
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 11) {
-        return `(${cleaned.substr(0, 2)}) ${cleaned.substr(2, 5)}-${cleaned.substr(7)}`;
+    if (!appointment) {
+        alert('❌ Agendamento não encontrado');
+        return;
     }
-    return phone;
+    
+    const newDate = prompt('Nova data/hora (YYYY-MM-DD HH:MM):', appointment.appointment_date || '');
+    if (newDate === null) return; // Cancelled
+    
+    const newDoctor = prompt('Médico:', appointment.doctor || '');
+    const newNotes = prompt('Observações:', appointment.notes || '');
+    
+    try {
+        const response = await fetch(`${API_URL}/${appointmentId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                appointment_date: newDate ? new Date(newDate).toISOString() : null,
+                doctor: newDoctor,
+                notes: newNotes
+            })
+        });
+        
+        if (!response.ok) throw new Error('Erro ao atualizar');
+        
+        alert('✅ Agendamento atualizado!');
+        loadAgenda();
+    } catch (error) {
+        console.error('Erro ao editar:', error);
+        alert('❌ Erro ao editar agendamento');
+    }
 }
 
-// Mark attendance result
+/**
+ * Archive Appointment
+ */
+async function archiveAppointment(appointmentId) {
+    if (!confirm('⚠️ Arquivar este agendamento?')) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/${appointmentId}/archive`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ archive_reason: 'manual_archive' })
+        });
+        
+        if (!response.ok) throw new Error('Erro ao arquivar');
+        
+        alert('✅ Agendamento arquivado com sucesso!');
+        loadAgenda();
+        
+    } catch (error) {
+        console.error('Erro ao arquivar:', error);
+        alert('❌ Erro ao arquivar agendamento');
+    }
+}
+
+/**
+ * Delete Appointment
+ */
+async function deleteAppointment(appointmentId) {
+    if (!confirm('🗑️ Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita!')) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/${appointmentId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) throw new Error('Erro ao excluir');
+        
+        alert('✅ Agendamento excluído com sucesso!');
+        loadAgenda();
+        
+    } catch (error) {
+        console.error('Erro ao excluir:', error);
+        alert('❌ Erro ao excluir agendamento');
+    }
+}
+
+/**
+ * Mark attendance result
+ */
 async function markAttendance(appointmentId, attendanceStatus) {
     try {
         const response = await fetch(`${API_URL}/${appointmentId}`, {
@@ -243,18 +526,12 @@ async function markAttendance(appointmentId, attendanceStatus) {
             },
             body: JSON.stringify({
                 attendance_status: attendanceStatus,
-                status: 'Finalizado'
+                status: 'finalizado'
             })
         });
         
-        if (!response.ok) {
-            throw new Error('Erro ao atualizar status');
-        }
+        if (!response.ok) throw new Error('Erro ao atualizar status');
         
-        // Reload agenda to show updated status
-        await loadAgenda();
-        
-        // Show success notification
         const labels = {
             'compareceu': 'Presença confirmada!',
             'nao_compareceu': 'Falta registrada.',
@@ -262,9 +539,52 @@ async function markAttendance(appointmentId, attendanceStatus) {
         };
         
         alert(`✅ ${labels[attendanceStatus] || 'Status atualizado!'}`);
+        loadAgenda();
         
     } catch (error) {
         console.error('Erro ao marcar presença:', error);
-        alert('❌ Erro ao atualizar. Tente novamente.');
+        alert('❌ Erro ao atualizar status');
     }
 }
+
+// ============================================
+// WHATSAPP INTEGRATION
+// ============================================
+
+function openWhatsAppAgenda(appointmentId) {
+    const appointment = currentAppointments.find(a => a.id === appointmentId);
+    if (!appointment) return;
+    
+    const phone = appointment.phone.replace(/\D/g, '');
+    const message = `Olá *${appointment.name}*! 👋\n\nPassando para confirmar sua consulta${appointment.appointment_date ? ` agendada para *${new Date(appointment.appointment_date).toLocaleString('pt-BR')}*` : ''}.\n\nTudo confirmado?`;
+    window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(message)}`, '_blank');
+}
+
+// ============================================
+// EXPOSE FUNCTIONS GLOBALLY
+// ============================================
+
+window.loadAgenda = loadAgenda;
+window.editAppointment = editAppointment;
+window.archiveAppointment = archiveAppointment;
+window.deleteAppointment = deleteAppointment;
+window.markAttendance = markAttendance;
+window.openWhatsAppAgenda = openWhatsAppAgenda;
+
+// ============================================
+// INITIALIZE ON PAGE LOAD
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Set today's date in filter
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('dateFilter').value = today;
+    
+    // Load doctors and initial agenda
+    loadDoctors();
+    loadAgenda();
+    
+    // Add event listeners to filters
+    document.getElementById('dateFilter').addEventListener('change', loadAgenda);
+    document.getElementById('doctorFilter').addEventListener('change', loadAgenda);
+});
