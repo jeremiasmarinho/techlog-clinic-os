@@ -44,8 +44,8 @@ export async function loginAsAdmin(page: Page) {
   await page.waitForTimeout(500);
   
   // Fill credentials
-  await page.fill('#email', CREDENTIALS.valid.username);
-  await page.fill('#password', CREDENTIALS.valid.password);
+  await page.fill('#email', CREDENTIALS.clinicAdmin.username);
+  await page.fill('#password', CREDENTIALS.clinicAdmin.password);
   
   // Click login and wait for navigation
   await page.click('button[type="submit"]');

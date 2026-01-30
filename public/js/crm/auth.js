@@ -3,7 +3,7 @@
 // ============================================
 
 // Check authentication on page load
-const authToken = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+const authToken = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
 const currentUser = sessionStorage.getItem('userName');
 
 if (!authToken) {

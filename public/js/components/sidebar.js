@@ -6,6 +6,7 @@
 class MedicalSidebar extends HTMLElement {
     constructor() {
         super();
+        this.mainContentRetries = 0;
     }
 
     connectedCallback() {
@@ -143,15 +144,17 @@ class MedicalSidebar extends HTMLElement {
         
         if (sidebarExpanded) {
             sidebar.classList.add('expanded');
-            document.getElementById('mainContent')?.classList.add('expanded');
+            this.applyMainContentState(true);
+        } else {
+            this.applyMainContentState(false);
         }
 
         // Toggle button click
         this.querySelector('#toggleSidebarBtn')?.addEventListener('click', () => {
             sidebar.classList.toggle('expanded');
-            document.getElementById('mainContent')?.classList.toggle('expanded');
-            
             const isExpanded = sidebar.classList.contains('expanded');
+            this.applyMainContentState(isExpanded);
+            
             localStorage.setItem('sidebarExpanded', isExpanded);
         });
 
@@ -191,6 +194,20 @@ class MedicalSidebar extends HTMLElement {
             logoutBtn.removeAttribute('onclick');
             logoutBtn.addEventListener('click', () => window.logout());
         }
+    }
+
+    applyMainContentState(isExpanded) {
+        const mainContent = document.getElementById('mainContent');
+        if (!mainContent) {
+            if (this.mainContentRetries < 10) {
+                this.mainContentRetries += 1;
+                requestAnimationFrame(() => this.applyMainContentState(isExpanded));
+            }
+            return;
+        }
+
+        mainContent.classList.toggle('expanded', isExpanded);
+        this.mainContentRetries = 0;
     }
 
     loadUserName() {

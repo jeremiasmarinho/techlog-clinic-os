@@ -10,7 +10,7 @@ let historyChartInstance = null;
 // Load summary metrics on page load
 async function loadSummaryMetrics() {
     try {
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
         const response = await fetch('/api/metrics/resumo', {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -38,7 +38,7 @@ async function loadSummaryMetrics() {
 // New function to load dashboard data for the standalone page
 async function loadDashboardData() {
     try {
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
         const response = await fetch('/api/leads/dashboard', {
             method: 'GET',
             headers: {
@@ -87,12 +87,12 @@ async function loadDashboardData() {
         }
 
         // Create charts
-        createStatusChart(data.byStatus);
-        createTypeChart(data.byType);
+        renderStatusChart(data.byStatus);
+        renderTypeChart(data.byType);
         
         // Create history chart
         if (data.history && data.history.length > 0) {
-            createHistoryChart(data.history);
+            renderHistoryChart(data.history);
         }
         
         // Generate quick reports
@@ -111,7 +111,7 @@ async function openDashboard() {
     }
     
     try {
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
         const response = await fetch('/api/leads/dashboard', {
             method: 'GET',
             headers: {

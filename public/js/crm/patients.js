@@ -6,7 +6,7 @@
 // ============================================
 // Authentication Check
 // ============================================
-const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
 if (!token) {
     alert('Sessão inválida. Faça login novamente.');
     window.location.href = '/login.html';
@@ -31,6 +31,122 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('userName').textContent = userName;
     }
 });
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Format text by removing underscores/hyphens and capitalizing words
+ * @param {string} text - Raw text from database (e.g., 'primeira_consulta')
+ * @returns {string} - Formatted text (e.g., 'Primeira Consulta')
+ */
+function formatText(text) {
+    if (!text) return '';
+    
+    return text
+        .replace(/[_-]/g, ' ')           // Replace underscores and hyphens with spaces
+        .toLowerCase()                    // Convert to lowercase first
+        .replace(/\b\w/g, char => char.toUpperCase()); // Capitalize first letter of each word
+}
+
+/**
+ * Format type display with special handling for detailed consultation types
+ * @param {string} type - Lead/patient type
+ * @returns {string} - Formatted type string
+ */
+function formatTypeDisplay(type) {
+    if (!type) return 'Geral';
+    
+    // Handle detailed consultation format: "Consulta - Especialidade - Payment - Period - Days"
+    if (type.startsWith('Consulta - ')) {
+        const parts = type.split(' - ');
+        const specialty = parts[1] || 'Consulta';
+        return `📋 ${specialty}`;
+    }
+    
+    // Format standard types (primeira_consulta → Primeira Consulta)
+    return formatText(type);
+}
+
+/**
+ * Format status display
+ * @param {string} status - Lead/patient status
+ * @returns {string} - Formatted status string
+ */
+function formatStatusDisplay(status) {
+    if (!status) return 'Novo';
+    
+    // Special cases for better readability
+    const statusMap = {
+        'em_atendimento': 'Em Atendimento',
+        'nao_compareceu': 'Não Compareceu',
+        'nao_veio': 'Não Veio'
+    };
+    
+    const normalized = status.toLowerCase().trim();
+    
+    if (statusMap[normalized]) {
+        return statusMap[normalized];
+    }
+    
+    return formatText(status);
+}
+
+/**
+ * Format phone number to (XX) XXXXX-XXXX
+ */
+function formatPhone(phone) {
+    if (!phone) return '-';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length === 11) {
+        return `(${cleaned.slice(0,2)}) ${cleaned.slice(2,7)}-${cleaned.slice(7)}`;
+    }
+    if (cleaned.length === 10) {
+        return `(${cleaned.slice(0,2)}) ${cleaned.slice(2,6)}-${cleaned.slice(6)}`;
+    }
+    return phone;
+}
+
+// ============================================
+// Helper: Get Attendance Badge (WITH STRICT RULES)
+// ============================================
+function getAttendanceBadge(patient) {
+    // Normalize status
+    const currentStatus = (patient.status || '').toLowerCase().trim();
+    const attendanceStatus = (patient.attendance_status || '').toLowerCase().trim();
+    
+    if (!attendanceStatus) return '';
+    
+    // Define outcome badges (Compareceu, Não veio, Cancelado)
+    const outcomeBadges = ['compareceu', 'nao_compareceu', 'cancelado'];
+    
+    // STRICT RULE 1: Outcome badges ONLY in Finalizados
+    if (outcomeBadges.includes(attendanceStatus)) {
+        if (currentStatus !== 'finalizado') {
+            console.log(`⚠️  Blocked outcome badge "${attendanceStatus}" for status "${currentStatus}" (Patient: ${patient.name})`);
+            return ''; // DON'T show outcome badges outside Finalizados
+        }
+    }
+    
+    // STRICT RULE 2: Remarcado badge ONLY in Agendado/Em Atendimento
+    if (attendanceStatus === 'remarcado') {
+        if (currentStatus !== 'agendado' && currentStatus !== 'em_atendimento') {
+            console.log(`⚠️  Blocked "remarcado" badge for status "${currentStatus}" (Patient: ${patient.name})`);
+            return ''; // DON'T show remarcado in Novos/Finalizados
+        }
+    }
+    
+    // Badge templates (only rendered if rules pass)
+    const attendanceLabels = {
+        'compareceu': '<span class="px-2 py-1 text-xs rounded bg-green-500/20 text-green-300 border border-green-500/30"><i class="fas fa-check mr-1"></i>Compareceu</span>',
+        'nao_compareceu': '<span class="px-2 py-1 text-xs rounded bg-red-500/20 text-red-300 border border-red-500/30"><i class="fas fa-times mr-1"></i>Não veio</span>',
+        'cancelado': '<span class="px-2 py-1 text-xs rounded bg-gray-500/20 text-gray-300 border border-gray-500/30"><i class="fas fa-ban mr-1"></i>Cancelado</span>',
+        'remarcado': '<span class="px-2 py-1 text-xs rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"><i class="fas fa-calendar-alt mr-1"></i>Remarcado</span>'
+    };
+    
+    return attendanceLabels[attendanceStatus] || '';
+}
 
 // ============================================
 // Core Functions
@@ -81,28 +197,49 @@ function renderPatients(list) {
     
     emptyState.classList.add('hidden');
     
+    console.log(`📊 Rendering ${list.length} patients with formatted text`);
+    
     list.forEach(patient => {
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50 transition';
         row.dataset.patientId = patient.id;
         
-        // Type badge color
+        // TYPE BADGE - with formatting
+        const formattedType = formatTypeDisplay(patient.type);
+        
         const typeColors = {
             'Primeira Consulta': 'bg-yellow-100 text-yellow-800',
+            'primeira_consulta': 'bg-yellow-100 text-yellow-800',
             'Retorno': 'bg-indigo-100 text-indigo-800',
+            'retorno': 'bg-indigo-100 text-indigo-800',
             'Exame': 'bg-purple-100 text-purple-800',
-            'Consulta': 'bg-blue-100 text-blue-800'
+            'exame': 'bg-purple-100 text-purple-800',
+            'Consulta': 'bg-blue-100 text-blue-800',
+            'recorrente': 'bg-pink-100 text-pink-800'
         };
-        const typeColor = typeColors[patient.type] || 'bg-gray-100 text-gray-800';
         
-        // Status badge color
+        // Check if it's a detailed consultation type
+        let typeColor = 'bg-gray-100 text-gray-800';
+        if (patient.type && patient.type.startsWith('Consulta - ')) {
+            typeColor = 'bg-cyan-100 text-cyan-800';
+        } else {
+            typeColor = typeColors[patient.type] || typeColors[formattedType] || 'bg-gray-100 text-gray-800';
+        }
+        
+        // STATUS BADGE - with formatting
+        const formattedStatus = formatStatusDisplay(patient.status);
+        
         const statusColors = {
             'novo': 'bg-green-100 text-green-800',
+            'Novo': 'bg-green-100 text-green-800',
+            'em_atendimento': 'bg-orange-100 text-orange-800',
             'Em Atendimento': 'bg-orange-100 text-orange-800',
             'agendado': 'bg-blue-100 text-blue-800',
+            'Agendado': 'bg-blue-100 text-blue-800',
+            'finalizado': 'bg-gray-100 text-gray-800',
             'Finalizado': 'bg-gray-100 text-gray-800'
         };
-        const statusColor = statusColors[patient.status] || 'bg-gray-100 text-gray-800';
+        const statusColor = statusColors[patient.status] || statusColors[formattedStatus] || 'bg-gray-100 text-gray-800';
         
         // Date formatting
         const date = patient.appointment_date 
@@ -111,18 +248,12 @@ function renderPatients(list) {
             ? new Date(patient.created_at).toLocaleDateString('pt-BR')
             : '--';
         
-        // Attendance status badge (if exists)
-        const attendanceLabels = {
-            'compareceu': '<span class="px-2 py-1 text-xs rounded bg-green-500/20 text-green-300 border border-green-500/30"><i class="fas fa-check mr-1"></i>Compareceu</span>',
-            'nao_compareceu': '<span class="px-2 py-1 text-xs rounded bg-red-500/20 text-red-300 border border-red-500/30"><i class="fas fa-times mr-1"></i>Não veio</span>',
-            'cancelado': '<span class="px-2 py-1 text-xs rounded bg-gray-500/20 text-gray-300 border border-gray-500/30"><i class="fas fa-ban mr-1"></i>Cancelado</span>',
-            'remarcado': '<span class="px-2 py-1 text-xs rounded bg-yellow-500/20 text-yellow-300 border border-yellow-500/30"><i class="fas fa-calendar-alt mr-1"></i>Remarcado</span>'
-        };
-        const attendanceBadge = patient.attendance_status ? attendanceLabels[patient.attendance_status] || '' : '';
+        // STRICT ATTENDANCE BADGE (using helper function)
+        const attendanceBadge = getAttendanceBadge(patient);
         
         // Archive reason icon
         const archiveIcon = patient.archive_reason ? 
-            `<span class="text-yellow-400 ml-1 cursor-help" title="Motivo: ${patient.archive_reason.replace(/_/g, ' ')}" style="font-size: 16px;">📁</span>` 
+            `<span class="text-yellow-400 ml-1 cursor-help" title="Motivo: ${formatText(patient.archive_reason)}" style="font-size: 16px;">📁</span>` 
             : '';
         
         row.innerHTML = `
@@ -134,13 +265,13 @@ function renderPatients(list) {
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${typeColor}">
-                    ${patient.type || 'Geral'}
+                    ${formattedType}
                 </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex flex-col gap-1">
                     <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
-                        ${patient.status || 'novo'}
+                        ${formattedStatus}
                     </span>
                     ${attendanceBadge}
                 </div>
@@ -272,26 +403,14 @@ function applyFilters() {
         }
         
         // Status filter
-        if (statusFilter && patient.status !== statusFilter) {
-            return false;
+        if (statusFilter) {
+            const patientStatus = (patient.status || '').toLowerCase();
+            const filterStatus = statusFilter.toLowerCase();
+            if (patientStatus !== filterStatus) return false;
         }
         
         // Attendance status filter
         if (attendanceFilter && patient.attendance_status !== attendanceFilter) {
-            return false;
-        }
-        
-        return true;
-    });
-    
-    renderPatients(filteredPatients);
-    updateStats(filteredPatients);
-}
-            return false;
-        }
-        
-        // Status filter
-        if (statusFilter && patient.status !== statusFilter) {
             return false;
         }
         
