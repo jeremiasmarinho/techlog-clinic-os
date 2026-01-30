@@ -32,7 +32,7 @@ export default defineConfig({
   /* Shared settings for all the projects below */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: 'http://localhost:3002',
+    baseURL: 'http://localhost:3001',
     
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
@@ -71,8 +71,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'PORT=3002 NODE_ENV=test npm start',
-    url: 'http://localhost:3002',
+    command: 'PORT=3001 NODE_ENV=test npm start',
+    url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
