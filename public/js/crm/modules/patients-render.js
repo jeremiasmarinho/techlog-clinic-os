@@ -33,8 +33,7 @@ export function renderPatients(list, viewingArchive) {
         // Format appointment date if exists
         let appointmentInfo = '-';
         if (patient.appointment_date) {
-            const date = new Date(patient.appointment_date);
-            appointmentInfo = `${date.toLocaleDateString('pt-BR')} ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+            appointmentInfo = formatDateTime(patient.appointment_date);
         }
         
         // Extract type display text

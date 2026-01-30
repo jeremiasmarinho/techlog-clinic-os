@@ -3,6 +3,9 @@
  * Features: JSON parsing, financial badges, CRUD actions, strict badge rules
  */
 
+// Import centralized formatters
+import { formatTime, formatDateTime } from '../utils/formatters.js';
+
 // ============================================
 // Authentication Check
 // ============================================
@@ -273,9 +276,9 @@ function createAppointmentCard(appointment) {
     const financialBadges = getFinancialBadges(parsed.financial);
     const cleanNotes = parsed.cleanText;
     
-    // Format time
+    // Format time (HH:mm without seconds)
     const time = appointment.appointment_date 
-        ? new Date(appointment.appointment_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        ? formatTime(appointment.appointment_date)
         : '--:--';
     
     // Get attendance badge (with strict rules)

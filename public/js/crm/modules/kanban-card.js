@@ -3,6 +3,7 @@
  */
 
 import { formatPhone, getTimeAgo, parseConsultationDetails, buildConsultationDetailsHTML } from './kanban-utils.js';
+import { formatDateTimeShort } from '../../utils/formatters.js';
 
 export function createLeadCard(lead, dragStart, dragEnd) {
     const card = document.createElement('div');
@@ -75,8 +76,7 @@ export function createLeadCard(lead, dragStart, dragEnd) {
     // Appointment info (if exists)
     let appointmentInfo = '';
     if (lead.appointment_date) {
-        const date = new Date(lead.appointment_date);
-        const formatted = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+        const formatted = formatDateTimeShort(lead.appointment_date);
         appointmentInfo = `
             <div class="bg-blue-500/10 rounded-lg p-2 mb-2 flex items-center text-sm">
                 <i class="fas fa-calendar-check text-blue-400 mr-2"></i>

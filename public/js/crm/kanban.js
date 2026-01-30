@@ -8,6 +8,9 @@ if (!token) {
     window.location.href = '/login.html';
 }
 
+// Import centralized time formatter
+import { formatTime } from '../utils/formatters.js';
+
 // ============================================
 // Date Filter State & Persistence
 // ============================================
@@ -361,10 +364,7 @@ function createLeadCard(lead) {
             hour: '2-digit',
             minute: '2-digit'
         });
-        const timeOnly = appointmentDate.toLocaleTimeString('pt-BR', { 
-            hour: '2-digit', 
-            minute: '2-digit'
-        });
+        const timeOnly = formatTime(appointmentDate);
         const doctorBadge = lead.doctor ? ` 👨‍⚕️ ${lead.doctor}` : '';
         appointmentBadge = `
             <div class="text-center bg-blue-50 rounded-full px-3 py-1 mb-2">
