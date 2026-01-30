@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { MetricsController } from '../controllers/MetricsController';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { tenantMiddleware } from '../middleware/tenant.middleware';
 
 const router = Router();
 
-// Todas as rotas protegidas por autenticação
-router.use(authMiddleware);
+// Todas as rotas protegidas por autenticação multi-tenant
+router.use(tenantMiddleware);
 
 // GET /api/metrics/resumo - Dashboard summary
 router.get('/resumo', MetricsController.summary);

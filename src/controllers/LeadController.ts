@@ -13,12 +13,32 @@ export class LeadController {
         const doctor = req.query.doctor as string; // Filtro por profissional
         const period = req.query.period as string; // NEW: Date filter (today, 7days, 30days, thisMonth, all)
 
-        let query = "SELECT * FROM leads WHERE status != 'archived' ORDER BY created_at DESC";
+        // Get user context from middleware
+        const user = (req as any).user;
+        const clinicId = (req as any).clinicId;
+
+        let query = "SELECT * FROM leads WHERE status != 'archived'";
         const params: any[] = [];
+        
+        // CLINIC ISOLATION: Add clinic filter (except for super_admin)
+        if (user && user.role !== 'super_admin' && clinicId) {
+            query += " AND clinic_id = ?";
+            params.push(clinicId);
+        }
+        
+        query += " ORDER BY created_at DESC";
         
         // If show_archived=true: Return ONLY archived leads
         if (showArchived) {
-            query = "SELECT * FROM leads WHERE status = 'archived' ORDER BY created_at DESC";
+            query = "SELECT * FROM leads WHERE status = 'archived'";
+            
+            if (user && user.role !== 'super_admin' && clinicId) {
+                query += " AND clinic_id = ?";
+                params.length = 0; // Clear params
+                params.push(clinicId);
+            }
+            
+            query += " ORDER BY created_at DESC";
         }
         // If view=agenda: Return leads with appointment_date for specific date or today
         else if (view === 'agenda') {
@@ -27,11 +47,21 @@ export class LeadController {
                 SELECT * FROM leads 
                 WHERE date(appointment_date) = date(?)
                   AND status != 'archived'
-                ${doctor ? "AND doctor = ?" : ""}
-                ORDER BY appointment_date ASC
             `;
+            params.length = 0; // Clear params
             params.push(targetDate);
-            if (doctor) params.push(doctor);
+            
+            if (user && user.role !== 'super_admin' && clinicId) {
+                query += " AND clinic_id = ?";
+                params.push(clinicId);
+            }
+            
+            if (doctor) {
+                query += " AND doctor = ?";
+                params.push(doctor);
+            }
+            
+            query += " ORDER BY appointment_date ASC";
         }
         // If view=kanban: Apply intelligent date filtering
         else if (view === 'kanban') {
@@ -57,11 +87,21 @@ export class LeadController {
                 }
             }
             
+            query = `
+                SELECT * FROM leads 
+                WHERE status != 'archived'
+            `;
+            params.length = 0; // Clear params
+            
+            // Add clinic isolation
+            if (user && user.role !== 'super_admin' && clinicId) {
+                query += " AND clinic_id = ?";
+                params.push(clinicId);
+            }
+            
             if (dateFilter) {
                 // With date filter: Intelligent filtering by status
-                query = `
-                    SELECT * FROM leads 
-                    WHERE status != 'archived'
+                query += `
                       AND (
                         status IN ('novo', 'em_atendimento')
                         OR
@@ -76,32 +116,20 @@ export class LeadController {
                            (updated_at IS NULL AND datetime(created_at) >= ${dateFilter})
                          ))
                       )
-                    ORDER BY 
-                      CASE 
-                        WHEN status = 'novo' THEN 1
-                        WHEN status = 'em_atendimento' THEN 2
-                        WHEN status = 'agendado' THEN 3
-                        WHEN status IN ('finalizado', 'Finalizado') THEN 4
-                        ELSE 5
-                      END,
-                      created_at DESC
-                `;
-            } else {
-                // No date filter (period = 'all'): Return ALL non-archived leads
-                query = `
-                    SELECT * FROM leads 
-                    WHERE status != 'archived'
-                    ORDER BY 
-                      CASE 
-                        WHEN status = 'novo' THEN 1
-                        WHEN status = 'em_atendimento' THEN 2
-                        WHEN status = 'agendado' THEN 3
-                        WHEN status IN ('finalizado', 'Finalizado') THEN 4
-                        ELSE 5
-                      END,
-                      created_at DESC
                 `;
             }
+            
+            query += `
+                    ORDER BY 
+                      CASE 
+                        WHEN status = 'novo' THEN 1
+                        WHEN status = 'em_atendimento' THEN 2
+                        WHEN status = 'agendado' THEN 3
+                        WHEN status IN ('finalizado', 'Finalizado') THEN 4
+                        ELSE 5
+                      END,
+                      created_at DESC
+            `;
         }
         
         db.all(query, params, (err, rows) => {
@@ -111,7 +139,7 @@ export class LeadController {
                 return;
             }
             
-            console.log(`Query returned ${rows.length} leads for view=${view}, period=${period || 'none'}`);
+            console.log(`Query returned ${rows.length} leads for view=${view}, period=${period || 'none'}, clinic=${clinicId || 'all'}`);
             res.json(rows);
         });
     }
@@ -133,6 +161,10 @@ export class LeadController {
         }
 
         const { status, appointment_date, doctor, notes, type, attendance_status, archive_reason } = result.data;
+
+        // Get user context (for future use in audit logs)
+        // const user = (req as any).user;
+        // const clinicId = (req as any).clinicId;
 
         // Construir query dinâmica baseada nos campos enviados
         const updates: string[] = [];
