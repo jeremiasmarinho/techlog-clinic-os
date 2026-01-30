@@ -1,8 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
 interface JwtPayload {
     userId: number;
     username: string;
@@ -35,7 +33,7 @@ export function tenantMiddleware(req: Request, res: Response, next: NextFunction
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
         req.user = decoded;
         
         // Inject clinic ID for easy access
@@ -133,7 +131,7 @@ export function optionalAuth(req: Request, _res: Response, next: NextFunction): 
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
         req.user = decoded;
         req.clinicId = decoded.clinicId;
     } catch (error) {

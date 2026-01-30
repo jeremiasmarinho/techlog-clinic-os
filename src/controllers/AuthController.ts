@@ -3,8 +3,6 @@ import jwt from 'jsonwebtoken';
 import { db } from '../database';
 import bcrypt from 'bcrypt';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
 // Rate limiting storage (in-memory, simple implementation)
 const loginAttempts = new Map<string, { count: number; lastAttempt: number }>();
 const MAX_ATTEMPTS = 5;
@@ -103,7 +101,7 @@ export class AuthController {
                         clinicId: row.clinic_id,
                         isOwner: row.is_owner === 1
                     },
-                    JWT_SECRET,
+                    process.env.JWT_SECRET as string,
                     { expiresIn: '8h' }
                 );
 

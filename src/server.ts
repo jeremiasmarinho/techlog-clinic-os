@@ -1,20 +1,20 @@
+// Load environment variables FIRST (before any imports)
+import dotenv from 'dotenv';
+const preservedNodeEnv = process.env.NODE_ENV;
+dotenv.config();
+if (preservedNodeEnv) {
+    process.env.NODE_ENV = preservedNodeEnv;
+}
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import leadRoutes from './routes/lead.routes'; // Importação sem chaves {} (Default)
 import userRoutes from './routes/user.routes'; // Rotas de autenticação e usuários
 import authRoutes from './routes/auth.routes'; // Rotas de autenticação JWT
 import metricsRoutes from './routes/metrics.routes'; // Rotas de métricas
 import './database'; // Inicia o banco de dados
-
-// Load environment variables (preserve NODE_ENV if already set)
-const preservedNodeEnv = process.env.NODE_ENV;
-dotenv.config();
-if (preservedNodeEnv) {
-    process.env.NODE_ENV = preservedNodeEnv;
-}
 
 export class Server {
     public app: express.Application;
