@@ -67,14 +67,18 @@ export async function loginAs(page: Page, username: string, password: string) {
   });
   
   await page.waitForLoadState('domcontentloaded');
-  await page.waitForTimeout(500);
   
   await page.fill('#email', username);
   await page.fill('#password', password);
-  await page.click('button[type="submit"]');
   
-  // Wait longer for redirect to complete (5 seconds)
-  await page.waitForTimeout(5000);
+  // Click submit and wait for navigation away from login page
+  await Promise.all([
+    page.waitForURL(url => !url.toString().includes('login.html'), { timeout: 10000 }),
+    page.click('button[type="submit"]')
+  ]);
+  
+  // Wait for page to be fully loaded
+  await page.waitForLoadState('networkidle', { timeout: 10000 });
 }
 
 /**
