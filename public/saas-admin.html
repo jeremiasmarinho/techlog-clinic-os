@@ -100,16 +100,91 @@
         </div>
     </div>
 
+    <!-- New Clinic Modal -->
+    <div id="modalNewClinic" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl">
+            <div class="flex items-center justify-between p-6 border-b">
+                <h3 class="text-lg font-semibold text-gray-800">
+                    <i class="fas fa-plus text-yellow-500 mr-2"></i>
+                    Nova Clínica
+                </h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="clinicForm" class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm text-gray-600">Nome da Clínica</label>
+                        <input id="clinicName" class="w-full border rounded-lg px-3 py-2" placeholder="Clínica Exemplo" required />
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600">Slug</label>
+                        <input id="clinicSlug" class="w-full border rounded-lg px-3 py-2" placeholder="clinica-exemplo" required />
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm text-gray-600">Plano</label>
+                        <select id="clinicPlan" class="w-full border rounded-lg px-3 py-2">
+                            <option value="free">Free</option>
+                            <option value="pro">Pro</option>
+                            <option value="enterprise">Enterprise</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600">Status</label>
+                        <select id="clinicStatus" class="w-full border rounded-lg px-3 py-2">
+                            <option value="active">Ativa</option>
+                            <option value="inactive">Inativa</option>
+                            <option value="suspended">Suspensa</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm text-gray-600">E-mail do Responsável</label>
+                        <input id="ownerEmail" type="email" class="w-full border rounded-lg px-3 py-2" placeholder="contato@clinica.com" />
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600">Telefone do Responsável</label>
+                        <input id="ownerPhone" class="w-full border rounded-lg px-3 py-2" placeholder="(11) 99999-9999" />
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Administrador da Clínica</h4>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-sm text-gray-600">Nome</label>
+                            <input id="adminName" class="w-full border rounded-lg px-3 py-2" placeholder="Nome do Admin" required />
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-600">Usuário</label>
+                            <input id="adminUsername" class="w-full border rounded-lg px-3 py-2" placeholder="admin.clinica" required />
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-600">Senha</label>
+                            <input id="adminPassword" type="password" class="w-full border rounded-lg px-3 py-2" placeholder="Senha forte" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-4">
+                    <p id="formError" class="text-sm text-red-600 hidden"></p>
+                    <div class="flex items-center gap-3 ml-auto">
+                        <button type="button" id="cancelModal" class="px-4 py-2 rounded-lg border">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white">
+                            <i class="fas fa-save mr-2"></i>Salvar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script type="module" src="/js/components/sidebar.js"></script>
-    <script>
-        // Placeholder para funcionalidade futura
-        console.log('SaaS Admin Page Loaded');
-        console.log('User Session:', {
-            role: sessionStorage.getItem('userRole'),
-            clinicId: sessionStorage.getItem('clinicId'),
-            userName: sessionStorage.getItem('userName')
-        });
-    </script>
+    <script type="module" src="/js/saas/clinics.js"></script>
 </body>
 </html>

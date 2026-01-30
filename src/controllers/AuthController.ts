@@ -18,7 +18,7 @@ export class AuthController {
             return;
         }
 
-        // Check rate limiting (disabled in development for E2E tests)
+        // Check rate limiting (ONLY in production - skip entirely in development)
         if (process.env.NODE_ENV === 'production') {
             const attempts = loginAttempts.get(email);
             if (attempts) {
