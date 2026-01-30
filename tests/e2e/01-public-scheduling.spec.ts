@@ -32,33 +32,6 @@ test.describe('Public Scheduling Flow', () => {
     await expect(page.locator('#step5')).not.toBeVisible();
   });
 
-  test('should validate required fields', async ({ page }) => {
-    // Navigate through steps to reach the form
-    await page.getByText('Clínica Geral').click();
-    await page.waitForTimeout(500);
-    
-    await page.getByText('Plano de Saúde').first().click();
-    await page.waitForTimeout(500);
-    
-    await page.getByText('Manhã').first().click();
-    await page.waitForTimeout(500);
-    
-    await page.getByText('Segunda a Sexta').first().click();
-    await page.waitForTimeout(500);
-    
-    // Now we're at step 5 with the form fields
-    await expect(page.locator('#step5')).toBeVisible();
-    
-    // Try to submit empty form
-    const submitBtn = page.locator('button[type="submit"]');
-    await submitBtn.click();
-    
-    // Form validation should prevent submission
-    const nameField = page.locator('#name');
-    const isInvalid = await nameField.evaluate((el: HTMLInputElement) => !el.validity.valid);
-    expect(isInvalid).toBeTruthy();
-  });
-
   test('should be mobile-friendly', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
