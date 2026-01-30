@@ -1,0 +1,59 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Sua Clínica Aqui" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - heading "Sua Clínica Aqui" [level=1] [ref=e9]
+        - link "← Voltar ao Início" [ref=e10] [cursor=pointer]:
+          - /url: /
+  - main [ref=e11]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - img [ref=e16]
+        - heading "Agende sua Consulta" [level=2] [ref=e18]
+        - paragraph [ref=e19]: Preencha os dados e entraremos em contato rapidamente
+      - generic [ref=e21]:
+        - generic [ref=e22]: Para qual especialidade você precisa de consulta?
+        - generic [ref=e23]:
+          - button "👨‍⚕️ Clínica Geral" [ref=e24] [cursor=pointer]:
+            - generic [ref=e25]:
+              - generic [ref=e26]: 👨‍⚕️
+              - generic [ref=e27]: Clínica Geral
+          - button "👩‍⚕️ Ginecologia" [ref=e28] [cursor=pointer]:
+            - generic [ref=e29]:
+              - generic [ref=e30]: 👩‍⚕️
+              - generic [ref=e31]: Ginecologia
+          - button "❤️ Cardiologia" [ref=e32] [cursor=pointer]:
+            - generic [ref=e33]:
+              - generic [ref=e34]: ❤️
+              - generic [ref=e35]: Cardiologia
+          - button "👁️ Oftalmologia" [ref=e36] [cursor=pointer]:
+            - generic [ref=e37]:
+              - generic [ref=e38]: 👁️
+              - generic [ref=e39]: Oftalmologia
+          - button "🦴 Ortopedia" [ref=e40] [cursor=pointer]:
+            - generic [ref=e41]:
+              - generic [ref=e42]: 🦴
+              - generic [ref=e43]: Ortopedia
+          - button "👶 Pediatria" [ref=e44] [cursor=pointer]:
+            - generic [ref=e45]:
+              - generic [ref=e46]: 👶
+              - generic [ref=e47]: Pediatria
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - img [ref=e57]
+          - generic [ref=e59]: Dados Seguros
+        - generic [ref=e60]:
+          - img [ref=e61]
+          - generic [ref=e63]: Resposta Rápida
+        - generic [ref=e64]:
+          - img [ref=e65]
+          - generic [ref=e67]: Sem Compromisso
+  - contentinfo [ref=e68]:
+    - paragraph [ref=e70]: © 2026 Sua Clínica Aqui - Todos os direitos reservados
+```

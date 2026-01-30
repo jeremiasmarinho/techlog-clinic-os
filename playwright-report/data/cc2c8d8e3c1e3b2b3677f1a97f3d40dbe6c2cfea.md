@@ -1,0 +1,511 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - complementary [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - generic [ref=e7]: 
+          - generic [ref=e8]:
+            - heading "Medical CRM" [level=2] [ref=e9]
+            - paragraph [ref=e10]: Gestão
+        - button "" [ref=e11] [cursor=pointer]:
+          - generic [ref=e12]: 
+      - generic [ref=e14]:
+        - generic [ref=e16]: 
+        - generic [ref=e17]:
+          - paragraph [ref=e18]: Olá,
+          - paragraph [ref=e19]: Administrador
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e23]: 
+          - generic [ref=e24]: Período
+        - combobox "Filtrar por período" [ref=e25] [cursor=pointer]:
+          - option "Hoje"
+          - option "7 Dias" [selected]
+          - option "30 Dias"
+          - option "Este Mês"
+          - option "Tudo"
+      - navigation [ref=e26]:
+        - link " Kanban" [ref=e27] [cursor=pointer]:
+          - /url: admin.html
+          - generic [ref=e28]: 
+          - generic [ref=e29]: Kanban
+        - link " Agenda" [ref=e30] [cursor=pointer]:
+          - /url: agenda.html
+          - generic [ref=e31]: 
+          - generic [ref=e32]: Agenda
+        - link " Pacientes" [ref=e33] [cursor=pointer]:
+          - /url: patients.html
+          - generic [ref=e34]: 
+          - generic [ref=e35]: Pacientes
+        - link " Relatórios" [ref=e36] [cursor=pointer]:
+          - /url: relatorios.html
+          - generic [ref=e37]: 
+          - generic [ref=e38]: Relatórios
+        - text: 
+        - button " Privacidade" [ref=e39] [cursor=pointer]:
+          - generic [ref=e40]: 
+          - generic [ref=e41]: Privacidade
+        - button " Atualizar" [ref=e42] [cursor=pointer]:
+          - generic [ref=e43]: 
+          - generic [ref=e44]: Atualizar
+      - button " Sair" [ref=e46] [cursor=pointer]:
+        - generic [ref=e47]: 
+        - generic [ref=e48]: Sair
+  - main [ref=e49]:
+    - text:    $                  $                 
+    - main [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - heading "Taxa de Conversão" [level=3] [ref=e54]
+            - generic [ref=e56]: 
+          - generic [ref=e57]: 82%
+          - paragraph [ref=e58]: 14 de 17 leads
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - heading "Faltas (No-show)" [level=3] [ref=e61]
+            - generic [ref=e63]: 
+          - generic [ref=e64]: "0"
+          - paragraph [ref=e65]: este mês
+        - generic [ref=e66]:
+          - generic [ref=e67]:
+            - heading "Consultas Agendadas" [level=3] [ref=e68]
+            - generic [ref=e70]: 
+          - generic [ref=e71]: "5"
+          - paragraph [ref=e72]: próximos 7 dias
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - generic [ref=e77]: 
+              - generic [ref=e78]: Novos
+            - generic [ref=e79]: "3"
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - 'generic "jkhkjh {\"financial\":{\"paymentType\":\"plano\",\"insuranceName\":\"Unimed\",\"value\":\"300.00\"}}" [ref=e82]': 📄
+              - generic [ref=e83]:
+                - generic [ref=e85]:
+                  - generic [ref=e86]: 
+                  - text: Primeira Consulta
+                - generic "Neste status há 21h 5m (desde 29/01/2026, 09:09:15)" [ref=e87]: 🕒 21h 5m
+              - generic [ref=e88]:
+                - generic [ref=e89]: 🏥 Unimed
+                - generic [ref=e90]: 💰 R$ 30.000,00
+              - generic [ref=e91]:
+                - text: 
+                - button "" [ref=e92] [cursor=pointer]:
+                  - generic [ref=e93]: 
+                - button "" [ref=e94] [cursor=pointer]:
+                  - generic [ref=e95]: 
+              - heading "Alcides Miguel" [level=3] [ref=e96]
+              - generic [ref=e97]: 📅 30/01, 10:03 👨‍⚕️ Dra. Ana
+              - generic [ref=e98]:
+                - generic [ref=e99]:
+                  - generic [ref=e100]:
+                    - generic [ref=e101]: 
+                    - text: (63) 99236-1046
+                  - button "" [ref=e102] [cursor=pointer]:
+                    - generic [ref=e103]: 
+                - link " Lembrar" [ref=e104] [cursor=pointer]:
+                  - /url: https://wa.me/5563992361046?text=Ol%C3%A1%20*Alcides%20Miguel*%2C%20passando%20para%20lembrar%20do%20seu%20agendamento%20hoje%20%C3%A0s%20*10%3A03*%20na%20Sua%20Cl%C3%ADnica%20Aqui.%20Tudo%20confirmado%3F
+                  - generic [ref=e105]: 
+                  - text: Lembrar
+            - generic [ref=e106]:
+              - 'generic "Paciente com histórico de procedimentos anteriores. Urgente. {\"financial\":{\"paymentType\":\"plano\",\"insuranceName\":\"Unimed\"}}" [ref=e107]': 📄
+              - generic [ref=e108]:
+                - generic [ref=e110]: Atend. Humano
+                - generic "Neste status há 22h 9m (desde 29/01/2026, 08:05:14)" [ref=e111]: 🕒 22h 9m
+              - generic [ref=e113]: 🏥 Unimed
+              - generic [ref=e114]:
+                - text: 
+                - button "" [ref=e115] [cursor=pointer]:
+                  - generic [ref=e116]: 
+                - button "" [ref=e117] [cursor=pointer]:
+                  - generic [ref=e118]: 
+              - heading "Maria de Jesus" [level=3] [ref=e119]
+              - generic [ref=e121]:
+                - generic [ref=e122]:
+                  - generic [ref=e123]: 
+                  - text: (63) 99253-2686
+                - button "" [ref=e124] [cursor=pointer]:
+                  - generic [ref=e125]: 
+            - generic [ref=e126]:
+              - 'generic "Consulta realizada. Paciente compareceu e pagou em dinheiro. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e127]': 📄
+              - generic [ref=e128]:
+                - generic [ref=e130]:
+                  - generic [ref=e131]: 
+                  - text: Consulta
+                - generic "Neste status há 22h 9m (desde 29/01/2026, 08:05:32)" [ref=e132]: 🕒 22h 9m
+              - generic [ref=e134]: 💵 Particular
+              - generic [ref=e135]:
+                - text: 
+                - button "" [ref=e136] [cursor=pointer]:
+                  - generic [ref=e137]: 
+                - button "" [ref=e138] [cursor=pointer]:
+                  - generic [ref=e139]: 
+              - heading "Daniel Henrique Santos" [level=3] [ref=e140]
+              - generic [ref=e141]: 📅 27/01, 00:00
+              - generic [ref=e143]:
+                - generic [ref=e144]:
+                  - generic [ref=e145]: 
+                  - text: (11) 91098-7653
+                - button "" [ref=e146] [cursor=pointer]:
+                  - generic [ref=e147]: 
+        - generic [ref=e148]:
+          - generic [ref=e149]:
+            - generic [ref=e150]:
+              - generic [ref=e151]: 
+              - generic [ref=e152]: Em Atendimento
+            - generic [ref=e153]: "6"
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - 'generic "Paciente novo. Primeira consulta marcada para hoje. {\"financial\":{\"paymentType\":\"plano\",\"insuranceName\":\"Unimed\",\"value\":\"300.00\"}}" [ref=e156]': 📄
+              - generic [ref=e157]:
+                - generic [ref=e159]:
+                  - generic [ref=e160]: 
+                  - text: Primeira Consulta
+                - generic "Neste status há 19h 7m (desde 29/01/2026, 11:07:33)" [ref=e161]: 🕒 19h 7m
+              - generic [ref=e162]:
+                - generic [ref=e163]: 🏥 Unimed
+                - generic [ref=e164]: 💰 R$ 30.000,00
+              - generic [ref=e165]:
+                - text: 
+                - button "" [ref=e166] [cursor=pointer]:
+                  - generic [ref=e167]: 
+                - button "" [ref=e168] [cursor=pointer]:
+                  - generic [ref=e169]: 
+              - heading "Anna Victória" [level=3] [ref=e170]
+              - generic [ref=e171]: 📅 29/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e173]:
+                - generic [ref=e174]:
+                  - generic [ref=e175]: 
+                  - text: (63) 99236-1047
+                - button "" [ref=e176] [cursor=pointer]:
+                  - generic [ref=e177]: 
+            - generic [ref=e178]:
+              - generic "Solicitação de exames laboratoriais. Aguardando agendamento." [ref=e179]: 📄
+              - generic [ref=e180]:
+                - generic [ref=e182]:
+                  - generic [ref=e183]: "?"
+                  - text: exame
+                - generic "Neste status há 22h 33m (desde 29/01/2026, 07:41:20)" [ref=e184]: 🕒 22h 33m
+              - generic [ref=e185]:
+                - text: 
+                - button "" [ref=e186] [cursor=pointer]:
+                  - generic [ref=e187]: 
+                - button "" [ref=e188] [cursor=pointer]:
+                  - generic [ref=e189]: 
+              - heading "Carlos Eduardo Souza" [level=3] [ref=e190]
+              - generic [ref=e192]:
+                - generic [ref=e193]:
+                  - generic [ref=e194]: 
+                  - text: (11) 99988-7766
+                - button "" [ref=e195] [cursor=pointer]:
+                  - generic [ref=e196]: 
+            - generic [ref=e197]:
+              - 'generic "Contato inicial via WhatsApp. Aguardando retorno. {\"financial\":{\"paymentType\":\"plano\",\"insuranceName\":\"Unimed\",\"value\":\"300.00\"}}" [ref=e198]': 📄
+              - generic [ref=e199]:
+                - generic [ref=e201]: Atend. Humano
+                - generic "Neste status há 22h 9m (desde 29/01/2026, 08:05:50)" [ref=e202]: 🕒 22h 9m
+              - generic [ref=e203]:
+                - generic [ref=e204]: 🏥 Unimed
+                - generic [ref=e205]: 💰 R$ 30.000,00
+              - generic [ref=e206]:
+                - text: 
+                - button "" [ref=e207] [cursor=pointer]:
+                  - generic [ref=e208]: 
+                - button "" [ref=e209] [cursor=pointer]:
+                  - generic [ref=e210]: 
+              - heading "Jeremias Marinho" [level=3] [ref=e211]
+              - generic [ref=e213]:
+                - generic [ref=e214]:
+                  - generic [ref=e215]: 
+                  - text: (63) 99236-1046
+                - button "" [ref=e216] [cursor=pointer]:
+                  - generic [ref=e217]: 
+            - generic [ref=e218]:
+              - 'generic "Retorno após cirurgia. Sem cobrança. {\"financial\":{\"paymentType\":\"retorno\"}}" [ref=e219]': 📄
+              - generic [ref=e220]:
+                - generic [ref=e222]:
+                  - generic [ref=e223]: 
+                  - text: Retorno
+                - generic "Neste status há 20h 58m (desde 29/01/2026, 09:16:29)" [ref=e224]: 🕒 20h 58m
+              - generic [ref=e226]: 🔄 Retorno
+              - generic [ref=e227]:
+                - text: 
+                - button "" [ref=e228] [cursor=pointer]:
+                  - generic [ref=e229]: 
+                - button "" [ref=e230] [cursor=pointer]:
+                  - generic [ref=e231]: 
+              - heading "Fernanda Costa Silva" [level=3] [ref=e232]
+              - generic [ref=e233]: 📅 30/01, 00:00 👨‍⚕️ Dra. Marina Santos
+              - generic [ref=e235]:
+                - generic [ref=e236]:
+                  - generic [ref=e237]: 
+                  - text: (11) 97766-5544
+                - button "" [ref=e238] [cursor=pointer]:
+                  - generic [ref=e239]: 
+            - generic [ref=e240]:
+              - 'generic "Exame de sangue completo. Agendado para depois de amanhã. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e241]': 📄
+              - generic [ref=e242]:
+                - generic [ref=e244]:
+                  - generic [ref=e245]: "?"
+                  - text: exame
+                - generic "Neste status há 22h 38m (desde 29/01/2026, 07:36:23)" [ref=e246]: 🕒 22h 38m
+              - generic [ref=e248]: 💵 Particular
+              - generic [ref=e249]:
+                - text: 
+                - button "" [ref=e250] [cursor=pointer]:
+                  - generic [ref=e251]: 
+                - button "" [ref=e252] [cursor=pointer]:
+                  - generic [ref=e253]: 
+              - heading "Ricardo Alves Pereira" [level=3] [ref=e254]
+              - generic [ref=e255]: 📅 31/01, 00:00
+              - generic [ref=e257]:
+                - generic [ref=e258]:
+                  - generic [ref=e259]: 
+                  - text: (11) 96655-4433
+                - button "" [ref=e260] [cursor=pointer]:
+                  - generic [ref=e261]: 
+            - generic [ref=e262]:
+              - 'generic "Paciente em tratamento contínuo. 5ª sessão. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e263]': 📄
+              - generic [ref=e264]:
+                - generic [ref=e266]:
+                  - generic [ref=e267]: 
+                  - text: Sessão/Recorrente
+                - generic "Neste status há 22h 9m (desde 29/01/2026, 08:05:37)" [ref=e268]: 🕒 22h 9m
+              - generic [ref=e270]: 💵 Particular
+              - generic [ref=e271]:
+                - text: 
+                - button "" [ref=e272] [cursor=pointer]:
+                  - generic [ref=e273]: 
+                - button "" [ref=e274] [cursor=pointer]:
+                  - generic [ref=e275]: 
+              - heading "Patricia Ferreira Lima" [level=3] [ref=e276]
+              - generic [ref=e277]: 📅 29/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e279]:
+                - generic [ref=e280]:
+                  - generic [ref=e281]: 
+                  - text: (11) 98877-6655
+                - button "" [ref=e282] [cursor=pointer]:
+                  - generic [ref=e283]: 
+        - generic [ref=e284]:
+          - generic [ref=e285]:
+            - generic [ref=e286]:
+              - generic [ref=e287]: 
+              - generic [ref=e288]: Agendados
+            - generic [ref=e289]: "6"
+          - generic [ref=e290]:
+            - generic [ref=e291]:
+              - generic "Agendamento confirmado para amanhã. Primeira consulta." [ref=e292]: 📄
+              - generic [ref=e293]:
+                - generic [ref=e295]:
+                  - generic [ref=e296]: 
+                  - text: Primeira Consulta
+                - generic "Deveria ter ocorrido em 30/01/2026, 00:00:00" [ref=e297]: "🕒 Atraso: 6h 15m"
+              - generic [ref=e298]:
+                - text: 
+                - button "" [ref=e299] [cursor=pointer]:
+                  - generic [ref=e300]: 
+                - button "" [ref=e301] [cursor=pointer]:
+                  - generic [ref=e302]: 
+              - heading "Rebeca Aquino" [level=3] [ref=e303]
+              - generic [ref=e304]: 📅 30/01, 00:00
+              - generic [ref=e306]:
+                - generic [ref=e307]:
+                  - generic [ref=e308]: 
+                  - text: (63) 99200-0000
+                - button "" [ref=e309] [cursor=pointer]:
+                  - generic [ref=e310]: 
+            - generic [ref=e311]:
+              - 'generic "Procedimento cirúrgico realizado com sucesso. Paciente compareceu. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e312]': 📄
+              - generic [ref=e313]:
+                - generic [ref=e315]:
+                  - generic [ref=e316]: 
+                  - text: Primeira Consulta
+                - generic "Deveria ter ocorrido em 28/01/2026, 00:00:00" [ref=e317]: "🕒 Atraso: 54h 15m"
+              - generic [ref=e319]: 💵 Particular
+              - generic [ref=e320]:
+                - text: 
+                - button "" [ref=e321] [cursor=pointer]:
+                  - generic [ref=e322]: 
+                - button "" [ref=e323] [cursor=pointer]:
+                  - generic [ref=e324]: 
+              - heading "Larissa Cristina Nunes" [level=3] [ref=e325]
+              - generic [ref=e326]: 📅 28/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e328]:
+                - generic [ref=e329]:
+                  - generic [ref=e330]: 
+                  - text: (11) 94321-0986
+                - button "" [ref=e331] [cursor=pointer]:
+                  - generic [ref=e332]: 
+            - generic [ref=e333]:
+              - 'generic "Paciente NÃO compareceu ao exame agendado. Tentar reagendar. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e334]': 📄
+              - generic [ref=e335]:
+                - generic [ref=e337]:
+                  - generic [ref=e338]: "?"
+                  - text: exame
+                - generic "Deveria ter ocorrido em 28/01/2026, 00:00:00" [ref=e339]: "🕒 Atraso: 54h 15m"
+              - generic [ref=e341]: 💵 Particular
+              - generic [ref=e342]:
+                - text: 
+                - button "" [ref=e343] [cursor=pointer]:
+                  - generic [ref=e344]: 
+                - button "" [ref=e345] [cursor=pointer]:
+                  - generic [ref=e346]: 
+              - heading "Marcos Paulo Andrade" [level=3] [ref=e347]
+              - generic [ref=e348]: 📅 28/01, 00:00
+              - generic [ref=e350]:
+                - generic [ref=e351]:
+                  - generic [ref=e352]: 
+                  - text: (11) 92109-8765
+                - button "" [ref=e353] [cursor=pointer]:
+                  - generic [ref=e354]: 
+            - generic [ref=e355]:
+              - generic "Consulta de rotina em andamento." [ref=e356]: 📄
+              - generic [ref=e357]:
+                - generic [ref=e359]:
+                  - generic [ref=e360]: 
+                  - text: Consulta
+                - generic "Deveria ter ocorrido em 29/01/2026, 00:00:00" [ref=e361]: "🕒 Atraso: 30h 15m"
+              - generic [ref=e363]:
+                - generic [ref=e364]: 
+                - text: Remarcado
+              - generic [ref=e365]:
+                - text: 
+                - button "" [ref=e366] [cursor=pointer]:
+                  - generic [ref=e367]: 
+                - button "" [ref=e368] [cursor=pointer]:
+                  - generic [ref=e369]: 
+              - heading "Roberto Carlos Mendes" [level=3] [ref=e370]
+              - generic [ref=e371]: 📅 29/01, 00:00 👨‍⚕️ Dra. Marina Santos
+              - generic [ref=e373]:
+                - generic [ref=e374]:
+                  - generic [ref=e375]: 
+                  - text: (11) 95432-1098
+                - button "" [ref=e376] [cursor=pointer]:
+                  - generic [ref=e377]: 
+            - generic [ref=e378]:
+              - 'generic "Retorno pós-operatório. Tudo OK. Sem cobrança. {\"financial\":{\"paymentType\":\"retorno\"}}" [ref=e379]': 📄
+              - generic [ref=e380]:
+                - generic [ref=e382]:
+                  - generic [ref=e383]: 
+                  - text: Retorno
+                - generic "Deveria ter ocorrido em 27/01/2026, 00:00:00" [ref=e384]: "🕒 Atraso: 78h 15m"
+              - generic [ref=e386]: 🔄 Retorno
+              - generic [ref=e387]:
+                - text: 
+                - button "" [ref=e388] [cursor=pointer]:
+                  - generic [ref=e389]: 
+                - button "" [ref=e390] [cursor=pointer]:
+                  - generic [ref=e391]: 
+              - heading "Juliana Martins Costa" [level=3] [ref=e392]
+              - generic [ref=e393]: 📅 27/01, 00:00 👨‍⚕️ Dra. Marina Santos
+              - generic [ref=e395]:
+                - generic [ref=e396]:
+                  - generic [ref=e397]: 
+                  - text: (11) 93210-9876
+                - button "" [ref=e398] [cursor=pointer]:
+                  - generic [ref=e399]: 
+            - generic [ref=e400]:
+              - 'generic "Consulta remarcada a pedido do paciente. Novo horário pendente. {\"financial\":{\"paymentType\":\"particular\"}}" [ref=e401]': 📄
+              - generic [ref=e402]:
+                - generic [ref=e404]:
+                  - generic [ref=e405]: 
+                  - text: Primeira Consulta
+                - generic "Deveria ter ocorrido em 27/01/2026, 00:00:00" [ref=e406]: "🕒 Atraso: 78h 15m"
+              - generic [ref=e408]: 💵 Particular
+              - generic [ref=e410]:
+                - generic [ref=e411]: 
+                - text: Remarcado
+              - generic [ref=e412]:
+                - text: 
+                - button "" [ref=e413] [cursor=pointer]:
+                  - generic [ref=e414]: 
+                - button "" [ref=e415] [cursor=pointer]:
+                  - generic [ref=e416]: 
+              - heading "Beatriz Souza Oliveira" [level=3] [ref=e417]
+              - generic [ref=e418]: 📅 27/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e420]:
+                - generic [ref=e421]:
+                  - generic [ref=e422]: 
+                  - text: (11) 99887-7665
+                - button "" [ref=e423] [cursor=pointer]:
+                  - generic [ref=e424]: 
+        - generic [ref=e425]:
+          - generic [ref=e426]:
+            - generic [ref=e427]:
+              - generic [ref=e428]: 
+              - generic [ref=e429]: Finalizados
+            - generic [ref=e430]: "2"
+          - generic [ref=e431]:
+            - generic [ref=e432]:
+              - 'generic "Consulta de retorno agendada. Plano de saúde confirmado. {\"financial\":{\"paymentType\":\"plano\",\"insuranceName\":\"Unimed\"}}" [ref=e433]': 📄
+              - generic [ref=e434]:
+                - generic [ref=e436]:
+                  - generic [ref=e437]: 
+                  - text: Consulta
+                - generic "Neste status há 21h 18m (desde 29/01/2026, 08:56:11)" [ref=e438]: 🕒 21h 18m
+              - generic [ref=e440]: 🏥 Unimed
+              - generic [ref=e442]:
+                - generic [ref=e443]: 
+                - text: Cancelado
+              - generic [ref=e444]:
+                - text: 
+                - button "" [ref=e445] [cursor=pointer]:
+                  - generic [ref=e446]: 
+                - button "" [ref=e447] [cursor=pointer]:
+                  - generic [ref=e448]: 
+              - heading "Jeremias Marinho Jr" [level=3] [ref=e449]
+              - generic [ref=e450]: 📅 31/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e451]:
+                - generic [ref=e452]:
+                  - generic [ref=e453]:
+                    - generic [ref=e454]: 
+                    - text: (63) 99236-1048
+                  - button "" [ref=e455] [cursor=pointer]:
+                    - generic [ref=e456]: 
+                - generic [ref=e457]:
+                  - button " Retorno" [ref=e458] [cursor=pointer]:
+                    - generic [ref=e459]: 
+                    - text: Retorno
+                  - button " Arquivar" [ref=e460] [cursor=pointer]:
+                    - generic [ref=e461]: 
+                    - text: Arquivar
+            - generic [ref=e462]:
+              - generic "Atendimento iniciado ontem. Em andamento." [ref=e463]: 📄
+              - generic [ref=e464]:
+                - generic [ref=e466]:
+                  - generic [ref=e467]: 
+                  - text: Primeira Consulta
+                - generic "Neste status há 19h 37m (desde 29/01/2026, 10:37:26)" [ref=e468]: 🕒 19h 37m
+              - generic [ref=e470]:
+                - generic [ref=e471]: 
+                - text: Compareceu
+              - generic [ref=e472]:
+                - text: 
+                - button "" [ref=e473] [cursor=pointer]:
+                  - generic [ref=e474]: 
+                - button "" [ref=e475] [cursor=pointer]:
+                  - generic [ref=e476]: 
+              - heading "João Pedro Oliveira" [level=3] [ref=e477]
+              - generic [ref=e478]: 📅 28/01, 00:00 👨‍⚕️ Dr. Cleber
+              - generic [ref=e479]:
+                - generic [ref=e480]:
+                  - generic [ref=e481]:
+                    - generic [ref=e482]: 
+                    - text: (11) 97654-3210
+                  - button "" [ref=e483] [cursor=pointer]:
+                    - generic [ref=e484]: 
+                - generic [ref=e485]:
+                  - button " Retorno" [ref=e486] [cursor=pointer]:
+                    - generic [ref=e487]: 
+                    - text: Retorno
+                  - button " Arquivar" [ref=e488] [cursor=pointer]:
+                    - generic [ref=e489]: 
+                    - text: Arquivar
+    - text:      
+```
