@@ -14,6 +14,7 @@ import leadRoutes from './routes/lead.routes'; // Importação sem chaves {} (De
 import userRoutes from './routes/user.routes'; // Rotas de autenticação e usuários
 import authRoutes from './routes/auth.routes'; // Rotas de autenticação JWT
 import metricsRoutes from './routes/metrics.routes'; // Rotas de métricas
+import saasRoutes from './routes/saas.routes'; // Rotas de gestão SaaS
 import './database'; // Inicia o banco de dados
 
 export class Server {
@@ -95,6 +96,7 @@ export class Server {
         this.app.use('/api', userRoutes); // Login e Users
         this.app.use('/api/auth', authRoutes); // JWT Authentication
         this.app.use('/api/metrics', metricsRoutes); // Metrics
+        this.app.use('/api/saas', saasRoutes); // SaaS Multi-Clinic Management
 
         // Rota de Teste (Usando _req para o TypeScript não reclamar)
         this.app.get('/api', (_req, res) => {
