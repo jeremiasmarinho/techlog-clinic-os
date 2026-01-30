@@ -9,7 +9,7 @@
   - generic [ref=e7]:
     - generic [ref=e8]:
       - generic [ref=e9]: E-mail Corporativo
-      - textbox "admin" [ref=e10]
+      - textbox "admin" [ref=e10]: joao.silva
     - generic [ref=e11]:
       - generic [ref=e12]: Senha de Acesso
       - generic [ref=e13]:

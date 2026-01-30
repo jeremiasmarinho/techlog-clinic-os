@@ -19,7 +19,6 @@ export class AuthController {
         }
 
         // Check rate limiting (disabled in development for E2E tests)
-        console.log('🔍 NODE_ENV:', process.env.NODE_ENV, 'Rate limiting:', process.env.NODE_ENV === 'production' ? 'ACTIVE' : 'DISABLED');
         if (process.env.NODE_ENV === 'production') {
             const attempts = loginAttempts.get(email);
             if (attempts) {
@@ -56,12 +55,14 @@ export class AuthController {
                 }
 
                 if (!row) {
-                    // Track failed attempt
-                    const current = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
-                    loginAttempts.set(email, { 
-                        count: current.count + 1, 
-                        lastAttempt: Date.now() 
-                    });
+                    // Track failed attempt (only in production)
+                    if (process.env.NODE_ENV === 'production') {
+                        const current = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
+                        loginAttempts.set(email, { 
+                            count: current.count + 1, 
+                            lastAttempt: Date.now() 
+                        });
+                    }
                     
                     res.status(401).json({ error: 'Credenciais inválidas' });
                     return;
@@ -80,12 +81,14 @@ export class AuthController {
                 const isPasswordValid = await bcrypt.compare(password, row.password);
                 
                 if (!isPasswordValid) {
-                    // Track failed attempt
-                    const current = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
-                    loginAttempts.set(email, { 
-                        count: current.count + 1, 
-                        lastAttempt: Date.now() 
-                    });
+                    // Track failed attempt (only in production)
+                    if (process.env.NODE_ENV === 'production') {
+                        const current = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
+                        loginAttempts.set(email, { 
+                            count: current.count + 1, 
+                            lastAttempt: Date.now() 
+                        });
+                    }
                     
                     res.status(401).json({ error: 'Credenciais inválidas' });
                     return;

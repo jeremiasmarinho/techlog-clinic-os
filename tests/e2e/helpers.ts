@@ -73,8 +73,8 @@ export async function loginAs(page: Page, username: string, password: string) {
   await page.fill('#password', password);
   await page.click('button[type="submit"]');
   
-  // Wait for redirect
-  await page.waitForTimeout(3000);
+  // Wait longer for redirect to complete (5 seconds)
+  await page.waitForTimeout(5000);
 }
 
 /**
