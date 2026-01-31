@@ -30,8 +30,16 @@ export const formatTime = (dateString) => {
             if (str.includes('T')) {
                 date = new Date(str);
             }
+            // Handle SQL datetime format: 2026-01-31 08:00:00 or 2026-01-31 08:00
+            else if (str.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/)) {
+                const parts = str.split(' ');
+                const datePart = parts[0];
+                const timePart = parts[1];
+                const [hours, minutes] = timePart.split(':');
+                return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+            }
             // Handle time-only format: 21:00:00 or 21:00
-            else if (str.includes(':')) {
+            else if (str.includes(':') && !str.includes(' ')) {
                 const timeParts = str.split(':');
                 const hours = timeParts[0].padStart(2, '0');
                 const minutes = timeParts[1].padStart(2, '0');
@@ -70,7 +78,16 @@ export const formatDateTime = (dateString) => {
     if (!dateString) return '--';
     
     try {
-        const date = new Date(dateString);
+        let date;
+        const str = String(dateString);
+        
+        // Handle SQL datetime format: 2026-01-31 08:00:00
+        if (str.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}/)) {
+            // Convert SQL format to ISO format
+            date = new Date(str.replace(' ', 'T'));
+        } else {
+            date = new Date(dateString);
+        }
         
         if (isNaN(date.getTime())) {
             return '--';

@@ -360,7 +360,7 @@ function createAppointmentCard(appointment) {
                 
                 <!-- Edit Button -->
                 <button 
-                    onclick="editAppointment(${appointment.id})"
+                    onclick="openEditModal(${appointment.id})"
                     class="bg-blue-500/20 hover:bg-blue-500 text-blue-300 hover:text-white px-4 py-2 rounded-lg transition-all border border-blue-500/30 hover:border-blue-500"
                     title="Editar Agendamento">
                     <i class="fas fa-edit"></i>
@@ -428,50 +428,20 @@ function createAppointmentCard(appointment) {
 // ============================================
 
 /**
- * Edit Appointment
+ * Edit Appointment (DEPRECATED - Now uses openEditModal)
+ * Kept for backward compatibility
  */
 async function editAppointment(appointmentId) {
-    const appointment = currentAppointments.find(a => a.id === appointmentId);
-    if (!appointment) {
-        alert('❌ Agendamento não encontrado');
-        return;
-    }
-    
-    const newDate = prompt('Nova data/hora (YYYY-MM-DD HH:MM):', appointment.appointment_date || '');
-    if (newDate === null) return; // Cancelled
-    
-    const newDoctor = prompt('Médico:', appointment.doctor || '');
-    const newNotes = prompt('Observações:', appointment.notes || '');
-    
-    try {
-        const response = await fetch(`${API_URL}/${appointmentId}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                appointment_date: newDate ? new Date(newDate).toISOString() : null,
-                doctor: newDoctor,
-                notes: newNotes
-            })
-        });
-        
-        if (!response.ok) throw new Error('Erro ao atualizar');
-        
-        alert('✅ Agendamento atualizado!');
-        loadAgenda();
-    } catch (error) {
-        console.error('Erro ao editar:', error);
-        alert('❌ Erro ao editar agendamento');
-    }
+    // Simply redirect to new modal-based edit
+    openEditModal(appointmentId);
 }
 
 /**
  * Archive Appointment
  */
 async function archiveAppointment(appointmentId) {
-    if (!confirm('⚠️ Arquivar este agendamento?')) return;
+    const confirmed = await confirm('⚠️ Arquivar este agendamento?');
+    if (!confirmed) return;
     
     try {
         const response = await fetch(`${API_URL}/${appointmentId}/archive`, {
@@ -485,12 +455,12 @@ async function archiveAppointment(appointmentId) {
         
         if (!response.ok) throw new Error('Erro ao arquivar');
         
-        alert('✅ Agendamento arquivado com sucesso!');
+        await alert('✅ Agendamento arquivado com sucesso!');
         loadAgenda();
         
     } catch (error) {
         console.error('Erro ao arquivar:', error);
-        alert('❌ Erro ao arquivar agendamento');
+        await alert('❌ Erro ao arquivar agendamento');
     }
 }
 
@@ -498,7 +468,8 @@ async function archiveAppointment(appointmentId) {
  * Delete Appointment
  */
 async function deleteAppointment(appointmentId) {
-    if (!confirm('🗑️ Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita!')) return;
+    const confirmed = await confirm('🗑️ Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita!');
+    if (!confirmed) return;
     
     try {
         const response = await fetch(`${API_URL}/${appointmentId}`, {
@@ -510,12 +481,12 @@ async function deleteAppointment(appointmentId) {
         
         if (!response.ok) throw new Error('Erro ao excluir');
         
-        alert('✅ Agendamento excluído com sucesso!');
+        await alert('✅ Agendamento excluído com sucesso!');
         loadAgenda();
         
     } catch (error) {
         console.error('Erro ao excluir:', error);
-        alert('❌ Erro ao excluir agendamento');
+        await alert('❌ Erro ao excluir agendamento');
     }
 }
 
@@ -544,12 +515,12 @@ async function markAttendance(appointmentId, attendanceStatus) {
             'cancelado': 'Cancelamento registrado.'
         };
         
-        alert(`✅ ${labels[attendanceStatus] || 'Status atualizado!'}`);
+        await alert(`✅ ${labels[attendanceStatus] || 'Status atualizado!'}`);
         loadAgenda();
         
     } catch (error) {
         console.error('Erro ao marcar presença:', error);
-        alert('❌ Erro ao atualizar status');
+        await alert('❌ Erro ao atualizar status');
     }
 }
 
@@ -567,10 +538,260 @@ function openWhatsAppAgenda(appointmentId) {
 }
 
 // ============================================
+// EDIT MODAL FUNCTIONS (NEW - SIMPLIFIED SINGLE MODAL)
+// ============================================
+
+/**
+ * Open Edit Modal with appointment data
+ */
+function openEditModal(appointmentId) {
+    const appointment = currentAppointments.find(a => a.id === appointmentId);
+    if (!appointment) {
+        alert('❌ Agendamento não encontrado');
+        return;
+    }
+    
+    console.log('📝 Opening edit modal for appointment:', appointment);
+    
+    // Populate form fields
+    document.getElementById('editId').value = appointment.id;
+    document.getElementById('editName').value = appointment.name || '';
+    document.getElementById('editPhone').value = appointment.phone || '';
+    
+    // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
+    if (appointment.appointment_date) {
+        const date = new Date(appointment.appointment_date);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+        document.getElementById('editDate').value = formattedDate;
+    } else {
+        document.getElementById('editDate').value = '';
+    }
+    
+    // Set doctor (populate doctors select if not done yet)
+    populateDoctorsInModal();
+    document.getElementById('editDoctor').value = appointment.doctor || '';
+    
+    // Set type
+    document.getElementById('editType').value = appointment.type || '';
+    
+    // Set status
+    document.getElementById('editStatus').value = appointment.status || 'agendado';
+    
+    // Parse financial data from notes
+    const { cleanText, financial } = parseDescription(appointment.notes);
+    
+    // Set financial fields
+    if (financial) {
+        if (financial.value) {
+            // Format value as R$ 250,00
+            const valueNumber = parseFloat(financial.value);
+            if (!isNaN(valueNumber)) {
+                document.getElementById('editValue').value = `R$ ${valueNumber.toFixed(2).replace('.', ',')}`;
+            }
+        }
+        if (financial.paymentType || financial.insuranceName) {
+            // Populate insurance select
+            populateInsuranceInModal();
+            document.getElementById('editInsurance').value = financial.insuranceName || financial.paymentType || '';
+        }
+    }
+    
+    // Set clean notes (without JSON)
+    document.getElementById('editNotes').value = cleanText || '';
+    
+    // Show modal
+    const modal = document.getElementById('editModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+/**
+ * Close Edit Modal
+ */
+function closeEditModal() {
+    const modal = document.getElementById('editModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    
+    // Reset form
+    document.getElementById('editForm').reset();
+}
+
+/**
+ * Save edited appointment
+ */
+async function saveEdit(event) {
+    event.preventDefault();
+    
+    const appointmentId = document.getElementById('editId').value;
+    const name = document.getElementById('editName').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+    const appointmentDate = document.getElementById('editDate').value;
+    const doctor = document.getElementById('editDoctor').value;
+    const type = document.getElementById('editType').value;
+    const status = document.getElementById('editStatus').value;
+    const valueRaw = document.getElementById('editValue').value.replace(/\D/g, ''); // Remove non-digits
+    const insurance = document.getElementById('editInsurance').value;
+    const notes = document.getElementById('editNotes').value.trim();
+    
+    // Validate required fields
+    if (!name || !phone || !appointmentDate) {
+        alert('⚠️ Preencha todos os campos obrigatórios');
+        return;
+    }
+    
+    // Build financial data object
+    const financialData = {
+        value: valueRaw ? (parseInt(valueRaw) / 100).toFixed(2) : null,
+        paymentType: insurance || 'Particular',
+        insuranceName: insurance || null
+    };
+    
+    // Encode financial data into notes
+    const finalNotes = encodeFinancialData(notes, financialData);
+    
+    // Build update payload
+    const updateData = {
+        name,
+        phone,
+        appointment_date: new Date(appointmentDate).toISOString(),
+        doctor: doctor || null,
+        type: type || null,
+        status,
+        notes: finalNotes
+    };
+    
+    console.log('💾 Saving appointment:', updateData);
+    
+    try {
+        const response = await fetch(`${API_URL}/${appointmentId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updateData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Erro ao atualizar agendamento');
+        }
+        
+        console.log('✅ Appointment updated successfully');
+        
+        // Close modal
+        closeEditModal();
+        
+        // Reload agenda
+        await loadAgenda();
+        
+        // Show success notification
+        await alert('✅ Agendamento atualizado com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Error updating appointment:', error);
+        alert(`❌ Erro ao atualizar: ${error.message}`);
+    }
+}
+
+/**
+ * Populate doctors select in modal
+ */
+function populateDoctorsInModal() {
+    const select = document.getElementById('editDoctor');
+    
+    // Check if already populated
+    if (select.options.length > 1) return;
+    
+    // Get unique doctors from current appointments
+    const doctors = [...new Set(currentAppointments
+        .map(a => a.doctor)
+        .filter(d => d && d.trim() !== '')
+    )].sort();
+    
+    // Clear existing options (except first)
+    select.innerHTML = '<option value="">Selecione um médico</option>';
+    
+    // Add doctor options
+    doctors.forEach(doctor => {
+        const option = document.createElement('option');
+        option.value = doctor;
+        option.textContent = doctor;
+        select.appendChild(option);
+    });
+}
+
+/**
+ * Populate insurance select in modal
+ */
+async function populateInsuranceInModal() {
+    const select = document.getElementById('editInsurance');
+    
+    // Check if already populated
+    if (select.options.length > 1) return;
+    
+    // Try to load from clinic settings
+    try {
+        const settings = JSON.parse(localStorage.getItem('clinicSettings') || '{}');
+        const insurancePlans = settings.settings?.insurancePlans || ['Particular', 'Unimed', 'Bradesco Saúde', 'Amil'];
+        
+        // Clear existing options (except first)
+        select.innerHTML = '<option value="">Selecione...</option>';
+        
+        // Add insurance options
+        insurancePlans.forEach(plan => {
+            const option = document.createElement('option');
+            option.value = plan;
+            option.textContent = plan;
+            select.appendChild(option);
+        });
+        
+    } catch (error) {
+        console.error('Error loading insurance plans:', error);
+        // Fallback to defaults
+        select.innerHTML = `
+            <option value="">Selecione...</option>
+            <option value="Particular">Particular</option>
+            <option value="Unimed">Unimed</option>
+            <option value="Bradesco Saúde">Bradesco Saúde</option>
+            <option value="Amil">Amil</option>
+        `;
+    }
+}
+
+/**
+ * Encode financial data into notes field
+ */
+function encodeFinancialData(cleanNotes, financialData) {
+    if (!financialData.value && !financialData.paymentType) {
+        return cleanNotes;
+    }
+    
+    const financialJson = JSON.stringify({
+        financial: {
+            paymentType: financialData.paymentType,
+            insuranceName: financialData.insuranceName,
+            value: financialData.value
+        }
+    });
+    
+    return `${cleanNotes}\n${financialJson}`.trim();
+}
+
+// ============================================
 // EXPOSE FUNCTIONS GLOBALLY
 // ============================================
 
 window.loadAgenda = loadAgenda;
+window.openEditModal = openEditModal;
+window.closeEditModal = closeEditModal;
+window.saveEdit = saveEdit;
 window.editAppointment = editAppointment;
 window.archiveAppointment = archiveAppointment;
 window.deleteAppointment = deleteAppointment;

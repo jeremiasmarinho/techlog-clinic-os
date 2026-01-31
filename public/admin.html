@@ -581,11 +581,21 @@
                         <label for="editAppointmentDate" class="block text-sm font-semibold text-cyan-300 mb-2">
                             <i class="fas fa-calendar-check mr-2"></i>Data e Hora do Agendamento
                         </label>
-                        <input 
-                            type="datetime-local" 
-                            id="editAppointmentDate" 
-                            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200"
-                        >
+                        <div class="relative">
+                            <input 
+                                type="datetime-local" 
+                                id="editAppointmentDate" 
+                                class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200"
+                                placeholder="Selecione data e hora"
+                            >
+                            <div class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+                                <i class="fas fa-clock text-sm"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Clique no campo e use os controles para definir data e horário
+                        </p>
                     </div>
 
                     <!-- Doctor -->
@@ -1078,7 +1088,7 @@
     <script src="./js/crm/auth.js"></script>
     <script src="./js/crm/whatsapp-templates.js"></script>
     <script type="module" src="./js/utils/formatters.js"></script>
-    <script type="module" src="./js/crm/kanban.js"></script>
+    <script type="module" src="./js/crm/kanban.js?v=20260131080500"></script>
     <script src="./js/crm/dashboard.js"></script>
     <script src="./js/crm/admin.js"></script>
     

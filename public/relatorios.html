@@ -7,15 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%);
             min-height: 100vh;
+            overflow-x: hidden;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Prevent horizontal scroll */
+        main {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        /* Ensure canvas and charts don't overflow */
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
         }
         
         /* Modern Vertical Sidebar Styles */
@@ -140,8 +157,8 @@
     <medical-sidebar active="relatorios" show-date-filter="false"></medical-sidebar>
 
     <!-- Main Content -->
-    <main id="mainContent" class="flex-1 transition-all duration-300">
-        <div class="p-6">
+    <main id="mainContent" class="flex-1 transition-all duration-300 max-w-full overflow-x-hidden">
+        <div class="p-6 max-w-full">
 
         <!-- Page Title -->
         <div class="mb-6">
@@ -152,7 +169,7 @@
         </div>
 
         <!-- Metric Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 w-full max-w-full">
             <!-- Total de Leads -->
             <div class="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg p-6 text-white">
                 <div class="flex items-center justify-between">
@@ -189,13 +206,13 @@
         </div>
 
         <!-- Gráficos -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 w-full max-w-full">
             <div class="glass-card rounded-lg p-4 backdrop-blur-sm">
                 <h3 class="text-base font-bold text-white mb-4 flex items-center">
                     <i class="fas fa-circle-notch mr-2 text-cyan-400"></i>
                     Distribuição por Status
                 </h3>
-                <div class="relative" style="height: 250px;">
+                <div class="relative w-full" style="height: 250px;">
                     <canvas id="statusChart"></canvas>
                 </div>
             </div>
@@ -205,32 +222,32 @@
                     <i class="fas fa-chart-bar mr-2 text-purple-400"></i>
                     Tipos de Atendimento
                 </h3>
-                <div class="relative" style="height: 250px;">
+                <div class="relative w-full" style="height: 250px;">
                     <canvas id="typeChart"></canvas>
                 </div>
             </div>
         </div>
 
         <!-- History Chart (Full Width) -->
-        <div class="glass-card rounded-lg p-4 mb-6 backdrop-blur-sm">
+        <div class="glass-card rounded-lg p-4 mb-6 backdrop-blur-sm w-full max-w-full">
             <h3 class="text-base font-bold text-white mb-4 flex items-center">
                 <i class="fas fa-chart-line mr-2 text-cyan-400"></i>
                 Evolução dos Últimos 7 Dias
             </h3>
-            <div class="relative" style="height: 250px;">
+            <div class="relative w-full" style="height: 250px; max-width: 100%;">
                 <canvas id="historyChart"></canvas>
             </div>
         </div>
         
         <!-- Quick Reports Section -->
-        <div class="border-t border-white/10 pt-6">
+        <div class="border-t border-white/10 pt-6 w-full max-w-full">
             <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
                 <i class="fas fa-file-alt mr-3 text-cyan-400"></i>
                 Relatórios Rápidos
             </h3>
             <p class="text-sm text-gray-300 mb-6">Textos prontos para copiar e compartilhar</p>
             
-            <div class="grid grid-cols-1 gap-4">
+            <div class="grid grid-cols-1 gap-4 w-full max-w-full">
                 <!-- Weekly Summary Report -->
                 <div class="bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-400/30 rounded-lg p-5 backdrop-blur-sm">
                     <div class="flex items-start justify-between mb-3">
@@ -245,7 +262,7 @@
                             <i class="fas fa-copy mr-1"></i> Copiar
                         </button>
                     </div>
-                    <p id="weeklyReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                    <p id="weeklyReportText" class="text-gray-200 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
                         Carregando...
                     </p>
                 </div>
@@ -264,7 +281,7 @@
                             <i class="fas fa-copy mr-1"></i> Copiar
                         </button>
                     </div>
-                    <p id="statusReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                    <p id="statusReportText" class="text-gray-200 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
                         Carregando...
                     </p>
                 </div>
@@ -283,7 +300,7 @@
                             <i class="fas fa-copy mr-1"></i> Copiar
                         </button>
                     </div>
-                    <p id="typesReportText" class="text-gray-200 leading-relaxed whitespace-pre-line">
+                    <p id="typesReportText" class="text-gray-200 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
                         Carregando...
                     </p>
                 </div>

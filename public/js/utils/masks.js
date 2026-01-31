@@ -166,6 +166,9 @@ function initMaskDelegation() {
     document.addEventListener('blur', function(e) {
         const target = e.target;
         
+        // Safety check: ensure target and classList exist
+        if (!target || !target.classList) return;
+        
         // Phone validation
         if (target.classList.contains('mask-phone') || 
             target.classList.contains('phone-input') ||

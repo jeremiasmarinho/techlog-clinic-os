@@ -21,8 +21,9 @@ if (document.getElementById('userNameSidebar')) {
 }
 
 // Logout function
-function logout() {
-    if (confirm('Deseja realmente sair do sistema?')) {
+async function logout() {
+    const confirmed = await confirm('Deseja realmente sair do sistema?');
+    if (confirmed) {
         sessionStorage.clear();
         window.location.href = '/login.html';
     }
@@ -160,7 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function deleteUser(userId, userName) {
-    if (!confirm(`Deseja realmente remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`)) {
+    const confirmed = await confirm(`Deseja realmente remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`);
+    if (!confirmed) {
         return;
     }
     

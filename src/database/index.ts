@@ -2,7 +2,11 @@ import sqlite3 from 'sqlite3';
 import path from 'path';
 import bcrypt from 'bcrypt';
 
-const DB_PATH = path.resolve(__dirname, '../../clinic.db');
+// Use test database in E2E test mode, otherwise use production database
+const isTestMode = process.env.TEST_MODE === 'true';
+const DB_PATH = isTestMode 
+    ? path.resolve(__dirname, '../../clinic.test.db')
+    : path.resolve(__dirname, '../../clinic.db');
 
 // Inicializar conexão com o banco de dados
 const db = new sqlite3.Database(DB_PATH, (err) => {
@@ -10,7 +14,8 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
         console.error('❌ Erro ao abrir banco de dados:', err.message);
         process.exit(1);
     } else {
-        console.log('✅ Conectado ao banco SQLite em:', DB_PATH);
+        const dbType = isTestMode ? '🧪 TEST' : '🏥 PRODUCTION';
+        console.log(`✅ Conectado ao banco SQLite (${dbType}):`, DB_PATH);
         initDb();
     }
 });

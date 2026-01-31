@@ -274,7 +274,8 @@ async function handleCreateUser(event) {
 // Delete User
 // ============================================
 async function deleteUser(userId, userName) {
-    if (!confirm(`⚠️ Tem certeza que deseja remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`)) {
+    const confirmed = await confirm(`⚠️ Tem certeza que deseja remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`);
+    if (!confirmed) {
         return;
     }
     
@@ -348,8 +349,14 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-function logout() {
- 
+async function logout() {
+    const confirmed = await confirm('Deseja realmente sair do sistema?');
+    if (confirmed) {
+        sessionStorage.clear();
+        localStorage.clear();
+        window.location.href = '/login.html';
+    }
+}
 
 // ============================================
 // Clinic Profile Settings
@@ -630,9 +637,4 @@ if (colorPicker && colorHex) {
             colorPicker.value = hex;
         }
     });
-}   if (confirm('Deseja realmente sair do sistema?')) {
-        sessionStorage.clear();
-        localStorage.clear();
-        window.location.href = '/login.html';
-    }
 }

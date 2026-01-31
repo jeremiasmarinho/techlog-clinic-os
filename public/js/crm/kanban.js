@@ -557,6 +557,11 @@ async function loadLeads() {
         const data = await response.json();
         const leads = Array.isArray(data) ? data : (data.leads || []);
         
+        // Update global cache
+        allLeadsCache = leads;
+        
+        console.log(`✅ Loaded ${leads.length} leads`);
+        
         // Sound notification for new leads
         if (!isFirstLoad && leads.length > lastLeadCount) {
             notificationSound.play().catch(e => console.log('Sound notification blocked:', e));
@@ -1053,7 +1058,8 @@ async function moveToColumn(newStatus) {
 
 // Delete lead
 async function deleteLead(id) {
-    if (!confirm('Tem certeza que deseja remover este lead?')) {
+    const confirmed = await confirm('Tem certeza que deseja remover este lead?');
+    if (!confirmed) {
         return;
     }
 
@@ -1085,55 +1091,100 @@ async function deleteLead(id) {
 
 // Setup Return - Pre-fill modal for return appointment
 async function setupReturn(leadId) {
-    // Find lead data from the card
-    const card = document.querySelector(`[data-id="${leadId}"]`);
-    if (!card) {
-        showNotification('❌ Lead não encontrado', 'error');
-        return;
-    }
+    // Alias to scheduleReturn for backward compatibility
+    return scheduleReturn(leadId);
+}
+
+// Schedule Return - Create new appointment from finalized lead
+async function scheduleReturn(leadId) {
+    showLoading(true);
     
-    // Get lead data from card
-    const leadName = card.querySelector('.lead-name').textContent;
-    const leadPhone = card.querySelector('.lead-phone').textContent.replace(/\D/g, '');
-    const currentType = card.dataset.type || '';
-    const currentNotes = card.dataset.notes || '';
-    
-    // Pre-fill the edit modal with return type
-    openEditModal(
-        leadId,
-        leadName,
-        '', // No appointment date initially
-        '', // No doctor initially
-        currentNotes,
-        'retorno' // Set type as return
-    );
-    
-    // Change lead status to "Novo" (will restart the flow)
     try {
-        showLoading(true);
-        const response = await fetch(`${API_URL}/${leadId}`, {
+        console.log('🔄 Scheduling return for lead:', leadId);
+        
+        // Try to find lead in cache first
+        let originalLead = allLeadsCache ? allLeadsCache.find(l => l.id === leadId) : null;
+        
+        // If not in cache, fetch from API with view=all to include archived
+        if (!originalLead) {
+            console.log('⚠️ Lead not in cache, fetching from API...');
+            const response = await fetch(`${API_URL}/${leadId}?view=all`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Paciente não encontrado. Ele pode ter sido deletado.');
+            }
+            
+            originalLead = await response.json();
+        }
+        
+        console.log('📋 Original lead data:', originalLead);
+        
+        // Update status back to "novo" to restart workflow
+        // Note: Don't send null values - they will fail validation
+        // Only send fields that need to be updated
+        const payload = {
+            status: 'novo',
+            type: 'retorno'
+            // Don't send attendance_status or appointment_date
+            // They will be cleared/kept as is
+        };
+        
+        const updateResponse = await fetch(`${API_URL}/${leadId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                status: 'novo',
-                type: 'retorno',
-                attendance_status: null
-            })
+            body: JSON.stringify(payload)
         });
         
-        if (!response.ok) {
-            throw new Error('Erro ao configurar retorno');
+        if (!updateResponse.ok) {
+            const errorData = await updateResponse.json().catch(() => ({}));
+            console.error('❌ PATCH failed:', {
+                status: updateResponse.status,
+                statusText: updateResponse.statusText,
+                error: errorData
+            });
+            
+            if (updateResponse.status === 401) {
+                throw new Error('Sessão expirada. Faça login novamente.');
+            }
+            
+            throw new Error(errorData.error || 'Erro ao atualizar status');
         }
         
-        showNotification('🔄 Lead configurado para retorno! Complete os dados no modal.', 'success');
-        loadLeads();
+        console.log('✅ Lead reset to "novo" status with type "retorno"');
+        
+        // Open edit modal (reuse existing modal)
+        openEditModal(
+            originalLead.id,
+            originalLead.name,
+            '', // Clear appointment date (user will set new date)
+            originalLead.doctor || '',
+            originalLead.notes || 'Retorno agendado',
+            'retorno' // Set type as return
+        );
+        
+        showNotification('🔄 Paciente preparado para retorno! Configure a nova data.', 'info');
+        
+        // Reload to show updated status
+        await loadLeads();
+        
+        // Focus on date input in modal
+        setTimeout(() => {
+            const dateInput = document.getElementById('editAppointmentDate');
+            if (dateInput) {
+                dateInput.focus();
+            }
+        }, 500);
         
     } catch (error) {
-        console.error('Erro ao configurar retorno:', error);
-        showNotification('❌ Erro ao configurar retorno', 'error');
+        console.error('❌ Error scheduling return:', error);
+        showNotification(`❌ Erro ao preparar retorno: ${error.message}`, 'error');
     } finally {
         showLoading(false);
     }
@@ -1141,34 +1192,65 @@ async function setupReturn(leadId) {
 
 // Archive Lead - Move to archived status
 async function archiveLead(leadId) {
-    if (!confirm('Deseja arquivar este lead? Ele será movido para a área de arquivados.')) {
+    const confirmed = await confirm('📦 Arquivar Lead\n\nDeseja arquivar este paciente? Ele será removido do quadro principal.');
+    if (!confirmed) {
         return;
     }
     
     showLoading(true);
     
     try {
-        const response = await fetch(`${API_URL}/${leadId}`, {
-            method: 'PATCH',
+        console.log('🗄️ Archiving lead:', leadId);
+        
+        // Use dedicated archive endpoint
+        const response = await fetch(`${API_URL}/${leadId}/archive`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-                status: 'archived'
+            body: JSON.stringify({ 
+                archive_reason: 'manual_archive_from_kanban' 
             })
         });
         
         if (!response.ok) {
-            throw new Error('Erro ao arquivar lead');
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Erro ao arquivar lead');
+        }
+        
+        console.log('✅ Lead archived successfully');
+        
+        // Visual feedback - Remove card with animation
+        const card = document.querySelector(`[data-id="${leadId}"]`);
+        if (card) {
+            card.style.transition = 'all 0.3s ease-out';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                card.remove();
+                if (allLeadsCache && allLeadsCache.length > 0) {
+                    updateCounters(allLeadsCache.filter(l => l.id !== leadId));
+                }
+            }, 300);
+        }
+        
+        // Update cache
+        if (allLeadsCache) {
+            allLeadsCache = allLeadsCache.filter(l => l.id !== leadId);
         }
         
         showNotification('📦 Lead arquivado com sucesso!', 'success');
-        loadLeads();
+        
+        // Reload after animation
+        setTimeout(() => {
+            loadLeads();
+        }, 400);
         
     } catch (error) {
-        console.error('Erro ao arquivar lead:', error);
-        showNotification('❌ Erro ao arquivar lead', 'error');
+        console.error('❌ Error archiving lead:', error);
+        showNotification(`❌ Erro ao arquivar: ${error.message}`, 'error');
     } finally {
         showLoading(false);
     }
@@ -1656,3 +1738,38 @@ function clearSearch() {
 // Expose functions globally for HTML onclick handlers
 window.filterLeads = filterLeads;
 window.clearSearch = clearSearch;
+
+// Expose drag & drop functions globally
+window.dragStart = dragStart;
+window.dragEnd = dragEnd;
+window.allowDrop = allowDrop;
+window.dragLeave = dragLeave;
+window.drop = drop;
+
+// Expose modal functions
+window.openEditModal = openEditModal;
+window.closeEditModal = closeEditModal;
+
+// Expose lead actions
+window.deleteLead = deleteLead;
+window.archiveLead = archiveLead;
+window.scheduleReturn = scheduleReturn;
+window.setupReturn = setupReturn;
+
+// Expose mobile functions
+window.openMoveModal = openMoveModal;
+window.closeMoveModal = closeMoveModal;
+window.moveToColumn = moveToColumn;
+
+// Expose utility functions
+window.togglePrivacyMode = togglePrivacyMode;
+window.openWhatsAppMenuKanban = openWhatsAppMenuKanban;
+window.handleDateFilterChange = handleDateFilterChange;
+
+// Confirm global exposure
+console.log('✅ Kanban functions exposed globally:', {
+    archiveLead: typeof window.archiveLead,
+    scheduleReturn: typeof window.scheduleReturn,
+    dragStart: typeof window.dragStart,
+    openEditModal: typeof window.openEditModal
+});

@@ -1,14 +1,23 @@
 import { defineConfig, devices } from '@playwright/test';
+import { execSync } from 'child_process';
+import * as path from 'path';
 
 /**
  * Playwright E2E Testing Configuration
  * Tests critical user flows: Public Scheduling, Login, and Admin Kanban
+ * Uses isolated test database to prevent production data corruption
  */
 export default defineConfig({
   testDir: './tests/e2e',
   
   /* Maximum time one test can run for */
   timeout: 30 * 1000,
+  
+  /* Global setup: Create test database before all tests */
+  globalSetup: require.resolve('./tests/e2e/global-setup.ts'),
+  
+  /* Global teardown: Optional cleanup after all tests */
+  globalTeardown: require.resolve('./tests/e2e/global-teardown.ts'),
   
   /* Run tests in files in parallel */
   fullyParallel: true,

@@ -21,15 +21,24 @@ async function loadSummaryMetrics() {
         
         const data = await response.json();
         
-        // Update cards
-        document.getElementById('taxaConversao').textContent = `${data.taxaConversao.value}%`;
-        document.getElementById('taxaConversaoDetail').textContent = `${data.taxaConversao.convertidos} de ${data.taxaConversao.total} leads`;
+        // Update cards (with null checks)
+        const taxaConversao = document.getElementById('taxaConversao');
+        if (taxaConversao) taxaConversao.textContent = `${data.taxaConversao.value}%`;
         
-        document.getElementById('noShows').textContent = data.noShows.value;
-        document.getElementById('noShowsDetail').textContent = data.noShows.periodo;
+        const taxaConversaoDetail = document.getElementById('taxaConversaoDetail');
+        if (taxaConversaoDetail) taxaConversaoDetail.textContent = `${data.taxaConversao.convertidos} de ${data.taxaConversao.total} leads`;
         
-        document.getElementById('consultasSemana').textContent = data.consultasSemana.value;
-        document.getElementById('consultasSemanaDetail').textContent = data.consultasSemana.periodo;
+        const noShows = document.getElementById('noShows');
+        if (noShows) noShows.textContent = data.noShows.value;
+        
+        const noShowsDetail = document.getElementById('noShowsDetail');
+        if (noShowsDetail) noShowsDetail.textContent = data.noShows.periodo;
+        
+        const consultasSemana = document.getElementById('consultasSemana');
+        if (consultasSemana) consultasSemana.textContent = data.consultasSemana.value;
+        
+        const consultasSemanaDetail = document.getElementById('consultasSemanaDetail');
+        if (consultasSemanaDetail) consultasSemanaDetail.textContent = data.consultasSemana.periodo;
     } catch (error) {
         console.error('Erro ao carregar métricas:', error);
     }
