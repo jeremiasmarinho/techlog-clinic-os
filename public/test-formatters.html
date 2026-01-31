@@ -55,7 +55,11 @@
         const results = document.getElementById('results');
 
         function addTest(title, input, output, expected) {
-            const pass = output === expected;
+            // Normalize strings for comparison (remove special spaces)
+            const normalizedOutput = String(output).replace(/\s+/g, ' ').trim();
+            const normalizedExpected = String(expected).replace(/\s+/g, ' ').trim();
+            const pass = normalizedOutput === normalizedExpected;
+            
             results.innerHTML += `
                 <div class="test-section">
                     <h3 class="${pass ? 'pass' : 'fail'}">${pass ? '✅' : '❌'} ${title}</h3>
@@ -63,6 +67,7 @@
                         <strong>Input:</strong> ${input}<br>
                         <strong>Output:</strong> <span class="${pass ? 'pass' : 'fail'}">${output}</span><br>
                         <strong>Expected:</strong> ${expected}
+                        ${!pass ? `<br><strong style="color: orange;">Debug:</strong> "${normalizedOutput}" !== "${normalizedExpected}"` : ''}
                     </div>
                 </div>
             `;
@@ -166,7 +171,11 @@
 
         months.forEach((test, index) => {
             const result = formatDate(test.date);
-            const pass = result === test.expected;
+            // Normalize for comparison
+            const normalizedResult = String(result).replace(/\s+/g, ' ').trim();
+            const normalizedExpected = String(test.expected).replace(/\s+/g, ' ').trim();
+            const pass = normalizedResult === normalizedExpected;
+            
             results.innerHTML += `
                 <tr>
                     <td>${index + 1}</td>

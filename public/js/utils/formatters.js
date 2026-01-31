@@ -200,7 +200,8 @@ export const formatDateFull = (dateString) => {
 };
 
 /**
- * Format date with abbreviated month (e.g., "30/Jan")
+ * Format date with abbreviated month (e.g., "31/Jan")
+ * Compact format for tight spaces
  * @param {string|Date} dateString - ISO date string or Date object
  * @returns {string} Formatted as "DD/MMM"
  */
@@ -208,7 +209,13 @@ export const formatDateShort = (dateString) => {
     if (!dateString) return '--';
     
     try {
-        const date = new Date(dateString);
+        // Handle timezone issues: add T12:00:00 if date-only string
+        let dateToFormat = dateString;
+        if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            dateToFormat = dateString + 'T12:00:00';
+        }
+        
+        const date = new Date(dateToFormat);
         
         if (isNaN(date.getTime())) {
             return '--';
@@ -227,7 +234,7 @@ export const formatDateShort = (dateString) => {
 };
 
 /**
- * Format date and time with abbreviated month (e.g., "30/Jan, 14:30")
+ * Format date and time with abbreviated month (e.g., "31/Jan, 14:30")
  * Used in Kanban cards for compact display
  * @param {string|Date} dateString - ISO date string or Date object
  * @returns {string} Formatted as "DD/MMM, HH:mm"
