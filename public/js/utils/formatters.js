@@ -91,15 +91,64 @@ export const formatDateTime = (dateString) => {
 };
 
 /**
- * Format date only (no time)
+ * Format date to aesthetic format: "31 de Jan"
+ * NEW: Beautiful Brazilian format with abbreviated month
  * @param {string|Date} dateString - ISO date string or Date object
- * @returns {string} Formatted as "DD/MM/YYYY"
+ * @returns {string} Formatted as "DD de MMM" (e.g., "31 de Jan")
  */
 export const formatDate = (dateString) => {
     if (!dateString) return '--';
     
     try {
-        const date = new Date(dateString);
+        // Handle timezone issues: add T12:00:00 if date-only string
+        let dateToFormat = dateString;
+        if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            // Date-only format (YYYY-MM-DD) - add midday time to avoid timezone shift
+            dateToFormat = dateString + 'T12:00:00';
+        }
+        
+        const date = new Date(dateToFormat);
+        
+        if (isNaN(date.getTime())) {
+            console.warn('⚠️  Invalid date for formatDate:', dateString);
+            return '--';
+        }
+        
+        // Extract day
+        const day = date.getDate();
+        
+        // Extract abbreviated month in Portuguese
+        let month = date.toLocaleDateString('pt-BR', { month: 'short' });
+        
+        // Clean up: Remove period and capitalize first letter
+        // "jan." -> "Jan"
+        month = month.replace('.', '');
+        month = month.charAt(0).toUpperCase() + month.slice(1);
+        
+        return `${day} de ${month}`;
+        
+    } catch (error) {
+        console.error('❌ Error formatting date:', error, dateString);
+        return '--';
+    }
+};
+
+/**
+ * Format date in numeric format (DD/MM/YYYY)
+ * Traditional format for forms and inputs
+ * @param {string|Date} dateString - ISO date string or Date object
+ * @returns {string} Formatted as "DD/MM/YYYY"
+ */
+export const formatDateNumeric = (dateString) => {
+    if (!dateString) return '--';
+    
+    try {
+        let dateToFormat = dateString;
+        if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            dateToFormat = dateString + 'T12:00:00';
+        }
+        
+        const date = new Date(dateToFormat);
         
         if (isNaN(date.getTime())) {
             return '--';
@@ -112,7 +161,40 @@ export const formatDate = (dateString) => {
         return `${day}/${month}/${year}`;
         
     } catch (error) {
-        console.error('❌ Error formatting date:', error);
+        console.error('❌ Error formatting numeric date:', error);
+        return '--';
+    }
+};
+
+/**
+ * Format date with full month name: "31 de Janeiro"
+ * Alternative format for formal displays
+ * @param {string|Date} dateString - ISO date string or Date object
+ * @returns {string} Formatted as "DD de MMMM" (e.g., "31 de Janeiro")
+ */
+export const formatDateFull = (dateString) => {
+    if (!dateString) return '--';
+    
+    try {
+        let dateToFormat = dateString;
+        if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            dateToFormat = dateString + 'T12:00:00';
+        }
+        
+        const date = new Date(dateToFormat);
+        
+        if (isNaN(date.getTime())) {
+            return '--';
+        }
+        
+        const day = date.getDate();
+        let month = date.toLocaleDateString('pt-BR', { month: 'long' });
+        month = month.charAt(0).toUpperCase() + month.slice(1);
+        
+        return `${day} de ${month}`;
+        
+    } catch (error) {
+        console.error('❌ Error formatting full date:', error);
         return '--';
     }
 };
@@ -287,6 +369,8 @@ if (typeof window !== 'undefined') {
     window.formatTime = formatTime;
     window.formatDateTime = formatDateTime;
     window.formatDate = formatDate;
+    window.formatDateNumeric = formatDateNumeric;
+    window.formatDateFull = formatDateFull;
     window.formatDateShort = formatDateShort;
     window.formatDateTimeShort = formatDateTimeShort;
     window.formatCurrency = formatCurrency;

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Formatters</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 { color: #00ffff; }
+        h2 { color: #ffff00; border-bottom: 2px solid #ffff00; padding-bottom: 5px; }
+        .test-section { 
+            background: #2a2a2a; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-left: 4px solid #00ff00;
+        }
+        .pass { color: #00ff00; }
+        .fail { color: #ff0000; }
+        .output { background: #000; padding: 10px; margin: 5px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { 
+            padding: 8px; 
+            text-align: left; 
+            border: 1px solid #444;
+        }
+        th { background: #333; color: #00ffff; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Formatters.js</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        import { 
+            formatTime, 
+            formatDateTime, 
+            formatDate,
+            formatDateNumeric,
+            formatDateFull,
+            formatDateShort, 
+            formatDateTimeShort,
+            formatCurrency,
+            formatPhone,
+            formatText,
+            getTimeAgo
+        } from './js/utils/formatters.js';
+
+        const results = document.getElementById('results');
+
+        function addTest(title, input, output, expected) {
+            const pass = output === expected;
+            results.innerHTML += `
+                <div class="test-section">
+                    <h3 class="${pass ? 'pass' : 'fail'}">${pass ? '✅' : '❌'} ${title}</h3>
+                    <div class="output">
+                        <strong>Input:</strong> ${input}<br>
+                        <strong>Output:</strong> <span class="${pass ? 'pass' : 'fail'}">${output}</span><br>
+                        <strong>Expected:</strong> ${expected}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Run tests
+        results.innerHTML += '<h2>📅 Date Formatting Tests</h2>';
+
+        addTest(
+            'formatDate() - Aesthetic Format',
+            '"2026-01-31"',
+            formatDate('2026-01-31'),
+            '31 de Jan'
+        );
+
+        addTest(
+            'formatDate() - December',
+            '"2026-12-25"',
+            formatDate('2026-12-25'),
+            '25 de Dez'
+        );
+
+        addTest(
+            'formatDateFull() - Full Month',
+            '"2026-01-31"',
+            formatDateFull('2026-01-31'),
+            '31 de Janeiro'
+        );
+
+        addTest(
+            'formatDateNumeric() - Numeric',
+            '"2026-01-31"',
+            formatDateNumeric('2026-01-31'),
+            '31/01/2026'
+        );
+
+        addTest(
+            'formatDateShort() - Compact',
+            '"2026-01-31"',
+            formatDateShort('2026-01-31'),
+            '31/Jan'
+        );
+
+        results.innerHTML += '<h2>⏰ Time Formatting Tests</h2>';
+
+        addTest(
+            'formatTime() - Hour',
+            '"2026-01-31T14:30:00"',
+            formatTime('2026-01-31T14:30:00'),
+            '14:30'
+        );
+
+        addTest(
+            'formatDateTime() - Full',
+            '"2026-01-31T14:30:00"',
+            formatDateTime('2026-01-31T14:30:00'),
+            '31/01/2026 às 14:30'
+        );
+
+        results.innerHTML += '<h2>💰 Other Formatters</h2>';
+
+        addTest(
+            'formatCurrency()',
+            '250',
+            formatCurrency(250),
+            'R$ 250,00'
+        );
+
+        addTest(
+            'formatPhone()',
+            '"11987654321"',
+            formatPhone('11987654321'),
+            '(11) 98765-4321'
+        );
+
+        addTest(
+            'formatText()',
+            '"primeira_consulta"',
+            formatText('primeira_consulta'),
+            'Primeira Consulta'
+        );
+
+        // All months test
+        results.innerHTML += '<h2>📆 All 12 Months Test</h2>';
+        results.innerHTML += '<table><tr><th>Month</th><th>Input</th><th>Output</th><th>Status</th></tr>';
+
+        const months = [
+            { date: '2026-01-15', expected: '15 de Jan' },
+            { date: '2026-02-15', expected: '15 de Fev' },
+            { date: '2026-03-15', expected: '15 de Mar' },
+            { date: '2026-04-15', expected: '15 de Abr' },
+            { date: '2026-05-15', expected: '15 de Mai' },
+            { date: '2026-06-15', expected: '15 de Jun' },
+            { date: '2026-07-15', expected: '15 de Jul' },
+            { date: '2026-08-15', expected: '15 de Ago' },
+            { date: '2026-09-15', expected: '15 de Set' },
+            { date: '2026-10-15', expected: '15 de Out' },
+            { date: '2026-11-15', expected: '15 de Nov' },
+            { date: '2026-12-15', expected: '15 de Dez' }
+        ];
+
+        months.forEach((test, index) => {
+            const result = formatDate(test.date);
+            const pass = result === test.expected;
+            results.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${test.date}</td>
+                    <td class="${pass ? 'pass' : 'fail'}">${result}</td>
+                    <td class="${pass ? 'pass' : 'fail'}">${pass ? '✅ PASS' : `❌ Expected: ${test.expected}`}</td>
+                </tr>
+            `;
+        });
+
+        results.innerHTML += '</table>';
+
+        // Edge cases
+        results.innerHTML += '<h2>🔍 Edge Cases</h2>';
+        addTest('formatDate(null)', 'null', formatDate(null), '--');
+        addTest('formatDate(undefined)', 'undefined', formatDate(undefined), '--');
+        addTest('formatTime("")', '""', formatTime(''), '--:--');
+        addTest('formatCurrency(0)', '0', formatCurrency(0), 'R$ 0,00');
+
+        results.innerHTML += '<div class="test-section" style="border-color: #00ffff;"><h2 class="pass">🎉 ALL TESTS COMPLETED!</h2></div>';
+    </script>
+</body>
+</html>
