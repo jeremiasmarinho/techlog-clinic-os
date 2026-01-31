@@ -441,16 +441,6 @@ function toggleInsuranceField() {
     }
 }
 
-// Format currency to Brazilian Real (R$ X.XXX,XX)
-function formatCurrency(value) {
-    if (!value) return '';
-    const number = parseCurrency(value);
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(number);
-}
-
 // Parse currency string to number
 function parseCurrency(value) {
     if (typeof value === 'number') return value;
