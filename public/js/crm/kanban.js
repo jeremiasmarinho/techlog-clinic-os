@@ -11,6 +11,9 @@ if (!token) {
 // Import centralized time formatter
 import { formatTime } from '../utils/formatters.js';
 
+// Ensure API_URL is available in module scope
+const API_URL = window.API_URL || '/api/leads';
+
 // ============================================
 // HELPER FUNCTIONS
 // ============================================

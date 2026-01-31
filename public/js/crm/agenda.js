@@ -6,6 +6,9 @@
 // Import centralized formatters
 import { formatTime, formatDateTime } from '../utils/formatters.js';
 
+// Ensure API_URL is available in module scope
+const API_URL = window.API_URL || '/api/leads';
+
 // ============================================
 // Authentication Check
 // ============================================
