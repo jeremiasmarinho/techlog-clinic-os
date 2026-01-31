@@ -9,7 +9,7 @@ import { formatTime, formatDateTime } from '../utils/formatters.js';
 // ============================================
 // Authentication Check
 // ============================================
-const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
 if (!token) {
     alert('Sessão inválida. Faça login novamente.');
     window.location.href = '/login.html';

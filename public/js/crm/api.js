@@ -3,7 +3,7 @@
 // ============================================
 
 const API_URL = '/api/leads';
-const ACCESS_TOKEN = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || '';
+const ACCESS_TOKEN = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken') || '';
 
 // Notification sound (data URI)
 const notificationSound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBWK66/LIeiyAAAAAA==');

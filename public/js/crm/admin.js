@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 async function openConfirmationQueue() {
     try {
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
         
         if (!token) {
             alert('Sessão expirada. Faça login novamente.');

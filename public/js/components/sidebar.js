@@ -30,7 +30,7 @@ class MedicalSidebar extends HTMLElement {
     
     async applyClinicBranding() {
         try {
-            const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+            const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
             if (!token) {
                 console.warn('⚠️ No token, skipping branding');
                 return;
@@ -299,7 +299,7 @@ class MedicalSidebar extends HTMLElement {
 
     loadUserName() {
         // Load username from auth or localStorage
-        const token = sessionStorage.getItem('token') || localStorage.getItem('token');
+        const token = sessionStorage.getItem('token') || sessionStorage.getItem('accessToken') || localStorage.getItem('token');
         if (token) {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));

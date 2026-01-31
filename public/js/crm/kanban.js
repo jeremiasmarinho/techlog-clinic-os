@@ -2,7 +2,7 @@
 // Kanban Board - Lead Management System with JWT Auth
 // ============================================
 
-const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
 if (!token) {
     alert('Sessão inválida. Faça login novamente.');
     window.location.href = '/login.html';
@@ -294,7 +294,7 @@ function updateBusinessMetrics(leads) {
  */
 async function sendTomorrowReminders() {
     try {
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
         
         const response = await fetch('/api/leads', {
             headers: { 'Authorization': `Bearer ${token}` }

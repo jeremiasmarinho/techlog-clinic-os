@@ -10,7 +10,7 @@ let historyChartInstance = null;
 // Load summary metrics on page load
 async function loadSummaryMetrics() {
     try {
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
         const response = await fetch('/api/metrics/resumo', {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -38,7 +38,7 @@ async function loadSummaryMetrics() {
 // New function to load dashboard data for the standalone page
 async function loadDashboardData() {
     try {
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
         const response = await fetch('/api/leads/dashboard', {
             method: 'GET',
             headers: {
@@ -111,7 +111,7 @@ async function openDashboard() {
     }
     
     try {
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
         const response = await fetch('/api/leads/dashboard', {
             method: 'GET',
             headers: {

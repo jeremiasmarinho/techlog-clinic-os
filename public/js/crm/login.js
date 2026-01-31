@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Save token to sessionStorage (more secure)
                     if (data.token) {
                         sessionStorage.setItem('accessToken', data.token);
+                        // Backward compatibility with existing modules
+                        sessionStorage.setItem('MEDICAL_CRM_TOKEN', data.token);
+                        sessionStorage.setItem('token', data.token);
                     }
                     
                     // Success feedback
