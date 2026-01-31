@@ -12,6 +12,104 @@ if (!token) {
 import { formatTime } from '../utils/formatters.js';
 
 // ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Extrai o horário de uma data ISO
+ * @param {string} datetime - Data no formato ISO (2024-01-31T08:00:00)
+ * @returns {string} Horário no formato HH:MM
+ */
+function extractTimeFromDate(datetime) {
+    if (!datetime) return '00:00';
+    try {
+        const date = new Date(datetime);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    } catch (e) {
+        return '00:00';
+    }
+}
+
+// ============================================
+// POPULATE INSURANCE SELECTS FROM CLINIC SETTINGS
+// ============================================
+async function populateInsuranceSelectsFromClinic() {
+    try {
+        // Check cache first
+        const cached = localStorage.getItem('clinicSettings');
+        let settings;
+        
+        if (cached) {
+            const { settings: cachedSettings, timestamp } = JSON.parse(cached);
+            const now = Date.now();
+            if (now - timestamp < 5 * 60 * 1000) { // 5 min cache
+                settings = cachedSettings;
+                console.log('✅ Using cached insurance plans');
+            }
+        }
+        
+        // Fetch if no cache
+        if (!settings) {
+            const response = await fetch('/api/clinic/settings', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.ok) {
+                settings = await response.json();
+                localStorage.setItem('clinicSettings', JSON.stringify({
+                    settings,
+                    timestamp: Date.now()
+                }));
+                console.log('✅ Loaded insurance plans from API');
+            }
+        }
+        
+        // Populate select
+        const selectIds = ['editInsuranceName'];
+        const plans = settings?.insurancePlans || ['Particular', 'Unimed', 'Bradesco Saúde', 'Amil'];
+        
+        selectIds.forEach(selectId => {
+            const selectElement = document.getElementById(selectId);
+            if (selectElement) {
+                // Clear existing options except first (Particular/None)
+                selectElement.innerHTML = '<option value="">Selecione</option>';
+                
+                // Add clinic plans
+                plans.forEach(plan => {
+                    const option = document.createElement('option');
+                    option.value = plan;
+                    option.textContent = plan;
+                    selectElement.appendChild(option);
+                });
+                
+                console.log(`✅ Populated ${selectId} with ${plans.length} plans`);
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Error populating insurance selects:', error);
+        // Fallback to defaults
+        const selectIds = ['editInsuranceName'];
+        const fallbackPlans = ['Particular', 'Unimed', 'Bradesco Saúde', 'Amil'];
+        
+        selectIds.forEach(selectId => {
+            const selectElement = document.getElementById(selectId);
+            if (selectElement) {
+                selectElement.innerHTML = '<option value="">Selecione</option>';
+                fallbackPlans.forEach(plan => {
+                    const option = document.createElement('option');
+                    option.value = plan;
+                    option.textContent = plan;
+                    selectElement.appendChild(option);
+                });
+            }
+        });
+    }
+}
+
+// ============================================
 // Date Filter State & Persistence
 // ============================================
 
@@ -48,6 +146,214 @@ function handleDateFilterChange() {
 
 // Expose function globally for onclick handler
 window.handleDateFilterChange = handleDateFilterChange;
+
+// ============================================
+// BUSINESS METRICS CALCULATIONS
+// ============================================
+
+/**
+ * Calculate and update modern business metrics
+ */
+function updateBusinessMetrics(leads) {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
+        
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        // 1. DAILY REVENUE (Estimated)
+        const todayLeads = leads.filter(lead => {
+            if (!lead.appointment_date) return false;
+            const apptDate = lead.appointment_date.split('T')[0];
+            return apptDate === todayStr && lead.status !== 'archived';
+        });
+        
+        let dailyRevenue = 0;
+        todayLeads.forEach(lead => {
+            const financial = parseFinancialData(lead.notes);
+            if (financial.paymentValue && financial.paymentValue > 0) {
+                dailyRevenue += parseFloat(financial.paymentValue);
+            } else {
+                // Default estimates based on type
+                if (lead.type === 'Consulta') dailyRevenue += 300;
+                else if (lead.type === 'Exame') dailyRevenue += 150;
+                else if (lead.type === 'retorno') dailyRevenue += 100;
+                else dailyRevenue += 200; // Default
+            }
+        });
+        
+        document.getElementById('dailyRevenue').textContent = formatCurrency(dailyRevenue);
+        
+        // Calculate growth (compare with yesterday)
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        
+        const yesterdayLeads = leads.filter(lead => {
+            if (!lead.appointment_date) return false;
+            const apptDate = lead.appointment_date.split('T')[0];
+            return apptDate === yesterdayStr && lead.status !== 'archived';
+        });
+        
+        let yesterdayRevenue = 0;
+        yesterdayLeads.forEach(lead => {
+            const financial = parseFinancialData(lead.notes);
+            if (financial.paymentValue && financial.paymentValue > 0) {
+                yesterdayRevenue += parseFloat(financial.paymentValue);
+            } else {
+                if (lead.type === 'Consulta') yesterdayRevenue += 300;
+                else if (lead.type === 'Exame') yesterdayRevenue += 150;
+                else if (lead.type === 'retorno') yesterdayRevenue += 100;
+                else yesterdayRevenue += 200;
+            }
+        });
+        
+        let growthPercent = 0;
+        if (yesterdayRevenue > 0) {
+            growthPercent = ((dailyRevenue - yesterdayRevenue) / yesterdayRevenue * 100).toFixed(0);
+        }
+        
+        const growthEl = document.getElementById('revenueGrowth');
+        if (growthPercent > 0) {
+            growthEl.innerHTML = `<i class="fa-solid fa-arrow-trend-up mr-1"></i> +${growthPercent}% vs Ontem`;
+            growthEl.className = 'text-emerald-400';
+        } else if (growthPercent < 0) {
+            growthEl.innerHTML = `<i class="fa-solid fa-arrow-trend-down mr-1"></i> ${growthPercent}% vs Ontem`;
+            growthEl.className = 'text-red-400';
+        } else {
+            growthEl.textContent = '0% vs Ontem';
+            growthEl.className = 'text-slate-400';
+        }
+        
+        // 2. TOMORROW'S CONFIRMATIONS
+        const tomorrowLeads = leads.filter(lead => {
+            if (!lead.appointment_date) return false;
+            const apptDate = lead.appointment_date.split('T')[0];
+            return apptDate === tomorrowStr && lead.status === 'agendado';
+        });
+        
+        document.getElementById('tomorrowCount').textContent = tomorrowLeads.length;
+        
+        // 3. TODAY'S AGENDA OCCUPANCY
+        const todayScheduled = todayLeads.length;
+        const maxCapacity = 10; // Can be made dynamic from clinic settings
+        const occupancyPercent = maxCapacity > 0 ? Math.round((todayScheduled / maxCapacity) * 100) : 0;
+        
+        document.getElementById('todayAppointments').textContent = todayScheduled;
+        document.getElementById('occupancyBadge').textContent = `${occupancyPercent}% Cheia`;
+        document.getElementById('occupancyBar').style.width = `${Math.min(occupancyPercent, 100)}%`;
+        
+        // Change bar color based on occupancy
+        const occupancyBar = document.getElementById('occupancyBar');
+        if (occupancyPercent >= 80) {
+            occupancyBar.className = 'bg-emerald-500 h-1.5 rounded-full transition-all duration-500';
+        } else if (occupancyPercent >= 50) {
+            occupancyBar.className = 'bg-amber-500 h-1.5 rounded-full transition-all duration-500';
+        } else {
+            occupancyBar.className = 'bg-blue-500 h-1.5 rounded-full transition-all duration-500';
+        }
+        
+        // 4. AVERAGE TICKET
+        const completedLeads = leads.filter(l => 
+            l.attendance_status === 'compareceu' && l.status === 'finalizado'
+        );
+        
+        let totalRevenue = 0;
+        completedLeads.forEach(lead => {
+            const financial = parseFinancialData(lead.notes);
+            if (financial.paymentValue && financial.paymentValue > 0) {
+                totalRevenue += parseFloat(financial.paymentValue);
+            } else {
+                if (lead.type === 'Consulta') totalRevenue += 300;
+                else if (lead.type === 'Exame') totalRevenue += 150;
+                else if (lead.type === 'retorno') totalRevenue += 100;
+                else totalRevenue += 200;
+            }
+        });
+        
+        const avgTicket = completedLeads.length > 0 ? totalRevenue / completedLeads.length : 0;
+        document.getElementById('averageTicket').textContent = formatCurrency(avgTicket);
+        
+        console.log('✅ Business metrics updated:', {
+            dailyRevenue: formatCurrency(dailyRevenue),
+            tomorrowConfirmations: tomorrowLeads.length,
+            todayOccupancy: `${occupancyPercent}%`,
+            averageTicket: formatCurrency(avgTicket)
+        });
+        
+    } catch (error) {
+        console.error('❌ Error updating business metrics:', error);
+    }
+}
+
+/**
+ * Send WhatsApp reminders to tomorrow's appointments
+ */
+async function sendTomorrowReminders() {
+    try {
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+        
+        const response = await fetch('/api/leads', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch leads');
+        
+        const leads = await response.json();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+        
+        const tomorrowLeads = leads.filter(lead => {
+            if (!lead.appointment_date) return false;
+            const apptDate = lead.appointment_date.split('T')[0];
+            return apptDate === tomorrowStr && lead.status === 'agendado';
+        });
+        
+        if (tomorrowLeads.length === 0) {
+            showNotification('ℹ️ Nenhum agendamento para amanhã', 'info');
+            return;
+        }
+        
+        // Open WhatsApp for first patient
+        const lead = tomorrowLeads[0];
+        const phone = lead.phone.replace(/\D/g, '');
+        const apptTime = extractTimeFromDate(lead.appointment_date);
+        
+        const message = `Olá ${lead.name}! 😊\n\nEste é um lembrete da sua consulta *amanhã* às *${apptTime}*.\n\nAguardamos você!\n\nSe precisar reagendar, responda esta mensagem.`;
+        
+        const whatsappUrl = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+        
+        showNotification(`✅ WhatsApp aberto para ${lead.name}. Total de ${tomorrowLeads.length} pacientes amanhã.`, 'success');
+        
+        // Log other patients if more than 1
+        if (tomorrowLeads.length > 1) {
+            console.log('📋 Outros pacientes para amanhã:', tomorrowLeads.map(l => `${l.name} - ${l.phone}`));
+        }
+        
+    } catch (error) {
+        console.error('❌ Error sending reminders:', error);
+        showNotification('❌ Erro ao enviar lembretes', 'error');
+    }
+}
+
+/**
+ * Format currency helper
+ */
+function formatCurrency(value) {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(value || 0);
+}
+
+// Expose functions globally
+window.sendTomorrowReminders = sendTomorrowReminders;
+window.updateBusinessMetrics = updateBusinessMetrics;
 
 // ============================================
 // Timer Calculation - Time in Status Feature
@@ -265,6 +571,9 @@ async function loadLeads() {
         isFirstLoad = false;
         
         renderLeads(leads);
+        
+        // Update business metrics after rendering leads
+        updateBusinessMetrics(leads);
         
     } catch (error) {
         console.error('Erro ao carregar leads:', error);
@@ -1091,12 +1400,17 @@ function getTimeAgo(date) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Initialize date filter from localStorage
     const dateFilterSelect = document.getElementById('dateFilter');
     if (dateFilterSelect) {
         dateFilterSelect.value = currentDateFilter;
     }
+    
+    // ============================================
+    // POPULATE INSURANCE SELECTS WITH CLINIC DATA
+    // ============================================
+    await populateInsuranceSelectsFromClinic();
     
     // Edit Form Submit Handler
     const editForm = document.getElementById('editForm');

@@ -786,43 +786,69 @@
 
     <!-- Kanban Board -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <!-- Summary Metrics -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <!-- Taxa de Conversão -->
-            <div class="glass-card rounded-xl p-6 hover:bg-white/10 transition">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-medium text-gray-300">Taxa de Conversão</h3>
-                    <div class="bg-green-500/20 rounded-full p-2">
-                        <i class="fas fa-chart-line text-green-400"></i>
-                    </div>
+        <!-- NEW: Modern Business Metrics Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            
+            <!-- Card 1: Daily Revenue (Estimated) -->
+            <div class="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-all cursor-pointer">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-sack-dollar text-4xl text-emerald-400"></i>
                 </div>
-                <div class="text-3xl font-bold text-white mb-1" id="taxaConversao">--</div>
-                <p class="text-xs text-gray-400" id="taxaConversaoDetail">calculando...</p>
+                <p class="text-slate-400 text-sm font-medium mb-1">Faturamento Hoje (Est.)</p>
+                <h3 id="dailyRevenue" class="text-2xl font-bold text-white mb-2">R$ 0,00</h3>
+                <div class="flex items-center text-xs text-emerald-400 bg-emerald-400/10 w-fit px-2 py-1 rounded-lg">
+                    <i class="fa-solid fa-arrow-trend-up mr-1"></i>
+                    <span id="revenueGrowth">+0% vs Ontem</span>
+                </div>
             </div>
 
-            <!-- No-Shows -->
-            <div class="glass-card rounded-xl p-6 hover:bg-white/10 transition">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-medium text-gray-300">Faltas (No-show)</h3>
-                    <div class="bg-red-500/20 rounded-full p-2">
-                        <i class="fas fa-calendar-times text-red-400"></i>
-                    </div>
+            <!-- Card 2: Tomorrow's Confirmations (Action Required) -->
+            <div class="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all cursor-pointer" onclick="openConfirmationQueue()">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-brands fa-whatsapp text-4xl text-amber-400"></i>
                 </div>
-                <div class="text-3xl font-bold text-white mb-1" id="noShows">--</div>
-                <p class="text-xs text-gray-400" id="noShowsDetail">calculando...</p>
+                <p class="text-slate-400 text-sm font-medium mb-1">Confirmar p/ Amanhã</p>
+                <h3 id="tomorrowConfirm" class="text-2xl font-bold text-white mb-2">
+                    <span id="tomorrowCount">0</span> Pacientes
+                </h3>
+                <button 
+                    onclick="event.stopPropagation(); openConfirmationQueue()" 
+                    class="text-xs text-amber-400 hover:text-amber-300 font-medium flex items-center mt-1 transition-colors"
+                >
+                    Abrir Fila <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
             </div>
 
-            <!-- Consultas esta Semana -->
-            <div class="glass-card rounded-xl p-6 hover:bg-white/10 transition">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-medium text-gray-300">Consultas Agendadas</h3>
-                    <div class="bg-blue-500/20 rounded-full p-2">
-                        <i class="fas fa-calendar-check text-blue-400"></i>
+            <!-- Card 3: Today's Agenda Occupancy -->
+            <div class="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden group hover:border-blue-500/30 transition-all">
+                <div class="flex justify-between items-end mb-2">
+                    <div>
+                        <p class="text-slate-400 text-sm font-medium mb-1">Agenda Hoje</p>
+                        <h3 class="text-2xl font-bold text-white">
+                            <span id="todayAppointments">0</span><span class="text-slate-500 text-lg">/10</span>
+                        </h3>
                     </div>
+                    <span id="occupancyBadge" class="text-xs text-blue-400 bg-blue-400/10 px-2 py-1 rounded">
+                        0% Cheia
+                    </span>
                 </div>
-                <div class="text-3xl font-bold text-white mb-1" id="consultasSemana">--</div>
-                <p class="text-xs text-gray-400" id="consultasSemanaDetail">calculando...</p>
+                <div class="w-full bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div id="occupancyBar" class="bg-blue-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
             </div>
+
+            <!-- Card 4: Average Ticket -->
+            <div class="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden group hover:border-purple-500/30 transition-all cursor-pointer" onclick="window.location.href='relatorios.html'">
+                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i class="fa-solid fa-chart-pie text-4xl text-purple-400"></i>
+                </div>
+                <p class="text-slate-400 text-sm font-medium mb-1">Ticket Médio</p>
+                <h3 id="averageTicket" class="text-2xl font-bold text-white mb-2">R$ 0,00</h3>
+                <p class="text-xs text-slate-500">
+                    Meta: <span id="ticketGoal">R$ 250,00</span>
+                </p>
+            </div>
+
         </div>
 
         <div class="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -953,6 +979,69 @@
         </div>
     </div>
 
+    <!-- Confirmation Queue Modal -->
+    <div id="confirmationQueueModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-2xl w-full max-w-2xl mx-4 p-6 transform transition-all scale-100 max-h-[90vh] overflow-hidden flex flex-col">
+            
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i class="fa-brands fa-whatsapp text-emerald-400 mr-2"></i>
+                        Fila de Confirmação
+                    </h3>
+                    <p class="text-slate-400 text-sm mt-1">Pacientes agendados para Amanhã</p>
+                </div>
+                <button onclick="closeConfirmationQueue()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Patient List (Scrollable) -->
+            <div id="confirmationList" class="space-y-3 flex-1 overflow-y-auto pr-2 custom-scrollbar mb-6">
+                <div class="text-center py-8 text-slate-400">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+                    <p>Carregando...</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-4 border-t border-slate-700 flex justify-between items-center flex-shrink-0">
+                <p class="text-xs text-slate-400">
+                    <i class="fa-solid fa-info-circle mr-1"></i>
+                    Clique em "Enviar" para cada paciente
+                </p>
+                <button 
+                    onclick="closeConfirmationQueue()" 
+                    class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition text-sm font-medium"
+                >
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Scrollbar Styles -->
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.5);
+            border-radius: 10px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.7);
+        }
+    </style>
+
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -968,5 +1057,31 @@
     <script type="module" src="./js/crm/kanban.js"></script>
     <script src="./js/crm/dashboard.js"></script>
     <script src="./js/crm/admin.js"></script>
+    
+    <!-- Initialize Dashboard Metrics -->
+    <script>
+        // Wait for kanban.js module to load and expose functions
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Initializing dashboard...');
+            
+            // Check if updateBusinessMetrics is available
+            const checkInterval = setInterval(() => {
+                if (typeof window.updateBusinessMetrics === 'function') {
+                    console.log('✅ updateBusinessMetrics found!');
+                    clearInterval(checkInterval);
+                    
+                    // Initial load after a short delay to ensure leads are loaded
+                    setTimeout(() => {
+                        if (window.allLeads && window.allLeads.length > 0) {
+                            window.updateBusinessMetrics(window.allLeads);
+                        }
+                    }, 1000);
+                }
+            }, 100);
+            
+            // Timeout after 5 seconds
+            setTimeout(() => clearInterval(checkInterval), 5000);
+        });
+    </script>
 </body>
 </html>

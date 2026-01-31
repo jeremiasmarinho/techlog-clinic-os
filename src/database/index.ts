@@ -96,6 +96,26 @@ function initDb(): void {
             });
         }
     });
+
+    // Tabela de Configurações da Clínica
+    db.run(`
+        CREATE TABLE IF NOT EXISTS clinic_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clinic_id INTEGER DEFAULT 1,
+            identity TEXT,
+            hours TEXT,
+            insurance_plans TEXT,
+            chatbot TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `, (err) => {
+        if (err) {
+            console.error('❌ Erro ao criar tabela clinic_settings:', err.message);
+        } else {
+            console.log('✅ Tabela "clinic_settings" pronta');
+        }
+    });
 }
 
 // Função auxiliar para adicionar coluna com segurança

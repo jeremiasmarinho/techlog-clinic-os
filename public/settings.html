@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Medical CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .tab-button {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            color: #06b6d4;
+        }
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #06b6d4, #0891b2);
+            border-radius: 2px 2px 0 0;
+        }
+        .badge-admin {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+        }
+        .badge-staff {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+        .user-row {
+            transition: all 0.2s ease;
+        }
+        .user-row:hover {
+            background: rgba(6, 182, 212, 0.1);
+            transform: translateX(4px);
+        }
+    </style>
+    <script src="./js/components/sidebar.js"></script>
+</head>
+<body class="min-h-screen flex">
+
+    <!-- Sidebar Component -->
+    <medical-sidebar active="settings"></medical-sidebar>
+
+    <!-- Main Content -->
+    <main class="flex-1 ml-20 transition-all duration-300 p-8">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2 flex items-center">
+                <i class="fas fa-cog mr-4 text-cyan-400"></i>
+                Configurações da Clínica
+            </h1>
+            <p class="text-gray-400">Gerencie sua equipe e configurações</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex items-center space-x-6 mb-6 border-b border-white/10 pb-3">
+            <button 
+                id="tabEquipe" 
+                class="tab-button active text-lg font-semibold px-4 py-2"
+                onclick="switchTab('equipe')"
+            >
+                <i class="fas fa-users mr-2"></i>
+                Equipe
+            </button>
+            <button 
+                id="tabPerfil" 
+                class="tab-button text-lg font-semibold px-4 py-2 text-gray-400"
+                onclick="switchTab('perfil')"
+            >
+                <i class="fas fa-hospital mr-2"></i>
+                Perfil da Clínica
+            </button>
+        </div>
+
+        <!-- Tab Content: Equipe -->
+        <div id="contentEquipe" class="tab-content">
+            
+            <!-- Action Bar -->
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-4 top-3.5 text-cyan-400"></i>
+                        <input 
+                            type="text" 
+                            id="searchUser" 
+                            placeholder="Buscar por nome ou email..."
+                            class="w-80 pl-12 pr-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                            oninput="filterUsers()"
+                        >
+                    </div>
+                </div>
+                <button 
+                    onclick="openNewUserModal()" 
+                    class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold px-6 py-3 rounded-lg shadow-lg transition flex items-center"
+                >
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Nova Secretária
+                </button>
+            </div>
+
+            <!-- Users Table -->
+            <div class="glass-card rounded-xl overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-white/5">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">
+                                <i class="fas fa-user mr-2"></i>Usuário
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">
+                                <i class="fas fa-envelope mr-2"></i>Email (Login)
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">
+                                <i class="fas fa-shield-alt mr-2"></i>Função
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-cyan-400 uppercase tracking-wider">
+                                <i class="fas fa-toggle-on mr-2"></i>Status
+                            </th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-cyan-400 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody" class="divide-y divide-white/5">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16">
+                <i class="fas fa-users-slash text-6xl text-gray-600 mb-4"></i>
+                <p class="text-xl text-gray-400 mb-2">Nenhum usuário encontrado</p>
+                <p class="text-gray-500">Comece adicionando uma secretária</p>
+            </div>
+
+        </div>
+
+        <!-- Tab Content: Perfil -->
+        <div id="contentPerfil" class="tab-content hidden">
+            
+            <!-- Action Bar -->
+            <div class="flex justify-end items-center mb-6">
+                <button 
+                    onclick="saveClinicSettings()" 
+                    id="saveSettingsBtn"
+                    class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold px-6 py-3 rounded-lg shadow-lg transition flex items-center"
+                >
+                    <i class="fas fa-save mr-2"></i>
+                    Salvar Alterações
+                </button>
+            </div>
+
+            <!-- Grid Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- CARD 1: Identidade & Operacional -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-hospital text-cyan-400 mr-3"></i>
+                        Identidade & Operacional
+                    </h3>
+                    
+                    <!-- Logo Upload -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-image mr-2"></i>Logo da Clínica
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <div id="logoPreview" class="w-24 h-24 bg-white/10 border-2 border-white/20 rounded-lg flex items-center justify-center overflow-hidden">
+                                <i class="fas fa-hospital text-4xl text-gray-400" id="logoIcon"></i>
+                                <img id="logoImage" class="w-full h-full object-cover hidden" alt="Logo">
+                            </div>
+                            <div class="flex-1">
+                                <input 
+                                    type="file" 
+                                    id="logoInput" 
+                                    accept="image/*"
+                                    class="hidden"
+                                    onchange="handleLogoUpload(event)"
+                                >
+                                <button 
+                                    onclick="document.getElementById('logoInput').click()"
+                                    class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition text-sm font-semibold"
+                                >
+                                    <i class="fas fa-upload mr-2"></i>Selecionar Imagem
+                                </button>
+                                <p class="text-xs text-gray-400 mt-2">PNG, JPG até 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Primary Color -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-palette mr-2"></i>Cor Primária (Tema)
+                        </label>
+                        <div class="flex items-center space-x-3">
+                            <input 
+                                type="color" 
+                                id="primaryColor" 
+                                class="w-16 h-10 rounded-lg cursor-pointer border-2 border-white/20"
+                                value="#06b6d4"
+                            >
+                            <input 
+                                type="text" 
+                                id="primaryColorHex" 
+                                class="flex-1 px-4 py-2 bg-white/10 border-2 border-white/20 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none transition"
+                                placeholder="#06b6d4"
+                                maxlength="7"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Clinic Name -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-hospital-alt mr-2"></i>Nome Exibido da Clínica
+                        </label>
+                        <input 
+                            type="text" 
+                            id="clinicName" 
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                            placeholder="Ex: Clínica Viva Saúde"
+                        >
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-phone mr-2"></i>Telefone Oficial / WhatsApp
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="clinicPhone" 
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                            placeholder="(11) 99999-9999"
+                            maxlength="15"
+                        >
+                    </div>
+
+                    <!-- Address -->
+                    <div>
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-map-marker-alt mr-2"></i>Endereço Completo
+                        </label>
+                        <textarea 
+                            id="clinicAddress" 
+                            rows="3"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400 resize-none"
+                            placeholder="Rua, Número, Bairro, Cidade - Estado, CEP"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- CARD 2: Horários de Atendimento -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-clock text-cyan-400 mr-3"></i>
+                        Horários de Atendimento
+                    </h3>
+
+                    <!-- Opening/Closing Hours -->
+                    <div class="grid grid-cols-2 gap-4 mb-5">
+                        <div>
+                            <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                                <i class="fas fa-sun mr-2"></i>Abertura
+                            </label>
+                            <input 
+                                type="time" 
+                                id="openingHour" 
+                                class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                                value="08:00"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                                <i class="fas fa-moon mr-2"></i>Fechamento
+                            </label>
+                            <input 
+                                type="time" 
+                                id="closingHour" 
+                                class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                                value="18:00"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Working Days -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-3">
+                            <i class="fas fa-calendar-week mr-2"></i>Dias de Funcionamento
+                        </label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="checkbox" id="daySeg" checked class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium">Seg</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="checkbox" id="dayTer" checked class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium">Ter</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="checkbox" id="dayQua" checked class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium">Qua</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="checkbox" id="dayQui" checked class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium">Qui</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="checkbox" id="daySex" checked class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium">Sex</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="checkbox" id="daySab" class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium">Sáb</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="checkbox" id="dayDom" class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium">Dom</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Lunch Break -->
+                    <div>
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-utensils mr-2"></i>Intervalo de Almoço (Opcional)
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <input 
+                                type="time" 
+                                id="lunchStart" 
+                                class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                                placeholder="Início"
+                            >
+                            <input 
+                                type="time" 
+                                id="lunchEnd" 
+                                class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                                placeholder="Fim"
+                            >
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">Deixe em branco se não houver intervalo</p>
+                    </div>
+                </div>
+
+                <!-- CARD 3: Financeiro & Convênios -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-money-check-alt text-cyan-400 mr-3"></i>
+                        Convênios & Planos de Saúde
+                    </h3>
+
+                    <p class="text-sm text-gray-400 mb-4">
+                        Gerencie os planos aceitos pela clínica. Estes aparecerão como opções no sistema.
+                    </p>
+
+                    <!-- Add Insurance Input -->
+                    <div class="flex space-x-2 mb-4">
+                        <input 
+                            type="text" 
+                            id="newInsuranceInput" 
+                            class="flex-1 px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                            placeholder="Ex: Unimed, Bradesco Saúde..."
+                            onkeypress="if(event.key==='Enter') addInsurance()"
+                        >
+                        <button 
+                            onclick="addInsurance()"
+                            class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-6 py-3 rounded-lg transition"
+                        >
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <!-- Insurance Tags List -->
+                    <div class="bg-white/5 border border-white/10 rounded-lg p-4 min-h-[200px]">
+                        <div id="insuranceTagsList" class="flex flex-wrap gap-2">
+                            <!-- Tags will be rendered here -->
+                            <div class="text-gray-400 text-sm w-full text-center py-8">
+                                <i class="fas fa-tags text-3xl mb-2 block"></i>
+                                Nenhum convênio cadastrado ainda
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Default Plans Info -->
+                    <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mt-4">
+                        <p class="text-xs text-blue-300 flex items-start">
+                            <i class="fas fa-info-circle mr-2 mt-0.5"></i>
+                            <span>Sugestão: Adicione "Particular" para atendimentos sem convênio.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- CARD 4: Inteligência do Chat (Scripts) -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-robot text-cyan-400 mr-3"></i>
+                        Inteligência do Chat (Scripts)
+                    </h3>
+
+                    <p class="text-sm text-gray-400 mb-4">
+                        Personalize as mensagens automáticas do chatbot da clínica.
+                    </p>
+
+                    <!-- Greeting Message -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-comment-dots mr-2"></i>Mensagem de Saudação
+                        </label>
+                        <textarea 
+                            id="chatGreeting" 
+                            rows="3"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400 resize-none"
+                            placeholder="Ex: Olá! Sou a assistente virtual da Clínica Viva. Como posso ajudá-lo hoje?"
+                        ></textarea>
+                        <p class="text-xs text-gray-400 mt-1">Primeira mensagem que o paciente vê ao abrir o chat</p>
+                    </div>
+
+                    <!-- Away Message -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-moon mr-2"></i>Mensagem de Ausência
+                        </label>
+                        <textarea 
+                            id="chatAwayMessage" 
+                            rows="3"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400 resize-none"
+                            placeholder="Ex: Estamos fechados no momento. Nosso horário de atendimento é de segunda a sexta, das 8h às 18h."
+                        ></textarea>
+                        <p class="text-xs text-gray-400 mt-1">Exibida quando a clínica está fechada</p>
+                    </div>
+
+                    <!-- Appointment Instructions -->
+                    <div>
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-clipboard-list mr-2"></i>Instruções de Agendamento
+                        </label>
+                        <textarea 
+                            id="chatInstructions" 
+                            rows="4"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400 resize-none"
+                            placeholder="Ex: Para agendar sua consulta, preciso que informe: especialidade desejada, forma de pagamento (plano ou particular), período de preferência e seus dados de contato."
+                        ></textarea>
+                        <p class="text-xs text-gray-400 mt-1">Orientações para guiar o paciente no agendamento</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Floating Save Button (Mobile) -->
+            <button 
+                onclick="saveClinicSettings()" 
+                class="fixed bottom-6 right-6 md:hidden bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold w-14 h-14 rounded-full shadow-2xl flex items-center justify-center z-40"
+                title="Salvar Alterações"
+            >
+                <i class="fas fa-save text-xl"></i>
+            </button>
+
+        </div>
+
+    </main>
+
+    <!-- Modal: New User -->
+    <div id="newUserModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+        <div class="glass-card rounded-2xl max-w-md w-full mx-4 p-8 border-2 border-cyan-500/30">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center">
+                    <i class="fas fa-user-plus text-cyan-400 mr-3"></i>
+                    Novo Usuário
+                </h3>
+                <button onclick="closeNewUserModal()" class="text-gray-400 hover:text-white transition">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <form id="newUserForm" class="space-y-4" onsubmit="handleCreateUser(event)">
+                
+                <!-- Name -->
+                <div>
+                    <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                        <i class="fas fa-user mr-2"></i>Nome Completo
+                    </label>
+                    <input 
+                        type="text" 
+                        id="userName" 
+                        class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                        placeholder="Ex: Maria Silva"
+                        required
+                    >
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email (Login)
+                    </label>
+                    <input 
+                        type="email" 
+                        id="userEmail" 
+                        class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                        placeholder="maria@clinica.com"
+                        required
+                    >
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Senha
+                    </label>
+                    <input 
+                        type="password" 
+                        id="userPassword" 
+                        class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                        placeholder="Mínimo 6 caracteres"
+                        required
+                        minlength="6"
+                    >
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Confirmar Senha
+                    </label>
+                    <input 
+                        type="password" 
+                        id="userPasswordConfirm" 
+                        class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                        placeholder="Repita a senha"
+                        required
+                        minlength="6"
+                    >
+                </div>
+
+                <!-- Role Checkbox -->
+                <div class="bg-white/5 border border-white/10 rounded-lg p-4">
+                    <label class="flex items-center cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            id="userIsAdmin" 
+                            class="w-5 h-5 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2"
+                        >
+                        <span class="ml-3 text-white font-semibold">
+                            <i class="fas fa-crown text-purple-400 mr-2"></i>
+                            Administrador da Clínica?
+                        </span>
+                    </label>
+                    <p class="text-xs text-gray-400 mt-2 ml-8">
+                        Administradores podem gerenciar a equipe e configurações.
+                    </p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="formError" class="hidden bg-red-500/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg text-sm">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span id="errorText"></span>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex space-x-3 pt-4">
+                    <button 
+                        type="button"
+                        onclick="closeNewUserModal()"
+                        class="flex-1 bg-white/10 hover:bg-white/20 text-white font-semibold py-3 rounded-lg transition"
+                    >
+                        Cancelar
+                    </button>
+                    <button 
+                        type="submit"
+                        id="submitBtn"
+                        class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-3 rounded-lg transition"
+                    >
+                        <i class="fas fa-check mr-2"></i>
+                        Criar Usuário
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="fixed top-4 right-4 z-50 hidden">
+        <div class="glass-card rounded-lg shadow-xl border-l-4 border-cyan-400 px-6 py-4 max-w-md">
+            <div class="flex items-center">
+                <i id="toastIcon" class="fas fa-check-circle text-cyan-400 text-2xl mr-3"></i>
+                <p id="toastMessage" class="text-white font-medium">Mensagem</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/crm/settings.js"></script>
+</body>
+</html>

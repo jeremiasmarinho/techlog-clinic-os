@@ -9,8 +9,8 @@ export const createUserSchema = z.object({
     
     username: z.string({ message: 'Username deve ser um texto' })
     .min(3, { message: 'Username deve ter no mínimo 3 caracteres' })
-    .max(30, { message: 'Username deve ter no máximo 30 caracteres' })
-    .regex(/^[a-zA-Z0-9]+$/, { message: 'Username deve conter apenas letras e números' })
+    .max(50, { message: 'Username deve ter no máximo 50 caracteres' })
+    .regex(/^[a-zA-Z0-9._@-]+$/, { message: 'Username deve conter apenas letras, números, pontos, @, hífen e underscore' })
     .trim()
     .toLowerCase(),
     
@@ -18,7 +18,9 @@ export const createUserSchema = z.object({
     .min(6, { message: 'Senha deve ter no mínimo 6 caracteres' })
     .max(100, { message: 'Senha deve ter no máximo 100 caracteres' }),
     
-    role: z.enum(['admin', 'medico', 'recepcao'], { message: 'Role deve ser: admin, medico ou recepcao' })
+    role: z.enum(['super_admin', 'clinic_admin', 'staff', 'admin', 'medico', 'recepcao'], { 
+        message: 'Role deve ser: super_admin, clinic_admin, staff, admin, medico ou recepcao' 
+    })
 });
 
 // Types inferidos dos schemas

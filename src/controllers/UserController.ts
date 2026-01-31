@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../database';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { createUserSchema } from '../validators/user.validator';
 
 export class UserController {
@@ -30,9 +31,23 @@ export class UserController {
                     
                     if (isPasswordValid) {
                         console.log(`✅ Login bem-sucedido: ${row.username} (${row.role})`);
+                        
+                        // Gerar JWT token
+                        const token = jwt.sign(
+                            {
+                                userId: row.id,
+                                username: row.username,
+                                name: row.name,
+                                role: row.role,
+                                clinicId: row.clinic_id || 1
+                            },
+                            process.env.JWT_SECRET as string,
+                            { expiresIn: '24h' }
+                        );
+                        
                         res.json({
                             success: true,
-                            token: process.env.ACCESS_TOKEN || 'eviva2026',
+                            token,
                             user: {
                                 id: row.id,
                                 name: row.name,

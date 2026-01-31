@@ -9,7 +9,7 @@ class MedicalSidebar extends HTMLElement {
         this.mainContentRetries = 0;
     }
 
-    connectedCallback() {
+    async connectedCallback() {
         // Read attributes here, when they are guaranteed to be available
         this.activePage = this.getAttribute('active') || 'admin';
         this.showDateFilter = this.getAttribute('show-date-filter') === 'true';
@@ -17,6 +17,85 @@ class MedicalSidebar extends HTMLElement {
         this.render();
         this.initSidebar();
         this.loadUserName();
+        
+        // ============================================
+        // APPLY CLINIC BRANDING (LOGO + COLORS)
+        // ============================================
+        try {
+            await this.applyClinicBranding();
+        } catch (error) {
+            console.error('❌ Error applying sidebar branding:', error);
+        }
+    }
+    
+    async applyClinicBranding() {
+        try {
+            const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+            if (!token) {
+                console.warn('⚠️ No token, skipping branding');
+                return;
+            }
+            
+            // Check cache first
+            const cached = localStorage.getItem('clinicSettings');
+            let settings;
+            
+            if (cached) {
+                const { settings: cachedSettings, timestamp } = JSON.parse(cached);
+                const now = Date.now();
+                if (now - timestamp < 5 * 60 * 1000) { // 5 min cache
+                    settings = cachedSettings;
+                    console.log('✅ Using cached clinic settings for branding');
+                }
+            }
+            
+            // Fetch if no cache
+            if (!settings) {
+                const response = await fetch('/api/clinic/settings', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.ok) {
+                    settings = await response.json();
+                    // Cache it
+                    localStorage.setItem('clinicSettings', JSON.stringify({
+                        settings,
+                        timestamp: Date.now()
+                    }));
+                    console.log('✅ Clinic settings loaded from API');
+                }
+            }
+            
+            if (settings && settings.identity) {
+                // Apply logo
+                const sidebarLogo = this.querySelector('#sidebar-logo');
+                const logoIcon = this.querySelector('#logo-icon');
+                
+                if (sidebarLogo && settings.identity.logo) {
+                    sidebarLogo.src = settings.identity.logo;
+                    sidebarLogo.classList.remove('hidden');
+                    if (logoIcon) logoIcon.classList.add('hidden');
+                    console.log('✅ Sidebar logo updated');
+                }
+                
+                // Apply clinic name
+                if (settings.identity.name) {
+                    const clinicNameEl = this.querySelector('.clinic-name');
+                    if (clinicNameEl) {
+                        clinicNameEl.textContent = settings.identity.name;
+                    }
+                }
+                
+                // Apply primary color
+                if (settings.identity.primaryColor) {
+                    document.documentElement.style.setProperty('--primary-color', settings.identity.primaryColor);
+                    console.log('✅ Primary color applied:', settings.identity.primaryColor);
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Error in applyClinicBranding:', error);
+        }
     }
 
     render() {
@@ -52,11 +131,14 @@ class MedicalSidebar extends HTMLElement {
                     <!-- Logo + Toggle Button -->
                     <div class="px-5 mb-8">
                         <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-hospital text-white text-lg"></i>
+                            <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                <!-- Dynamic Clinic Logo (loaded from settings) -->
+                                <img id="sidebar-logo" src="" alt="Logo" class="w-full h-full object-cover hidden" />
+                                <!-- Fallback Icon -->
+                                <i id="logo-icon" class="fas fa-hospital text-white text-lg"></i>
                             </div>
                             <div class="sidebar-text whitespace-nowrap overflow-hidden">
-                                <h2 class="text-white font-bold text-sm">Medical CRM</h2>
+                                <h2 class="text-white font-bold text-sm clinic-name">Medical CRM</h2>
                                 <p class="text-cyan-400 text-xs">Gestão</p>
                             </div>
                         </div>
@@ -101,6 +183,11 @@ class MedicalSidebar extends HTMLElement {
                         <a href="relatorios.html" class="sidebar-item ${this.activePage === 'relatorios' ? 'bg-cyan-500/20' : ''}">
                             <i class="fas fa-chart-pie"></i>
                             <span>Relatórios</span>
+                        </a>
+                        
+                        <a href="settings.html" class="sidebar-item ${this.activePage === 'settings' ? 'bg-cyan-500/20' : ''}">
+                            <i class="fas fa-cog"></i>
+                            <span>Configurações</span>
                         </a>
                         
                         ${this.activePage === 'admin' ? `

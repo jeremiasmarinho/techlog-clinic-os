@@ -197,11 +197,11 @@ function renderPatients(list) {
     
     emptyState.classList.add('hidden');
     
-    console.log(`📊 Rendering ${list.length} patients with formatted text`);
+    console.log(`📊 Rendering ${list.length} patients with dark mode hover`);
     
     list.forEach(patient => {
         const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50 transition';
+        row.className = 'hover:bg-slate-800/50 transition-colors duration-200 cursor-pointer border-b border-white/5';
         row.dataset.patientId = patient.id;
         
         // TYPE BADGE - with formatting
@@ -258,10 +258,10 @@ function renderPatients(list) {
         
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-white">${patient.name}${archiveIcon}</div>
+                <div class="text-sm font-medium text-slate-100">${patient.name}${archiveIcon}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-300">${formatPhone(patient.phone)}</div>
+                <div class="text-sm text-slate-300">${formatPhone(patient.phone)}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${typeColor}">

@@ -268,7 +268,7 @@ async function loadAgenda() {
 
 function createAppointmentCard(appointment) {
     const card = document.createElement('div');
-    card.className = 'glass-card rounded-xl p-5 hover:bg-white/10 transition-all border border-white/10';
+    card.className = 'glass-card rounded-xl p-5 bg-slate-800/50 hover:bg-slate-700 transition-colors duration-200 border border-white/10 cursor-pointer';
     card.dataset.appointmentId = appointment.id;
     
     // Parse description to extract financial data and clean text
@@ -320,11 +320,11 @@ function createAppointmentCard(appointment) {
             
             <!-- Patient Info -->
             <div class="flex-1">
-                <h3 class="text-xl font-semibold text-white mb-2">${appointment.name}</h3>
+                <h3 class="text-xl font-semibold text-slate-100 mb-2">${appointment.name}</h3>
                 
                 <!-- Contact & Doctor Row -->
                 <div class="flex flex-wrap items-center gap-3 mb-2">
-                    <span class="text-sm text-gray-300 flex items-center">
+                    <span class="text-sm text-slate-300 flex items-center">
                         <i class="fas fa-phone mr-2 text-cyan-400"></i>
                         ${formatPhone(appointment.phone)}
                     </span>
