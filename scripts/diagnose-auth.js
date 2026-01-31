@@ -1,6 +1,6 @@
 /**
  * Script de Diagnóstico: Sistema de Autenticação JWT
- * Execute: node tests/diagnose-auth.js
+ * Execute: node scripts/diagnose-auth.js
  */
 
 const API_URL = 'http://localhost:3001';
