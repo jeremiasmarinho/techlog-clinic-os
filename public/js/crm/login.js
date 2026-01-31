@@ -55,6 +55,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         sessionStorage.setItem('token', data.token);
                     }
                     
+                    // Save user name for header display
+                    if (data.user && data.user.name) {
+                        sessionStorage.setItem('userName', data.user.name);
+                    }
+                    
                     // Success feedback
                     loginButton.innerHTML = '<i class="fas fa-check mr-2"></i><span>Sucesso!</span>';
                     loginButton.classList.remove('bg-teal-600', 'hover:bg-teal-700');

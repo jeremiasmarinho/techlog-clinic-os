@@ -618,6 +618,9 @@ function createLeadCard(lead) {
     card.draggable = true;
     card.dataset.id = lead.id;
     card.dataset.status = lead.status || 'novo';
+    // Add searchable data attributes
+    card.dataset.name = (lead.name || '').toLowerCase();
+    card.dataset.phone = (lead.phone || '').replace(/\D/g, '');
 
     // SMART TAGS - Parse lead.type for detailed information
     let typeBadge = '';
@@ -1112,14 +1115,15 @@ async function setupReturn(leadId) {
     try {
         showLoading(true);
         const response = await fetch(`${API_URL}/${leadId}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 status: 'novo',
-                type: 'retorno'
+                type: 'retorno',
+                attendance_status: null
             })
         });
         
@@ -1148,7 +1152,7 @@ async function archiveLead(leadId) {
     
     try {
         const response = await fetch(`${API_URL}/${leadId}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -1569,3 +1573,89 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Auto-refresh every 10 seconds
     setInterval(loadLeads, 10000);
 });
+
+// ============================================
+// QUICK SEARCH FUNCTIONALITY
+// ============================================
+
+// Store all leads for filtering
+let allLeadsCache = [];
+
+/**
+ * Filter leads by search term (name or phone)
+ * @param {string} searchTerm - Search query
+ */
+function filterLeads(searchTerm) {
+    const clearBtn = document.getElementById('clearSearch');
+    const resultsText = document.getElementById('searchResults');
+    
+    // Show/hide clear button
+    if (clearBtn) {
+        clearBtn.classList.toggle('hidden', !searchTerm);
+    }
+    
+    // If no search term, show all leads
+    if (!searchTerm || searchTerm.trim().length < 2) {
+        resultsText?.classList.add('hidden');
+        showAllLeadCards();
+        return;
+    }
+    
+    const term = searchTerm.toLowerCase().trim();
+    
+    // Get all lead cards
+    const allCards = document.querySelectorAll('.lead-card');
+    let matchCount = 0;
+    
+    allCards.forEach(card => {
+        const name = (card.dataset.name || '').toLowerCase();
+        const phone = (card.dataset.phone || '').replace(/\D/g, '');
+        const searchPhone = term.replace(/\D/g, '');
+        
+        // Match by name or phone
+        const matches = name.includes(term) || 
+                       (searchPhone && phone.includes(searchPhone));
+        
+        if (matches) {
+            card.style.display = '';
+            card.classList.add('ring-2', 'ring-cyan-500/50');
+            matchCount++;
+        } else {
+            card.style.display = 'none';
+            card.classList.remove('ring-2', 'ring-cyan-500/50');
+        }
+    });
+    
+    // Show results count
+    if (resultsText) {
+        resultsText.classList.remove('hidden');
+        document.getElementById('searchCount').textContent = matchCount;
+    }
+}
+
+/**
+ * Show all lead cards (clear filter)
+ */
+function showAllLeadCards() {
+    const allCards = document.querySelectorAll('.lead-card');
+    allCards.forEach(card => {
+        card.style.display = '';
+        card.classList.remove('ring-2', 'ring-cyan-500/50');
+    });
+}
+
+/**
+ * Clear search input and show all leads
+ */
+function clearSearch() {
+    const searchInput = document.getElementById('quickSearch');
+    if (searchInput) {
+        searchInput.value = '';
+        filterLeads('');
+        searchInput.focus();
+    }
+}
+
+// Expose functions globally for HTML onclick handlers
+window.filterLeads = filterLeads;
+window.clearSearch = clearSearch;
