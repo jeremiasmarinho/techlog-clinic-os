@@ -530,6 +530,7 @@ let privacyMode = false;
 
 // Load leads from API
 async function loadLeads() {
+    console.log('🔄 loadLeads starting... Token:', token ? 'exists' : 'MISSING');
     showLoading(true);
     
     try {
@@ -541,7 +542,7 @@ async function loadLeads() {
             url += `&period=${currentDateFilter}`;
         }
         
-        console.log('Loading leads with filter:', currentDateFilter);
+        console.log('📡 Fetching:', url);
         
         const response = await fetch(url, {
             method: 'GET',
@@ -550,6 +551,8 @@ async function loadLeads() {
                 'Authorization': `Bearer ${token}`
             }
         });
+        
+        console.log('📥 Response status:', response.status);
 
         if (response.status === 401) {
             sessionStorage.clear();
@@ -588,11 +591,15 @@ async function loadLeads() {
 
 // Render leads in columns
 function renderLeads(leads) {
+    console.log('📊 renderLeads called with', leads.length, 'leads');
+    
     // Clear all columns
     ['novo', 'em_atendimento', 'agendado', 'finalizado'].forEach(status => {
         const column = document.getElementById(`column-${status}`);
         if (column) {
             column.innerHTML = '';
+        } else {
+            console.error(`❌ Column not found: column-${status}`);
         }
     });
 
