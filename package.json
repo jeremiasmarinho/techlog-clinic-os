@@ -80,6 +80,7 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.0.2",
     "pdfkit": "^0.17.2",
     "sqlite3": "^5.1.7",
     "zod": "^4.3.6"
@@ -90,6 +91,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
+    "@types/multer": "^2.0.0",
     "@types/node": "^22.19.7",
     "@types/pdfkit": "^0.17.4",
     "@types/sqlite3": "^3.1.11",

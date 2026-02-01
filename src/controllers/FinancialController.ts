@@ -90,9 +90,35 @@ export class FinancialController {
             return;
         }
 
-        if (!type || !amount || !category || !payment_method) {
+        // ========== VALIDAÇÃO CRÍTICA: Campos Obrigatórios ==========
+        if (!type || amount === undefined || amount === null || !category || !payment_method) {
             res.status(400).json({
                 error: 'Campos obrigatórios: type, amount, category, payment_method',
+            });
+            return;
+        }
+
+        // ========== VALIDAÇÃO CRÍTICA: Tipo de Transaction ==========
+        const validTypes = ['income', 'expense'];
+        if (!validTypes.includes(type)) {
+            res.status(400).json({
+                error: `Tipo inválido. Use: ${validTypes.join(', ')}`,
+            });
+            return;
+        }
+
+        // ========== VALIDAÇÃO CRÍTICA: Amount (Tipo Number) ==========
+        if (typeof amount !== 'number' || isNaN(amount)) {
+            res.status(400).json({
+                error: 'O campo "amount" deve ser um número válido',
+            });
+            return;
+        }
+
+        // ========== VALIDAÇÃO CRÍTICA: Amount Positivo ==========
+        if (amount <= 0) {
+            res.status(400).json({
+                error: 'O valor deve ser positivo',
             });
             return;
         }

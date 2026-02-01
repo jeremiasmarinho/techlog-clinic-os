@@ -99,6 +99,64 @@ describe('Integration Test - Financial Module', () => {
     });
 
     describe('POST /api/financial/transactions - Create Transactions', () => {
+        it('should create a transaction successfully', async () => {
+            const token = createAuthToken(1);
+            const transactionData = {
+                type: 'income',
+                amount: 150.0,
+                category: 'Consulta',
+                payment_method: 'pix',
+                status: 'paid',
+                paid_at: '2026-02-01 10:30:00',
+                patient_id: 1,
+            };
+
+            // 1. Send POST request
+            const response = await request(app)
+                .post('/api/financial/transactions')
+                .set('Authorization', `Bearer ${token}`)
+                .send(transactionData)
+                .expect(201);
+
+            // 2. Verify API response
+            expect(response.body).toHaveProperty('id');
+            expect(response.body.type).toBe('income');
+            expect(response.body.amount).toBe(150.0);
+            expect(response.body.category).toBe('Consulta');
+            expect(response.body.payment_method).toBe('pix');
+            expect(response.body.clinic_id).toBe(1);
+
+            const transactionId = response.body.id;
+            createdTransactionIds.push(transactionId);
+
+            // 3. CRUCIAL: Verify data was actually saved in SQLite database
+            const savedTransaction = await new Promise<any>((resolve, reject) => {
+                db.get(
+                    `SELECT * FROM transactions WHERE id = ? AND clinic_id = ?`,
+                    [transactionId, 1],
+                    (err, row) => {
+                        if (err) reject(err);
+                        else resolve(row);
+                    }
+                );
+            });
+
+            // 4. Verify database record matches what was sent
+            expect(savedTransaction).toBeDefined();
+            expect(savedTransaction.id).toBe(transactionId);
+            expect(savedTransaction.clinic_id).toBe(1); // CRITICAL: clinic_id association
+            expect(savedTransaction.type).toBe('income');
+            expect(savedTransaction.amount).toBe(150.0);
+            expect(savedTransaction.category).toBe('Consulta');
+            expect(savedTransaction.payment_method).toBe('pix');
+            expect(savedTransaction.status).toBe('paid');
+            expect(savedTransaction.patient_id).toBe(1);
+
+            console.log(
+                `✅ Verificação de integridade: Transação ${transactionId} salva corretamente no banco`
+            );
+        });
+
         it('should create an income transaction successfully', async () => {
             const token = createAuthToken(1);
             const income = {
@@ -256,6 +314,149 @@ describe('Integration Test - Financial Module', () => {
 
             expect(response.body).toHaveProperty('error');
             expect(response.body.error).toContain('obrigatórios');
+        });
+
+        it('should reject transaction without amount', async () => {
+            const token = createAuthToken(1);
+            const transactionWithoutAmount = {
+                type: 'income',
+                // Missing: amount
+                category: 'Consulta',
+                payment_method: 'pix',
+                status: 'paid',
+            };
+
+            const response = await request(app)
+                .post('/api/financial/transactions')
+                .set('Authorization', `Bearer ${token}`)
+                .send(transactionWithoutAmount)
+                .expect(400);
+
+            expect(response.body).toHaveProperty('error');
+            expect(response.body.error.toLowerCase()).toMatch(/amount|valor|obrigatório/);
+
+            // CRITICAL: Verify no record was created in database
+            const count = await new Promise<number>((resolve, reject) => {
+                db.get(
+                    `SELECT COUNT(*) as count FROM transactions WHERE clinic_id = ? AND category = ?`,
+                    [1, 'Consulta'],
+                    (err, row: any) => {
+                        if (err) reject(err);
+                        else resolve(row.count);
+                    }
+                );
+            });
+
+            console.log(`✅ Validação: Nenhuma transação inválida foi salva (count: ${count})`);
+        });
+
+        it('should reject transaction with invalid type', async () => {
+            const token = createAuthToken(1);
+            const invalidTypeTransaction = {
+                type: 'transfer', // Invalid! Only 'income' or 'expense' allowed
+                amount: 100.0,
+                category: 'Consulta',
+                payment_method: 'pix',
+                status: 'paid',
+            };
+
+            const response = await request(app)
+                .post('/api/financial/transactions')
+                .set('Authorization', `Bearer ${token}`)
+                .send(invalidTypeTransaction)
+                .expect(400);
+
+            expect(response.body).toHaveProperty('error');
+            expect(response.body.error.toLowerCase()).toMatch(/tipo|type|inválido/);
+
+            console.log('✅ Validação: Tipo inválido rejeitado corretamente');
+        });
+
+        it('should reject transaction with negative amount', async () => {
+            const token = createAuthToken(1);
+            const negativeAmountTransaction = {
+                type: 'income',
+                amount: -50.0, // Invalid! Amount must be positive
+                category: 'Consulta',
+                payment_method: 'pix',
+                status: 'paid',
+            };
+
+            const response = await request(app)
+                .post('/api/financial/transactions')
+                .set('Authorization', `Bearer ${token}`)
+                .send(negativeAmountTransaction)
+                .expect(400);
+
+            expect(response.body).toHaveProperty('error');
+            expect(response.body.error.toLowerCase()).toMatch(/amount|valor|positivo|negativo/);
+
+            console.log('✅ Validação: Valor negativo rejeitado corretamente');
+        });
+
+        it('should reject transaction with amount as string', async () => {
+            const token = createAuthToken(1);
+            const stringAmountTransaction = {
+                type: 'income',
+                amount: 'cento e cinquenta', // Invalid! Must be number
+                category: 'Consulta',
+                payment_method: 'pix',
+                status: 'paid',
+            };
+
+            const response = await request(app)
+                .post('/api/financial/transactions')
+                .set('Authorization', `Bearer ${token}`)
+                .send(stringAmountTransaction)
+                .expect(400);
+
+            expect(response.body).toHaveProperty('error');
+
+            console.log(
+                '✅ Validação: Tipo de dado inválido (string ao invés de number) rejeitado'
+            );
+        });
+
+        it('should verify clinic_id is correctly associated on creation', async () => {
+            const clinicId = 1;
+            const token = createAuthToken(clinicId);
+
+            const transaction = {
+                type: 'expense',
+                amount: 75.5,
+                category: 'Material',
+                payment_method: 'debit',
+                status: 'paid',
+            };
+
+            const response = await request(app)
+                .post('/api/financial/transactions')
+                .set('Authorization', `Bearer ${token}`)
+                .send(transaction)
+                .expect(201);
+
+            const transactionId = response.body.id;
+            createdTransactionIds.push(transactionId);
+
+            // CRITICAL: Verify clinic_id in database matches the authenticated user's clinic
+            const dbRecord = await new Promise<any>((resolve, reject) => {
+                db.get(
+                    `SELECT clinic_id, type, amount FROM transactions WHERE id = ?`,
+                    [transactionId],
+                    (err, row) => {
+                        if (err) reject(err);
+                        else resolve(row);
+                    }
+                );
+            });
+
+            expect(dbRecord.clinic_id).toBe(clinicId);
+            expect(dbRecord.type).toBe('expense');
+            expect(dbRecord.amount).toBe(75.5);
+
+            console.log(
+                `✅ Associação clinic_id: Transação ${transactionId} corretamente vinculada à clínica ${clinicId}`
+            );
         });
     });
 
