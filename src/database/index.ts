@@ -237,6 +237,8 @@ function initDb(): void {
 
     ensurePatientStatusSchema();
     ensurePatientEndTimeColumn();
+    ensureUserDocumentColumns();
+    ensureClinicDocumentColumns();
 }
 
 function ensurePatientStatusSchema(): void {
@@ -348,6 +350,48 @@ function ensurePatientEndTimeColumn(): void {
                 console.log('✅ Coluna end_time adicionada em patients');
             }
         });
+    });
+}
+
+function ensureUserDocumentColumns(): void {
+    db.all('PRAGMA table_info(users)', [], (err, rows: Array<{ name: string }>) => {
+        if (err) {
+            console.warn('⚠️ Não foi possível verificar colunas de users:', err.message);
+            return;
+        }
+
+        const columns = rows?.map((row) => row.name) || [];
+
+        if (!columns.includes('crm')) {
+            db.run('ALTER TABLE users ADD COLUMN crm TEXT');
+        }
+        if (!columns.includes('crm_state')) {
+            db.run('ALTER TABLE users ADD COLUMN crm_state TEXT');
+        }
+        if (!columns.includes('signature_url')) {
+            db.run('ALTER TABLE users ADD COLUMN signature_url TEXT');
+        }
+    });
+}
+
+function ensureClinicDocumentColumns(): void {
+    db.all('PRAGMA table_info(clinics)', [], (err, rows: Array<{ name: string }>) => {
+        if (err) {
+            console.warn('⚠️ Não foi possível verificar colunas de clinics:', err.message);
+            return;
+        }
+
+        const columns = rows?.map((row) => row.name) || [];
+
+        if (!columns.includes('logo_url')) {
+            db.run('ALTER TABLE clinics ADD COLUMN logo_url TEXT');
+        }
+        if (!columns.includes('primary_color')) {
+            db.run('ALTER TABLE clinics ADD COLUMN primary_color TEXT');
+        }
+        if (!columns.includes('address_full')) {
+            db.run('ALTER TABLE clinics ADD COLUMN address_full TEXT');
+        }
     });
 }
 

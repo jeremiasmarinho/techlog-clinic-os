@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import { createUserSchema } from '../validators/user.validator';
 
 export class UserController {
-    
     // Login (POST /api/login)
     static async login(req: Request, res: Response): Promise<void> {
         const { username, password } = req.body;
@@ -16,7 +15,7 @@ export class UserController {
         }
 
         db.get(
-            "SELECT id, name, username, password, role FROM users WHERE username = ?",
+            'SELECT id, name, username, password, role FROM users WHERE username = ?',
             [username],
             async (err, row: any) => {
                 if (err) {
@@ -28,10 +27,10 @@ export class UserController {
                 if (row) {
                     // Verificar senha com bcrypt
                     const isPasswordValid = await bcrypt.compare(password, row.password);
-                    
+
                     if (isPasswordValid) {
                         console.log(`✅ Login bem-sucedido: ${row.username} (${row.role})`);
-                        
+
                         // Gerar JWT token
                         const token = jwt.sign(
                             {
@@ -39,12 +38,12 @@ export class UserController {
                                 username: row.username,
                                 name: row.name,
                                 role: row.role,
-                                clinicId: row.clinic_id || 1
+                                clinicId: row.clinic_id || 1,
                             },
                             process.env.JWT_SECRET as string,
                             { expiresIn: '24h' }
                         );
-                        
+
                         res.json({
                             success: true,
                             token,
@@ -52,8 +51,8 @@ export class UserController {
                                 id: row.id,
                                 name: row.name,
                                 username: row.username,
-                                role: row.role
-                            }
+                                role: row.role,
+                            },
                         });
                     } else {
                         console.log(`❌ Senha inválida para usuário: ${username}`);
@@ -70,7 +69,7 @@ export class UserController {
     // Listar Usuários (GET /api/users)
     static index(_req: Request, res: Response): void {
         db.all(
-            "SELECT id, name, username, role, created_at FROM users ORDER BY created_at DESC",
+            'SELECT id, name, username, role, created_at FROM users ORDER BY created_at DESC',
             [],
             (err, rows) => {
                 if (err) {
@@ -89,10 +88,11 @@ export class UserController {
         const result = createUserSchema.safeParse(req.body);
         if (!result.success) {
             const formatted = result.error.format();
-            const firstError = Object.keys(formatted)
-                .filter(k => k !== '_errors')
-                .map(k => (formatted as any)[k]._errors?.[0])
-                .find(e => e) || 'Erro de validação';
+            const firstError =
+                Object.keys(formatted)
+                    .filter((k) => k !== '_errors')
+                    .map((k) => (formatted as any)[k]._errors?.[0])
+                    .find((e) => e) || 'Erro de validação';
             res.status(400).json({ error: firstError });
             return;
         }
@@ -103,9 +103,9 @@ export class UserController {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         db.run(
-            "INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)",
+            'INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)',
             [name, username, hashedPassword, role],
-            function(err) {
+            function (err) {
                 if (err) {
                     if (err.message.includes('UNIQUE constraint failed')) {
                         res.status(409).json({ error: 'Nome de usuário já existe' });
@@ -114,11 +114,11 @@ export class UserController {
                     }
                     return;
                 }
-                
+
                 res.status(201).json({
                     message: 'Usuário criado com sucesso',
                     id: this.lastID,
-                    user: { name, username, role }
+                    user: { name, username, role },
                 });
             }
         );
@@ -130,11 +130,13 @@ export class UserController {
 
         // Impedir deleção do admin padrão (id = 1)
         if (id === '1') {
-            res.status(403).json({ error: 'Não é possível deletar o usuário administrador padrão' });
+            res.status(403).json({
+                error: 'Não é possível deletar o usuário administrador padrão',
+            });
             return;
         }
 
-        db.run("DELETE FROM users WHERE id = ?", [id], function(err) {
+        db.run('DELETE FROM users WHERE id = ?', [id], function (err) {
             if (err) {
                 console.error('❌ Erro ao deletar usuário:', err.message);
                 res.status(500).json({ error: err.message });
@@ -148,5 +150,49 @@ export class UserController {
                 res.json({ message: 'Usuário removido com sucesso', changes: this.changes });
             }
         });
+    }
+
+    // Atualizar perfil do médico (PATCH /api/users/profile)
+    static updateProfile(req: Request, res: Response): void {
+        const user = (req as any).user;
+        const { crm, crm_state, signature_url } = req.body || {};
+
+        if (!user) {
+            res.status(401).json({ error: 'Não autenticado' });
+            return;
+        }
+
+        if (crm_state && String(crm_state).length !== 2) {
+            res.status(400).json({ error: 'UF do CRM inválida' });
+            return;
+        }
+
+        db.run(
+            `UPDATE users 
+             SET crm = COALESCE(?, crm),
+                 crm_state = COALESCE(?, crm_state),
+                 signature_url = COALESCE(?, signature_url)
+             WHERE id = ?`,
+            [
+                crm || null,
+                crm_state ? String(crm_state).toUpperCase() : null,
+                signature_url || null,
+                user.userId,
+            ],
+            function (err) {
+                if (err) {
+                    res.status(500).json({ error: err.message });
+                    return;
+                }
+
+                res.json({
+                    success: true,
+                    userId: user.userId,
+                    crm: crm || null,
+                    crm_state: crm_state ? String(crm_state).toUpperCase() : null,
+                    signature_url: signature_url || null,
+                });
+            }
+        );
     }
 }

@@ -165,5 +165,50 @@
 
     <script src="/shared/constants/statuses.js"></script>
     <script src="./js/kanban.js"></script>
+
+    <!-- Medical Modal (Atendimento) -->
+    <div id="attendanceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-white/10 border border-white/20 backdrop-blur-xl rounded-2xl p-6 w-full max-w-2xl text-white">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold">Finalizar Atendimento</h3>
+                <button type="button" onclick="document.getElementById('attendanceModal').classList.add('hidden')" class="text-white/70 hover:text-white">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm text-slate-200">Anamnese</label>
+                    <textarea id="anamnesisText" class="w-full mt-2 p-3 rounded-xl bg-white/10 border border-white/20" rows="4" placeholder="Descreva a anamnese..."></textarea>
+                </div>
+                <div>
+                    <label class="text-sm text-slate-200">Diagnóstico</label>
+                    <input id="diagnosisText" class="w-full mt-2 p-3 rounded-xl bg-white/10 border border-white/20" placeholder="Diagnóstico principal" />
+                </div>
+                <div>
+                    <label class="text-sm text-slate-200">Medicamentos</label>
+                    <ul id="medicationsList" class="mt-2 space-y-2">
+                        <li class="medication-item">Paracetamol 500mg - 1 comprimido a cada 8h</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-between">
+                <button
+                    id="prescriptionDownloadBtn"
+                    class="px-4 py-2 rounded-xl border border-white/20 bg-white/10 hover:bg-white/20 transition flex items-center gap-2"
+                    disabled
+                >
+                    <span>🖨️</span>
+                    Imprimir Receita
+                </button>
+                <button
+                    id="attendanceSubmitBtn"
+                    onclick="submitAttendance(window.currentPatientId)"
+                    class="px-5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-600 transition text-white font-semibold"
+                >
+                    Salvar Atendimento
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

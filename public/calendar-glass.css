@@ -1,0 +1,87 @@
+/* FullCalendar Glassmorphism Theme Overrides */
+
+:root {
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-hover: rgba(255, 255, 255, 0.1);
+  --text-soft: rgba(226, 232, 240, 0.9);
+}
+
+/* Make calendar background transparent */
+.fc,
+.fc-theme-standard,
+.fc-scrollgrid,
+.fc-scrollgrid-section>th,
+.fc-scrollgrid-section>td {
+  background: transparent !important;
+}
+
+/* Subtle borders instead of heavy gray */
+.fc-theme-standard .fc-scrollgrid,
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-col-header-cell,
+.fc-theme-standard .fc-timegrid-slot,
+.fc-theme-standard .fc-timegrid-axis,
+.fc-theme-standard .fc-timegrid-slot-minor,
+.fc-theme-standard .fc-timegrid-slot-lane {
+  border-color: var(--glass-border) !important;
+}
+
+/* Header cells */
+.fc .fc-col-header-cell {
+  background: var(--glass-bg);
+  color: var(--text-soft);
+  font-weight: 600;
+}
+
+/* Time axis */
+.fc .fc-timegrid-axis {
+  color: var(--text-soft);
+  background: var(--glass-bg);
+}
+
+/* Slot hover */
+.fc .fc-timegrid-slot-lane:hover,
+.fc .fc-timegrid-slot-minor:hover {
+  background: var(--glass-hover);
+  transition: background 0.2s ease;
+}
+
+/* Day column background */
+.fc .fc-timegrid-col-frame {
+  background: transparent;
+}
+
+/* Events glass style */
+.fc .fc-event {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-left-width: 4px !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.fc .fc-event .fc-event-main {
+  color: var(--text-soft) !important;
+  padding: 4px 6px;
+}
+
+/* Status colors - add these classes to events */
+.fc .fc-event.status-confirmado {
+  border-left-color: #22c55e !important;
+  /* verde */
+}
+
+.fc .fc-event.status-pendente {
+  border-left-color: #f59e0b !important;
+  /* amarelo */
+}
+
+.fc .fc-event.status-cancelado {
+  border-left-color: #ef4444 !important;
+  /* vermelho */
+}

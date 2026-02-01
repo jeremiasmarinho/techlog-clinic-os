@@ -19,4 +19,7 @@ router.delete(
     UserController.delete
 );
 
+// Perfil do usuário logado
+router.patch('/users/profile', tenantMiddleware, auditLogger, UserController.updateProfile);
+
 export default router;

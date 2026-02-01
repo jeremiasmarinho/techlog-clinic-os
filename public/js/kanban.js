@@ -125,6 +125,23 @@ class KanbanController {
         });
     }
 
+    findCardByPatientId(patientId) {
+        if (!this.board) return null;
+        return this.board.querySelector(`${this.cardSelector}[data-patient-id="${patientId}"]`);
+    }
+
+    moveCardToStatus(patientId, status) {
+        if (!this.board) return;
+        const card = this.findCardByPatientId(patientId);
+        const column = this.board.querySelector(`${this.columnSelector}[data-status="${status}"]`);
+        if (!card || !column) return;
+
+        const targetContainer = column.querySelector(this.cardsContainerSelector) || column;
+        targetContainer.appendChild(card);
+        this.updateCounts();
+        this.flashSuccess(card);
+    }
+
     setLoading(card, isLoading) {
         if (!card) return;
         const existingSpinner = card.querySelector('.kanban-spinner');
@@ -186,6 +203,164 @@ async function updatePatientStatus(patientId, newStatus) {
     return response.json().catch(() => ({}));
 }
 
+async function submitAttendance(patientId) {
+    const button =
+        document.querySelector(`[data-attendance-submit="${patientId}"]`) ||
+        document.getElementById('attendanceSubmitBtn');
+
+    const anamnesisEl =
+        document.getElementById('anamnesisText') ||
+        document.getElementById('anamnesis') ||
+        document.querySelector('[data-anamnesis]');
+
+    const diagnosisEl =
+        document.getElementById('diagnosisText') ||
+        document.getElementById('diagnosis') ||
+        document.querySelector('[data-diagnosis]');
+
+    const medsContainer =
+        document.getElementById('medicationsList') ||
+        document.querySelector('[data-medications-list]');
+
+    const anamnesisText = anamnesisEl ? anamnesisEl.value?.trim() : '';
+    const diagnosis = diagnosisEl ? diagnosisEl.value?.trim() : '';
+
+    const medications = medsContainer
+        ? Array.from(medsContainer.querySelectorAll('[data-medication], .medication-item, li'))
+              .map((el) => el.dataset?.medication || el.textContent?.trim())
+              .filter(Boolean)
+        : [];
+
+    if (!patientId) {
+        showToast('Paciente inválido', 'error');
+        return;
+    }
+
+    const originalText = button ? button.textContent : null;
+    if (button) {
+        button.textContent = 'Salvando...';
+        button.disabled = true;
+    }
+
+    const token = sessionStorage.getItem('token') || sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+
+    try {
+        const response = await fetch(`/api/patients/${patientId}/finish`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({
+                anamnesisText,
+                diagnosis,
+                medications,
+            }),
+        });
+
+        if (!response.ok) {
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data?.error || 'Falha ao finalizar atendimento');
+        }
+
+        const data = await response.json().catch(() => ({}));
+        const prescriptionId = data?.prescription_id;
+        if (prescriptionId) {
+            const downloadBtn = document.getElementById('prescriptionDownloadBtn');
+            if (downloadBtn) {
+                downloadBtn.disabled = false;
+                downloadBtn.dataset.prescriptionId = String(prescriptionId);
+                downloadBtn.onclick = () => downloadPrescription(prescriptionId, patientId);
+            }
+
+            const card = window.kanbanController?.findCardByPatientId?.(patientId);
+            if (card) {
+                card.dataset.prescriptionId = String(prescriptionId);
+            }
+        }
+
+        showToast('Atendimento finalizado', 'success');
+
+        const finishedStatus = window.PATIENT_STATUSES?.FINISHED || 'finished';
+        if (window.kanbanController) {
+            window.kanbanController.moveCardToStatus(patientId, finishedStatus);
+        }
+
+        closeAttendanceModal();
+    } catch (error) {
+        showToast(error?.message || 'Erro ao salvar atendimento', 'error');
+    } finally {
+        if (button) {
+            button.textContent = originalText || 'Salvar';
+            button.disabled = false;
+        }
+    }
+}
+
+async function downloadPrescription(prescriptionId, patientId) {
+    if (!prescriptionId) {
+        showToast('Receita não disponível', 'error');
+        return;
+    }
+
+    const token = sessionStorage.getItem('token') || sessionStorage.getItem('MEDICAL_CRM_TOKEN');
+
+    const response = await fetch(`/api/prescriptions/${prescriptionId}/pdf`, {
+        method: 'GET',
+        headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+    });
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        showToast(data?.error || 'Erro ao gerar PDF', 'error');
+        return;
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const patientName = getPatientName(patientId) || 'paciente';
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const fileName = `receita-${slugify(patientName)}-${dateStr}.pdf`;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+}
+
+function getPatientName(patientId) {
+    const card = window.kanbanController?.findCardByPatientId?.(patientId);
+    if (!card) return null;
+    const nameEl = card.querySelector('.font-semibold');
+    return nameEl ? nameEl.textContent?.trim() : null;
+}
+
+function slugify(text) {
+    return (text || '')
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/[^a-zA-Z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .toLowerCase();
+}
+
+function closeAttendanceModal() {
+    const modal =
+        document.getElementById('attendanceModal') ||
+        document.getElementById('medicalModal') ||
+        document.getElementById('patientModal');
+
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
 function showToast(message, type = 'error') {
     let container = document.querySelector('.kanban-toast-container');
     if (!container) {
@@ -221,6 +396,9 @@ function showToast(message, type = 'error') {
 document.addEventListener('DOMContentLoaded', () => {
     const kanban = new KanbanController();
     kanban.init();
+    window.kanbanController = kanban;
 });
 
 window.KanbanController = KanbanController;
+window.submitAttendance = submitAttendance;
+window.downloadPrescription = downloadPrescription;

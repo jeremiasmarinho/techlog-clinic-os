@@ -13,6 +13,9 @@ import metricsRoutes from './routes/metrics.routes'; // Rotas de métricas
 import saasRoutes from './routes/saas.routes'; // Rotas de gestão SaaS
 import clinicRoutes from './routes/clinic.routes'; // Rotas de configurações da clínica
 import patientRoutes from './routes/patient.routes'; // Rotas de pacientes
+import prescriptionRoutes from './routes/prescription.routes'; // Rotas de receitas
+import calendarRoutes from './routes/calendar.routes'; // Rotas de agendamentos
+import appointmentsRoutes from './routes/appointments.routes'; // Rotas de appointments
 import './database'; // Inicia o banco de dados
 
 export class Server {
@@ -91,6 +94,9 @@ export class Server {
         this.app.use('/api/saas', saasRoutes); // SaaS Multi-Clinic Management
         this.app.use('/api', clinicRoutes); // Clinic Settings
         this.app.use('/api/patients', patientRoutes); // Patients
+        this.app.use('/api/prescriptions', prescriptionRoutes); // Prescriptions
+        this.app.use('/api/calendar', calendarRoutes); // Calendar
+        this.app.use('/api/appointments', appointmentsRoutes); // Appointments
 
         // Rota de Teste (Usando _req para o TypeScript não reclamar)
         this.app.get('/api', (_req, res) => {
