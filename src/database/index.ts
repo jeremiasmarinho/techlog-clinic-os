@@ -56,6 +56,42 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
 
 // Função para criar tabelas
 function initDb(): void {
+    // Tabela de Clínicas (Multi-Tenant)
+    db.run(
+        `
+        CREATE TABLE IF NOT EXISTS clinics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            owner_id INTEGER,
+            plan_tier TEXT DEFAULT 'basic' CHECK(plan_tier IN ('basic', 'professional', 'enterprise')),
+            status TEXT DEFAULT 'active' CHECK(status IN ('active', 'suspended', 'trial', 'cancelled')),
+            max_users INTEGER DEFAULT 5,
+            max_patients INTEGER DEFAULT 1000,
+            trial_ends_at DATETIME,
+            subscription_started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            subscription_ends_at DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `,
+        (err) => {
+            if (err) {
+                console.error('❌ Erro ao criar tabela clinics:', err.message);
+            } else {
+                console.log('✅ Tabela "clinics" pronta');
+                db.run('CREATE INDEX IF NOT EXISTS idx_clinics_slug ON clinics(slug)');
+                db.run('CREATE INDEX IF NOT EXISTS idx_clinics_owner ON clinics(owner_id)');
+                db.run('CREATE INDEX IF NOT EXISTS idx_clinics_status ON clinics(status)');
+
+                db.run(
+                    `INSERT OR IGNORE INTO clinics (id, name, slug, plan_tier, status, max_users, max_patients)
+                     VALUES (1, 'Clínica Padrão', 'clinica-padrao', 'enterprise', 'active', 999, 999999)`
+                );
+            }
+        }
+    );
+
     // Tabela de Leads com schema completo
     db.run(
         `
@@ -93,6 +129,12 @@ function initDb(): void {
                 addColumnIfNotExists('value', 'REAL DEFAULT 0');
                 addColumnIfNotExists('updated_at', 'DATETIME');
                 addColumnIfNotExists('status_updated_at', 'DATETIME');
+                addColumnIfNotExists('clinic_id', 'INTEGER NOT NULL DEFAULT 1');
+
+                db.run('CREATE INDEX IF NOT EXISTS idx_leads_clinic ON leads(clinic_id)');
+                db.run(
+                    'CREATE INDEX IF NOT EXISTS idx_leads_status_clinic ON leads(status, clinic_id)'
+                );
 
                 // Create triggers for auto-update timestamp
                 createUpdateTrigger();
@@ -118,6 +160,8 @@ function initDb(): void {
                 console.error('❌ Erro ao criar tabela users:', err.message);
             } else {
                 console.log('✅ Tabela "users" pronta');
+
+                ensureUserClinicColumns();
 
                 // Seed: Inserir usuário admin padrão com senha hasheada
                 db.get("SELECT * FROM users WHERE username = 'admin'", [], async (_err, row) => {
@@ -237,6 +281,7 @@ function initDb(): void {
 
     ensurePatientStatusSchema();
     ensurePatientEndTimeColumn();
+    ensureUserClinicColumns();
     ensureUserDocumentColumns();
     ensureClinicDocumentColumns();
 }
@@ -371,6 +416,30 @@ function ensureUserDocumentColumns(): void {
         if (!columns.includes('signature_url')) {
             db.run('ALTER TABLE users ADD COLUMN signature_url TEXT');
         }
+    });
+}
+
+function ensureUserClinicColumns(): void {
+    db.all('PRAGMA table_info(users)', [], (err, rows: Array<{ name: string }>) => {
+        if (err) {
+            console.warn('⚠️ Não foi possível verificar colunas de users:', err.message);
+            return;
+        }
+
+        const columns = rows?.map((row) => row.name) || [];
+
+        if (!columns.includes('clinic_id')) {
+            db.run('ALTER TABLE users ADD COLUMN clinic_id INTEGER');
+        }
+        if (!columns.includes('is_owner')) {
+            db.run('ALTER TABLE users ADD COLUMN is_owner INTEGER DEFAULT 0');
+        }
+        if (!columns.includes('updated_at')) {
+            db.run('ALTER TABLE users ADD COLUMN updated_at DATETIME');
+        }
+
+        db.run('CREATE INDEX IF NOT EXISTS idx_users_clinic ON users(clinic_id)');
+        db.run('CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)');
     });
 }
 
