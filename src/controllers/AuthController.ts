@@ -49,6 +49,7 @@ export class AuthController {
         }
 
         // Query database for user with clinic info
+        console.log('🔍 Buscando usuário:', trimmedEmail);
         db.get(
             `SELECT u.id, u.name, u.username, u.password, u.role, u.clinic_id, u.is_owner,
                     c.name as clinic_name, c.slug as clinic_slug, c.status as clinic_status, c.plan_tier
@@ -62,6 +63,11 @@ export class AuthController {
                     res.status(500).json({ error: 'Erro no servidor' });
                     return;
                 }
+
+                console.log(
+                    '📝 Usuário encontrado:',
+                    row ? `${row.name} (${row.username})` : 'NÃO ENCONTRADO'
+                );
 
                 if (!row) {
                     // Track failed attempt (only in production)
@@ -87,7 +93,9 @@ export class AuthController {
                 }
 
                 // Verify password
+                console.log('🔐 Verificando senha...');
                 const isPasswordValid = await bcrypt.compare(trimmedPassword, row.password);
+                console.log('🔐 Senha válida:', isPasswordValid);
 
                 if (!isPasswordValid) {
                     // Track failed attempt (only in production)

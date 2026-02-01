@@ -122,6 +122,74 @@ function initDb(): void {
                 // Seed: Inserir usuário admin padrão com senha hasheada
                 db.get("SELECT * FROM users WHERE username = 'admin'", [], async (_err, row) => {
                     if (!row) {
+                        // Tabela de solicitações de upgrade de plano
+                        db.run(
+                            `
+        CREATE TABLE IF NOT EXISTS upgrade_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clinic_id INTEGER NOT NULL,
+            current_plan TEXT,
+            requested_plan TEXT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            notes TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `,
+                            (err) => {
+                                if (err) {
+                                    console.error(
+                                        '❌ Erro ao criar tabela upgrade_requests:',
+                                        err.message
+                                    );
+                                } else {
+                                    console.log('✅ Tabela "upgrade_requests" pronta');
+                                    db.run(
+                                        'CREATE INDEX IF NOT EXISTS idx_upgrade_requests_clinic ON upgrade_requests (clinic_id)'
+                                    );
+                                    db.run(
+                                        'CREATE INDEX IF NOT EXISTS idx_upgrade_requests_status ON upgrade_requests (status)'
+                                    );
+                                }
+                            }
+                        );
+
+                        // Tabela de auditoria
+                        db.run(
+                            `
+        CREATE TABLE IF NOT EXISTS audit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clinic_id INTEGER,
+            user_id INTEGER,
+            user_role TEXT,
+            action TEXT NOT NULL,
+            path TEXT NOT NULL,
+            method TEXT NOT NULL,
+            status_code INTEGER,
+            ip_address TEXT,
+            details TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `,
+                            (err) => {
+                                if (err) {
+                                    console.error(
+                                        '❌ Erro ao criar tabela audit_logs:',
+                                        err.message
+                                    );
+                                } else {
+                                    console.log('✅ Tabela "audit_logs" pronta');
+                                    db.run(
+                                        'CREATE INDEX IF NOT EXISTS idx_audit_logs_clinic ON audit_logs (clinic_id)'
+                                    );
+                                    db.run(
+                                        'CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs (user_id)'
+                                    );
+                                    db.run(
+                                        'CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs (created_at)'
+                                    );
+                                }
+                            }
+                        );
                         const hashedPassword = await bcrypt.hash('123', 10);
                         db.run(
                             'INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)',
@@ -166,6 +234,121 @@ function initDb(): void {
             }
         }
     );
+
+    ensurePatientStatusSchema();
+    ensurePatientEndTimeColumn();
+}
+
+function ensurePatientStatusSchema(): void {
+    db.get(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='patients'",
+        [],
+        (err, row: { sql?: string }) => {
+            if (err) {
+                console.warn('⚠️ Não foi possível verificar schema de patients:', err.message);
+                return;
+            }
+
+            if (!row?.sql) return;
+
+            const sql = row.sql.toLowerCase();
+            const hasNewStatuses =
+                sql.includes('waiting') &&
+                sql.includes('triage') &&
+                sql.includes('consultation') &&
+                sql.includes('finished');
+
+            if (hasNewStatuses) return;
+
+            console.log('🔁 Atualizando schema de status da tabela patients...');
+
+            db.serialize(() => {
+                db.run('ALTER TABLE patients RENAME TO patients_old');
+                db.run(
+                    `
+                    CREATE TABLE patients (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        clinic_id INTEGER NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
+                        name TEXT NOT NULL,
+                        email TEXT,
+                        phone TEXT,
+                        cpf TEXT,
+                        birth_date DATE,
+                        gender TEXT,
+                        address TEXT,
+                        city TEXT,
+                        state TEXT,
+                        zip_code TEXT,
+                        notes TEXT,
+                        status TEXT DEFAULT 'waiting' CHECK(status IN ('waiting', 'triage', 'consultation', 'finished')),
+                        end_time DATETIME,
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    )
+                `
+                );
+
+                db.run(
+                    `
+                    INSERT INTO patients (
+                        id, clinic_id, name, email, phone, cpf, birth_date, gender, address,
+                        city, state, zip_code, notes, status, end_time, created_at, updated_at
+                    )
+                    SELECT 
+                        id, clinic_id, name, email, phone, cpf, birth_date, gender, address,
+                        city, state, zip_code, notes,
+                        CASE 
+                            WHEN status IN ('waiting', 'triage', 'consultation', 'finished') THEN status
+                            ELSE 'waiting'
+                        END as status,
+                        NULL as end_time,
+                        created_at, updated_at
+                    FROM patients_old
+                `
+                );
+
+                db.run('DROP TABLE patients_old');
+
+                db.run('CREATE INDEX IF NOT EXISTS idx_patients_clinic ON patients(clinic_id)');
+                db.run(
+                    'CREATE INDEX IF NOT EXISTS idx_patients_status_clinic ON patients(status, clinic_id)'
+                );
+                db.run('CREATE INDEX IF NOT EXISTS idx_patients_name ON patients(name)');
+                db.run('CREATE INDEX IF NOT EXISTS idx_patients_cpf ON patients(cpf)');
+
+                db.run(`DROP TRIGGER IF EXISTS update_patients_timestamp`);
+                db.run(
+                    `
+                    CREATE TRIGGER IF NOT EXISTS update_patients_timestamp
+                    AFTER UPDATE ON patients
+                    BEGIN
+                        UPDATE patients SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+                    END;
+                `
+                );
+            });
+        }
+    );
+}
+
+function ensurePatientEndTimeColumn(): void {
+    db.all('PRAGMA table_info(patients)', [], (err, rows: Array<{ name: string }>) => {
+        if (err) {
+            console.warn('⚠️ Não foi possível verificar colunas de patients:', err.message);
+            return;
+        }
+
+        const hasEndTime = rows?.some((row) => row.name === 'end_time');
+        if (hasEndTime) return;
+
+        db.run('ALTER TABLE patients ADD COLUMN end_time DATETIME', (alterErr) => {
+            if (alterErr) {
+                console.warn('⚠️ Falha ao adicionar end_time em patients:', alterErr.message);
+            } else {
+                console.log('✅ Coluna end_time adicionada em patients');
+            }
+        });
+    });
 }
 
 // Função auxiliar para adicionar coluna com segurança

@@ -133,9 +133,14 @@
         }
     </style>
     <script src="./js/components/sidebar.js"></script>
+    <script src="./js/components/clinic-header.js"></script>
+    <script src="./js/services/clinic-service.js"></script>
 </head>
-<body class="min-h-screen flex">
+<body class="min-h-screen flex flex-col">
 
+    <!-- Multi-Tenant Clinic Header (injected automatically) -->
+
+    <div class="flex flex-1">
     <!-- Sidebar Component -->
     <medical-sidebar active="agenda" show-date-filter="false"></medical-sidebar>
 
@@ -363,5 +368,6 @@
     <script src="js/utils/masks.js"></script>
     <script type="module" src="js/utils/formatters.js"></script>
     <script type="module" src="js/crm/agenda.js"></script>
+    </div> <!-- Close flex container -->
 </body>
 </html>

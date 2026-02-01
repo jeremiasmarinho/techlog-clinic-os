@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban de Pacientes | Medical CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./kanban.css">
+</head>
+<body class="min-h-screen bg-slate-900 text-white">
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold">Kanban de Pacientes</h1>
+            <p class="text-slate-300">Arraste, organize e acompanhe o fluxo de atendimento</p>
+        </header>
+
+        <section class="kanban-scroll">
+            <div class="kanban-grid">
+                <!-- Column: Aguardando -->
+                <div class="kanban-column" data-status="waiting">
+                    <div class="kanban-column-header">
+                        <h2 class="text-lg font-semibold">Aguardando</h2>
+                        <span class="kanban-count">5</span>
+                    </div>
+                    <div class="kanban-cards">
+                        <div class="kanban-card" draggable="true" data-patient-id="101">
+                            <div class="kanban-card-header">
+                                <div class="avatar">AB</div>
+                                <div>
+                                    <p class="font-semibold">Ana Beatriz</p>
+                                    <p class="text-sm text-slate-200">09:00</p>
+                                </div>
+                            </div>
+                            <div class="kanban-card-footer">
+                                <span class="kanban-tag tag-blue">Convênio</span>
+                                <span class="text-xs text-slate-200">Unimed</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-patient-id="102">
+                            <div class="kanban-card-header">
+                                <div class="avatar">RV</div>
+                                <div>
+                                    <p class="font-semibold">Rafael Vieira</p>
+                                    <p class="text-sm text-slate-200">09:30</p>
+                                </div>
+                            </div>
+                            <div class="kanban-card-footer">
+                                <span class="kanban-tag tag-emerald">Particular</span>
+                                <span class="text-xs text-slate-200">R$ 280,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column: Triagem -->
+                <div class="kanban-column" data-status="triage">
+                    <div class="kanban-column-header">
+                        <h2 class="text-lg font-semibold">Triagem</h2>
+                        <span class="kanban-count">3</span>
+                    </div>
+                    <div class="kanban-cards">
+                        <div class="kanban-card" draggable="true" data-patient-id="201">
+                            <div class="kanban-card-header">
+                                <div class="avatar">LP</div>
+                                <div>
+                                    <p class="font-semibold">Lucas Prado</p>
+                                    <p class="text-sm text-slate-200">10:10</p>
+                                </div>
+                            </div>
+                            <div class="kanban-card-footer">
+                                <span class="kanban-tag tag-purple">Retorno</span>
+                                <span class="text-xs text-slate-200">Check-up</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-patient-id="202">
+                            <div class="kanban-card-header">
+                                <div class="avatar">CS</div>
+                                <div>
+                                    <p class="font-semibold">Camila Souza</p>
+                                    <p class="text-sm text-slate-200">10:30</p>
+                                </div>
+                            </div>
+                            <div class="kanban-card-footer">
+                                <span class="kanban-tag tag-blue">Convênio</span>
+                                <span class="text-xs text-slate-200">Bradesco</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column: Em Consulta -->
+                <div class="kanban-column" data-status="consultation">
+                    <div class="kanban-column-header">
+                        <h2 class="text-lg font-semibold">Em Consulta</h2>
+                        <span class="kanban-count">2</span>
+                    </div>
+                    <div class="kanban-cards">
+                        <div class="kanban-card" draggable="true" data-patient-id="301">
+                            <div class="kanban-card-header">
+                                <div class="avatar">MS</div>
+                                <div>
+                                    <p class="font-semibold">Mariana Silva</p>
+                                    <p class="text-sm text-slate-200">11:00</p>
+                                </div>
+                            </div>
+                            <div class="kanban-card-footer">
+                                <span class="kanban-tag tag-emerald">Particular</span>
+                                <span class="text-xs text-slate-200">R$ 320,00</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-patient-id="302">
+                            <div class="kanban-card-header">
+                                <div class="avatar">JG</div>
+                                <div>
+                                    <p class="font-semibold">João Gomes</p>
+                                    <p class="text-sm text-slate-200">11:20</p>
+                                </div>
+                            </div>
+                            <div class="kanban-card-footer">
+                                <span class="kanban-tag tag-blue">Convênio</span>
+                                <span class="text-xs text-slate-200">SulAmérica</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column: Finalizado -->
+                <div class="kanban-column" data-status="finished">
+                    <div class="kanban-column-header">
+                        <h2 class="text-lg font-semibold">Finalizado</h2>
+                        <span class="kanban-count">4</span>
+                    </div>
+                    <div class="kanban-cards">
+                        <div class="kanban-card" draggable="true" data-patient-id="401">
+                            <div class="kanban-card-header">
+                                <div class="avatar">PF</div>
+                                <div>
+                                    <p class="font-semibold">Paulo Freitas</p>
+                                    <p class="text-sm text-slate-200">08:40</p>
+                                </div>
+                            </div>
+                            <div class="kanban-card-footer">
+                                <span class="kanban-tag tag-purple">Retorno</span>
+                                <span class="text-xs text-slate-200">Ortopedia</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card" draggable="true" data-patient-id="402">
+                            <div class="kanban-card-header">
+                                <div class="avatar">NL</div>
+                                <div>
+                                    <p class="font-semibold">Natália Lima</p>
+                                    <p class="text-sm text-slate-200">09:15</p>
+                                </div>
+                            </div>
+                            <div class="kanban-card-footer">
+                                <span class="kanban-tag tag-emerald">Particular</span>
+                                <span class="text-xs text-slate-200">R$ 250,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="/shared/constants/statuses.js"></script>
+    <script src="./js/kanban.js"></script>
+</body>
+</html>

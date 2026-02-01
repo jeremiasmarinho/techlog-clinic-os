@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/UserController';
 import { tenantMiddleware, ensureClinicAdmin } from '../middleware/tenant.middleware';
+import { auditLogger } from '../middleware/audit.middleware';
 
 const router = Router();
 
@@ -8,8 +9,14 @@ const router = Router();
 router.post('/login', UserController.login);
 
 // CRUD de Usuários (Requer autenticação JWT + Admin)
-router.get('/users', tenantMiddleware, ensureClinicAdmin, UserController.index);
-router.post('/users', tenantMiddleware, ensureClinicAdmin, UserController.store);
-router.delete('/users/:id', tenantMiddleware, ensureClinicAdmin, UserController.delete);
+router.get('/users', tenantMiddleware, auditLogger, ensureClinicAdmin, UserController.index);
+router.post('/users', tenantMiddleware, auditLogger, ensureClinicAdmin, UserController.store);
+router.delete(
+    '/users/:id',
+    tenantMiddleware,
+    auditLogger,
+    ensureClinicAdmin,
+    UserController.delete
+);
 
 export default router;

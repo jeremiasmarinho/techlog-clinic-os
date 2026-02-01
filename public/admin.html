@@ -366,9 +366,14 @@
         }
     </script>
     <script src="./js/components/sidebar.js"></script>
+    <script src="./js/components/clinic-header.js"></script>
 </head>
-<body class="min-h-screen flex">
+<body class="min-h-screen flex flex-col">
 
+    <!-- Multi-Tenant Clinic Header -->
+    <!-- Injected automatically by clinic-header.js -->
+
+    <div class="flex flex-1">
     <!-- Sidebar Component -->
     <medical-sidebar active="admin" show-date-filter="true"></medical-sidebar>
 
@@ -1120,5 +1125,6 @@
             setTimeout(() => clearInterval(checkInterval), 5000);
         });
     </script>
+    </div> <!-- Close flex container for sidebar + main -->
 </body>
 </html>

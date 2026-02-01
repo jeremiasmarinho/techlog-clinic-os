@@ -33,12 +33,29 @@ let currentLogo = null;
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     loadUsers();
-    
+
     // Set user name in sidebar if available
     const userName = sessionStorage.getItem('userName');
     if (userName) {
         const userNameEl = document.getElementById('userName');
         if (userNameEl) userNameEl.textContent = userName;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const rawTab = params.get('tab');
+    const initialTab = rawTab === 'plan' ? 'plano' : rawTab;
+
+    if (initialTab) {
+        switchTab(initialTab);
+    }
+
+    if (window.ClinicService) {
+        ClinicService.fetchClinicInfo().then(() => {
+            ClinicService.showTrialBanner();
+            if (initialTab === 'plano') {
+                loadPlanInfo();
+            }
+        });
     }
 });
 
@@ -47,30 +64,39 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 function switchTab(tabName) {
     // Update tab buttons
-    document.querySelectorAll('.tab-button').forEach(btn => {
+    document.querySelectorAll('.tab-button').forEach((btn) => {
         btn.classList.remove('active');
         btn.classList.add('text-gray-400');
     });
-    
-    const activeTab = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+
+    const activeTab = document.getElementById(
+        `tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`
+    );
     if (activeTab) {
         activeTab.classList.add('active');
         activeTab.classList.remove('text-gray-400');
     }
-    
+
     // Update content
-    document.querySelectorAll('.tab-content').forEach(content => {
+    document.querySelectorAll('.tab-content').forEach((content) => {
         content.classList.add('hidden');
     });
-    
-    const activeContent = document.getElementById(`content${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+
+    const activeContent = document.getElementById(
+        `content${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`
+    );
     if (activeContent) {
         activeContent.classList.remove('hidden');
     }
-    
+
     // Load clinic settings when switching to Profile tab
     if (tabName === 'perfil' && insurancePlans.length === 0) {
         loadClinicSettings();
+    }
+
+    // Load plan info when switching to Plan tab
+    if (tabName === 'plano') {
+        loadPlanInfo();
     }
 }
 
@@ -80,13 +106,13 @@ function switchTab(tabName) {
 async function loadUsers() {
     try {
         showLoading(true);
-        
+
         const response = await fetch('/api/users', {
             headers: {
-                'Authorization': `Bearer ${token}`
-            }
+                Authorization: `Bearer ${token}`,
+            },
         });
-        
+
         if (!response.ok) {
             if (response.status === 401) {
                 alert('Sessão expirada. Faça login novamente.');
@@ -95,14 +121,13 @@ async function loadUsers() {
             }
             throw new Error('Erro ao carregar usuários');
         }
-        
+
         allUsers = await response.json();
         filteredUsers = allUsers;
-        
+
         console.log(`✅ Loaded ${allUsers.length} users`);
-        
+
         renderUsers(filteredUsers);
-        
     } catch (error) {
         console.error('❌ Erro ao carregar usuários:', error);
         showNotification('Erro ao carregar usuários', 'error');
@@ -117,29 +142,30 @@ async function loadUsers() {
 function renderUsers(users) {
     const tableBody = document.getElementById('usersTableBody');
     const emptyState = document.getElementById('emptyState');
-    
+
     tableBody.innerHTML = '';
-    
+
     if (users.length === 0) {
         emptyState.classList.remove('hidden');
         return;
     }
-    
+
     emptyState.classList.add('hidden');
-    
-    users.forEach(user => {
+
+    users.forEach((user) => {
         const row = document.createElement('tr');
         row.className = 'user-row border-b border-white/5';
-        
+
         // Determine role badge
         const isAdmin = user.role === 'clinic_admin' || user.role === 'admin';
-        const roleBadge = isAdmin 
+        const roleBadge = isAdmin
             ? '<span class="badge-admin px-3 py-1 rounded-full text-xs font-bold text-white"><i class="fas fa-crown mr-1"></i>Admin</span>'
             : '<span class="badge-staff px-3 py-1 rounded-full text-xs font-bold text-white"><i class="fas fa-user mr-1"></i>Secretária</span>';
-        
+
         // Status badge
-        const statusBadge = '<span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-check-circle mr-1"></i>Ativo</span>';
-        
+        const statusBadge =
+            '<span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-xs font-bold"><i class="fas fa-check-circle mr-1"></i>Ativo</span>';
+
         row.innerHTML = `
             <td class="px-6 py-4">
                 <div class="flex items-center">
@@ -172,7 +198,7 @@ function renderUsers(users) {
                 </div>
             </td>
         `;
-        
+
         tableBody.appendChild(row);
     });
 }
@@ -182,23 +208,122 @@ function renderUsers(users) {
 // ============================================
 function filterUsers() {
     const searchTerm = document.getElementById('searchUser').value.toLowerCase();
-    
-    filteredUsers = allUsers.filter(user => {
+
+    filteredUsers = allUsers.filter((user) => {
         const nameMatch = user.name.toLowerCase().includes(searchTerm);
         const emailMatch = (user.username || user.email || '').toLowerCase().includes(searchTerm);
         return nameMatch || emailMatch;
     });
-    
+
     renderUsers(filteredUsers);
 }
 
 // ============================================
 // Modal Management
 // ============================================
-function openNewUserModal() {
+async function openNewUserModal() {
+    if (window.ClinicService) {
+        const limit = await ClinicService.checkUserLimit();
+        if (!limit.canAdd) {
+            ClinicService.showLimitAlert('user');
+            return;
+        }
+    }
+
     document.getElementById('newUserModal').classList.remove('hidden');
     document.getElementById('newUserForm').reset();
     document.getElementById('formError').classList.add('hidden');
+}
+
+// ============================================
+// Plano & Limites
+// ============================================
+async function loadPlanInfo() {
+    if (!window.ClinicService) return;
+
+    const clinic = await ClinicService.fetchClinicInfo();
+    if (!clinic) return;
+
+    const planBadgeEl = document.getElementById('planBadge');
+    if (planBadgeEl) {
+        planBadgeEl.innerHTML = ClinicService.getPlanBadgeHTML(clinic.plan_tier || 'basic');
+    }
+
+    const clinicNameEl = document.getElementById('planClinicName');
+    if (clinicNameEl) clinicNameEl.textContent = clinic.name || 'Clínica';
+
+    const statusEl = document.getElementById('planStatus');
+    if (statusEl) {
+        const statusMap = {
+            active: 'Ativa',
+            trial: 'Trial',
+            suspended: 'Suspensa',
+            cancelled: 'Cancelada',
+        };
+        statusEl.textContent = statusMap[clinic.status] || clinic.status || '-';
+        statusEl.className =
+            clinic.status === 'suspended'
+                ? 'text-red-400 font-semibold'
+                : clinic.status === 'trial'
+                  ? 'text-yellow-400 font-semibold'
+                  : 'text-green-400 font-semibold';
+    }
+
+    const ownerEl = document.getElementById('planOwner');
+    if (ownerEl) ownerEl.textContent = clinic.owner_name || clinic.owner_email || '-';
+
+    const usersUsed = Number(clinic.total_users || 0);
+    const usersMax = Number(clinic.max_users || 0);
+    const usersPercent = usersMax > 0 ? Math.min(100, Math.round((usersUsed / usersMax) * 100)) : 0;
+
+    const patientsUsed = Number(clinic.total_leads || clinic.total_patients || 0);
+    const patientsMax = Number(clinic.max_patients || 0);
+    const patientsPercent =
+        patientsMax > 0 ? Math.min(100, Math.round((patientsUsed / patientsMax) * 100)) : 0;
+
+    const planUsersUsedEl = document.getElementById('planUsersUsed');
+    const planUsersMaxEl = document.getElementById('planUsersMax');
+    const planUsersPercentEl = document.getElementById('planUsersPercent');
+    const planUsersProgressEl = document.getElementById('planUsersProgress');
+
+    if (planUsersUsedEl) planUsersUsedEl.textContent = usersUsed;
+    if (planUsersMaxEl) planUsersMaxEl.textContent = usersMax;
+    if (planUsersPercentEl) planUsersPercentEl.textContent = usersPercent;
+    if (planUsersProgressEl) planUsersProgressEl.style.width = `${usersPercent}%`;
+
+    const planPatientsUsedEl = document.getElementById('planPatientsUsed');
+    const planPatientsMaxEl = document.getElementById('planPatientsMax');
+    const planPatientsPercentEl = document.getElementById('planPatientsPercent');
+    const planPatientsProgressEl = document.getElementById('planPatientsProgress');
+
+    if (planPatientsUsedEl) planPatientsUsedEl.textContent = patientsUsed;
+    if (planPatientsMaxEl) planPatientsMaxEl.textContent = patientsMax;
+    if (planPatientsPercentEl) planPatientsPercentEl.textContent = patientsPercent;
+    if (planPatientsProgressEl) planPatientsProgressEl.style.width = `${patientsPercent}%`;
+
+    if (clinic.trial && clinic.trial.is_expiring_soon) {
+        const planTrialEl = document.getElementById('planTrial');
+        const planTrialTextEl = document.getElementById('planTrialText');
+        if (planTrialEl && planTrialTextEl) {
+            planTrialTextEl.textContent = `Seu trial expira em ${clinic.trial.days_left} dia(s).`;
+            planTrialEl.classList.remove('hidden');
+        }
+    }
+}
+
+async function requestUpgrade(plan) {
+    if (!window.ClinicService) return;
+
+    const confirmed = confirm(`Deseja solicitar upgrade para o plano ${plan}?`);
+    if (!confirmed) return;
+
+    try {
+        await ClinicService.requestUpgrade(plan);
+        showNotification('Solicitação de upgrade enviada com sucesso!', 'success');
+    } catch (error) {
+        console.error(error);
+        showNotification(error.message || 'Erro ao solicitar upgrade', 'error');
+    }
 }
 
 function closeNewUserModal() {
@@ -210,57 +335,56 @@ function closeNewUserModal() {
 // ============================================
 async function handleCreateUser(event) {
     event.preventDefault();
-    
+
     const name = document.getElementById('userName').value.trim();
     const email = document.getElementById('userEmail').value.trim();
     const password = document.getElementById('userPassword').value;
     const passwordConfirm = document.getElementById('userPasswordConfirm').value;
     const isAdmin = document.getElementById('userIsAdmin').checked;
-    
+
     // Validation
     if (password !== passwordConfirm) {
         showFormError('As senhas não coincidem');
         return;
     }
-    
+
     if (password.length < 6) {
         showFormError('A senha deve ter no mínimo 6 caracteres');
         return;
     }
-    
+
     const submitBtn = document.getElementById('submitBtn');
     const originalText = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Criando...';
-    
+
     try {
         const response = await fetch('/api/users', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
                 name,
                 username: email,
                 password,
-                role: isAdmin ? 'clinic_admin' : 'staff'
-            })
+                role: isAdmin ? 'clinic_admin' : 'staff',
+            }),
         });
-        
+
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.error || 'Erro ao criar usuário');
         }
-        
+
         console.log('✅ Usuário criado:', data);
-        
+
         showNotification(`✅ Usuário ${name} criado com sucesso!`, 'success');
-        
+
         closeNewUserModal();
         await loadUsers();
-        
     } catch (error) {
         console.error('❌ Erro ao criar usuário:', error);
         showFormError(error.message);
@@ -274,31 +398,32 @@ async function handleCreateUser(event) {
 // Delete User
 // ============================================
 async function deleteUser(userId, userName) {
-    const confirmed = await confirm(`⚠️ Tem certeza que deseja remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`);
+    const confirmed = await confirm(
+        `⚠️ Tem certeza que deseja remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`
+    );
     if (!confirmed) {
         return;
     }
-    
+
     try {
         const response = await fetch(`/api/users/${userId}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${token}`
-            }
+                Authorization: `Bearer ${token}`,
+            },
         });
-        
+
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.error || 'Erro ao remover usuário');
         }
-        
+
         console.log('✅ Usuário removido:', userId);
-        
+
         showNotification(`✅ Usuário ${userName} removido com sucesso!`, 'success');
-        
+
         await loadUsers();
-        
     } catch (error) {
         console.error('❌ Erro ao deletar usuário:', error);
         showNotification(`❌ ${error.message}`, 'error');
@@ -333,17 +458,17 @@ function showNotification(message, type = 'success') {
     const toast = document.getElementById('notificationToast');
     const icon = document.getElementById('toastIcon');
     const text = document.getElementById('toastMessage');
-    
+
     text.textContent = message;
-    
+
     if (type === 'error') {
         icon.className = 'fas fa-exclamation-circle text-red-400 text-2xl mr-3';
     } else {
         icon.className = 'fas fa-check-circle text-cyan-400 text-2xl mr-3';
     }
-    
+
     toast.classList.remove('hidden');
-    
+
     setTimeout(() => {
         toast.classList.add('hidden');
     }, 3000);
@@ -369,10 +494,10 @@ async function loadClinicSettings() {
     try {
         const response = await fetch('/api/clinic/settings', {
             headers: {
-                'Authorization': `Bearer ${token}`
-            }
+                Authorization: `Bearer ${token}`,
+            },
         });
-        
+
         if (!response.ok) {
             if (response.status === 404) {
                 // No settings yet, use defaults
@@ -381,54 +506,55 @@ async function loadClinicSettings() {
             }
             throw new Error('Erro ao carregar configurações');
         }
-        
+
         const settings = await response.json();
-        
+
         console.log('✅ Configurações carregadas:', settings);
-        
+
         // Populate Identity Fields
         if (settings.identity) {
             document.getElementById('clinicName').value = settings.identity.name || '';
             document.getElementById('clinicPhone').value = settings.identity.phone || '';
             document.getElementById('clinicAddress').value = settings.identity.address || '';
-            document.getElementById('primaryColor').value = settings.identity.primaryColor || '#06b6d4';
-            document.getElementById('primaryColorHex').value = settings.identity.primaryColor || '#06b6d4';
-            
+            document.getElementById('primaryColor').value =
+                settings.identity.primaryColor || '#06b6d4';
+            document.getElementById('primaryColorHex').value =
+                settings.identity.primaryColor || '#06b6d4';
+
             if (settings.identity.logo) {
                 displayLogo(settings.identity.logo);
             }
         }
-        
+
         // Populate Hours
         if (settings.hours) {
             document.getElementById('openingHour').value = settings.hours.opening || '08:00';
             document.getElementById('closingHour').value = settings.hours.closing || '18:00';
             document.getElementById('lunchStart').value = settings.hours.lunchStart || '';
             document.getElementById('lunchEnd').value = settings.hours.lunchEnd || '';
-            
+
             // Working days
             const days = settings.hours.workingDays || ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
-            ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'].forEach(day => {
+            ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'].forEach((day) => {
                 const checkbox = document.getElementById(`day${day}`);
                 if (checkbox) {
                     checkbox.checked = days.includes(day);
                 }
             });
         }
-        
+
         // Populate Insurance Plans
         if (settings.insurancePlans && Array.isArray(settings.insurancePlans)) {
             insurancePlans = settings.insurancePlans;
             renderInsuranceTags();
         }
-        
+
         // Populate Chat Scripts
         if (settings.chatbot) {
             document.getElementById('chatGreeting').value = settings.chatbot.greeting || '';
             document.getElementById('chatAwayMessage').value = settings.chatbot.awayMessage || '';
             document.getElementById('chatInstructions').value = settings.chatbot.instructions || '';
         }
-        
     } catch (error) {
         console.error('❌ Erro ao carregar configurações:', error);
         showNotification('Erro ao carregar configurações da clínica', 'error');
@@ -444,16 +570,16 @@ async function saveClinicSettings() {
         const originalText = submitBtn.innerHTML;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Salvando...';
-        
+
         // Gather working days
         const workingDays = [];
-        ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'].forEach(day => {
+        ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'].forEach((day) => {
             const checkbox = document.getElementById(`day${day}`);
             if (checkbox && checkbox.checked) {
                 workingDays.push(day);
             }
         });
-        
+
         // Build payload
         const payload = {
             identity: {
@@ -461,42 +587,42 @@ async function saveClinicSettings() {
                 phone: document.getElementById('clinicPhone').value.trim(),
                 address: document.getElementById('clinicAddress').value.trim(),
                 primaryColor: document.getElementById('primaryColor').value,
-                logo: currentLogo
+                logo: currentLogo,
             },
             hours: {
                 opening: document.getElementById('openingHour').value,
                 closing: document.getElementById('closingHour').value,
                 lunchStart: document.getElementById('lunchStart').value,
                 lunchEnd: document.getElementById('lunchEnd').value,
-                workingDays: workingDays
+                workingDays: workingDays,
             },
             insurancePlans: insurancePlans,
             chatbot: {
                 greeting: document.getElementById('chatGreeting').value.trim(),
                 awayMessage: document.getElementById('chatAwayMessage').value.trim(),
-                instructions: document.getElementById('chatInstructions').value.trim()
-            }
+                instructions: document.getElementById('chatInstructions').value.trim(),
+            },
         };
-        
+
         console.log('📤 Enviando configurações:', payload);
-        
+
         const response = await fetch('/api/clinic/settings', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
         });
-        
+
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.error || 'Erro ao salvar configurações');
         }
-        
+
         console.log('✅ Configurações salvas:', data);
-        
+
         // ============================================
         // CLEAR CACHE TO FORCE RELOAD ON OTHER PAGES
         // ============================================
@@ -506,9 +632,8 @@ async function saveClinicSettings() {
         } catch (e) {
             console.error('Erro ao limpar cache:', e);
         }
-        
+
         showNotification('✅ Configurações salvas com sucesso!', 'success');
-        
     } catch (error) {
         console.error('❌ Erro ao salvar configurações:', error);
         showNotification(`❌ ${error.message}`, 'error');
@@ -525,21 +650,21 @@ async function saveClinicSettings() {
 
 function handleLogoUpload(event) {
     const file = event.target.files[0];
-    
+
     if (!file) return;
-    
+
     // Validate file type
     if (!file.type.startsWith('image/')) {
         alert('Por favor, selecione uma imagem válida (PNG, JPG)');
         return;
     }
-    
+
     // Validate file size (2MB)
     if (file.size > 2 * 1024 * 1024) {
         alert('A imagem deve ter no máximo 2MB');
         return;
     }
-    
+
     // Read file and convert to Base64
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -553,7 +678,7 @@ function handleLogoUpload(event) {
 function displayLogo(base64) {
     const logoImage = document.getElementById('logoImage');
     const logoIcon = document.getElementById('logoIcon');
-    
+
     logoImage.src = base64;
     logoImage.classList.remove('hidden');
     logoIcon.classList.add('hidden');
@@ -566,21 +691,21 @@ function displayLogo(base64) {
 function addInsurance() {
     const input = document.getElementById('newInsuranceInput');
     const value = input.value.trim();
-    
+
     if (!value) {
         alert('Digite o nome do convênio');
         return;
     }
-    
+
     if (insurancePlans.includes(value)) {
         alert('Este convênio já foi adicionado');
         return;
     }
-    
+
     insurancePlans.push(value);
     input.value = '';
     renderInsuranceTags();
-    
+
     console.log('✅ Convênio adicionado:', value);
 }
 
@@ -592,7 +717,7 @@ function removeInsurance(index) {
 
 function renderInsuranceTags() {
     const container = document.getElementById('insuranceTagsList');
-    
+
     if (insurancePlans.length === 0) {
         container.innerHTML = `
             <div class="text-gray-400 text-sm w-full text-center py-8">
@@ -602,8 +727,10 @@ function renderInsuranceTags() {
         `;
         return;
     }
-    
-    container.innerHTML = insurancePlans.map((plan, index) => `
+
+    container.innerHTML = insurancePlans
+        .map(
+            (plan, index) => `
         <div class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center space-x-2 hover:from-purple-500/30 hover:to-pink-500/30 transition">
             <i class="fas fa-hospital-alt"></i>
             <span>${plan}</span>
@@ -615,7 +742,9 @@ function renderInsuranceTags() {
                 <i class="fas fa-times"></i>
             </button>
         </div>
-    `).join('');
+    `
+        )
+        .join('');
 }
 
 // ============================================
@@ -630,7 +759,7 @@ if (colorPicker && colorHex) {
     colorPicker.addEventListener('input', (e) => {
         colorHex.value = e.target.value;
     });
-    
+
     colorHex.addEventListener('input', (e) => {
         const hex = e.target.value;
         if (/^#[0-9A-F]{6}$/i.test(hex)) {

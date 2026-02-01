@@ -5,224 +5,156 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-function getDatabasePath(): string {
-    const nodeEnv = process.env.NODE_ENV || 'development';
+/**
+ * Script de Migração para SaaS Multi-Tenancy
+ *
+ * Executa a migração SQL que transforma o sistema em multi-tenant
+ */
 
-    switch (nodeEnv) {
-        case 'test':
-            return path.resolve(__dirname, '../database.test.sqlite');
-        case 'production':
-            return path.resolve(__dirname, '../database.prod.sqlite');
-        case 'development':
-        default:
-            return path.resolve(__dirname, '../database.dev.sqlite');
-    }
-}
+const DB_ENV = process.env.NODE_ENV || 'development';
+const DB_FILES = {
+    test: 'database.test.sqlite',
+    production: 'database.prod.sqlite',
+    development: 'database.dev.sqlite',
+};
 
-const DB_PATH = getDatabasePath();
-const MIGRATION_SQL = path.resolve(__dirname, '../migrations/001_saas_multi_tenancy.sql');
+const DB_PATH = path.resolve(
+    __dirname,
+    '../',
+    DB_FILES[DB_ENV as keyof typeof DB_FILES] || DB_FILES.development
+);
+const MIGRATION_PATH = path.resolve(__dirname, '../migrations/001_saas_multi_tenancy.sql');
 
-console.log('🔧 Migrating to SaaS multi-tenancy');
-console.log('📍 DB Path:', DB_PATH);
-console.log('📍 Migration Path:', MIGRATION_SQL);
+console.log('========================================');
+console.log('🚀 SaaS Multi-Tenancy Migration');
+console.log('========================================');
+console.log(`📊 Environment: ${DB_ENV}`);
+console.log(`📁 Database: ${DB_PATH}`);
+console.log(`📄 Migration: ${MIGRATION_PATH}`);
+console.log('========================================\n');
 
-const db = new sqlite3.Database(DB_PATH, (err) => {
-    if (err) {
-        console.error('❌ Erro ao conectar ao banco:', err.message);
-        process.exit(1);
-    }
-    console.log('✅ Conectado ao banco SQLite');
-});
-
-async function runMigration() {
-    console.log('\n🚀 INICIANDO MIGRAÇÃO MULTI-TENANCY\n');
-    console.log('='.repeat(60));
-
-    try {
-        // Read SQL file
-        if (!fs.existsSync(MIGRATION_SQL)) {
-            throw new Error(`Arquivo de migração não encontrado: ${MIGRATION_SQL}`);
-        }
-
-        const sql = fs.readFileSync(MIGRATION_SQL, 'utf-8');
-
-        // Split SQL handling triggers (they have semicolons inside)
-        const statements: string[] = [];
-        let currentStatement = '';
-        let inTrigger = false;
-
-        const lines = sql.split('\n');
-        for (const line of lines) {
-            const trimmedLine = line.trim();
-
-            // Detect trigger start
-            if (trimmedLine.toUpperCase().includes('CREATE TRIGGER')) {
-                inTrigger = true;
-            }
-
-            currentStatement += line + '\n';
-
-            // Detect trigger end
-            if (inTrigger && trimmedLine === 'END;') {
-                inTrigger = false;
-                statements.push(currentStatement.trim());
-                currentStatement = '';
-                continue;
-            }
-
-            // Normal statement end (not in trigger)
-            if (!inTrigger && trimmedLine.endsWith(';') && !trimmedLine.startsWith('--')) {
-                statements.push(currentStatement.trim());
-                currentStatement = '';
-            }
-        }
-
-        // Add last statement if exists
-        if (currentStatement.trim()) {
-            statements.push(currentStatement.trim());
-        }
-
-        // Filter statements
-        const filteredStatements = statements.filter((s) => {
-            const cleanStatement = s.replace(/--[^\n]*/g, '').trim();
-            return (
-                cleanStatement.length > 0 &&
-                cleanStatement.toLowerCase() !== 'begin' &&
-                cleanStatement.toLowerCase() !== 'commit'
-            );
-        });
-
-        console.log(`📝 Total de statements a executar: ${filteredStatements.length}\n`);
-
-        for (let i = 0; i < filteredStatements.length; i++) {
-            await executeStatement(filteredStatements[i], i + 1);
-        }
-
-        console.log('\n' + '='.repeat(60));
-        console.log('✅ MIGRAÇÃO CONCLUÍDA COM SUCESSO!\n');
-
-        await verifyMigration();
-    } catch (error: any) {
-        console.error('\n❌ ERRO NA MIGRAÇÃO:', error.message);
-        console.error('Stack:', error.stack);
-        process.exit(1);
-    } finally {
-        db.close(() => {
-            console.log('\n👋 Conexão com banco fechada');
-            process.exit(0);
-        });
-    }
-}
-
-function executeStatement(statement: string, step: number): Promise<void> {
+async function runMigration(): Promise<void> {
     return new Promise((resolve, reject) => {
-        // Skip empty or comment-only statements
-        if (!statement || statement.trim().length === 0) {
-            return resolve();
+        // Verificar se arquivo de migração existe
+        if (!fs.existsSync(MIGRATION_PATH)) {
+            reject(new Error(`❌ Migration file not found: ${MIGRATION_PATH}`));
+            return;
         }
 
-        const preview = statement.substring(0, 80).replace(/\n/g, ' ');
+        // Ler SQL da migração
+        const migrationSQL = fs.readFileSync(MIGRATION_PATH, 'utf8');
 
-        db.run(statement, (err) => {
+        // Conectar ao banco
+        const db = new sqlite3.Database(DB_PATH, (err) => {
             if (err) {
-                // Ignore certain non-critical errors
-                if (
-                    err.message.includes('duplicate column name') ||
-                    err.message.includes('already exists')
-                ) {
-                    console.log(`⏭️  Step ${step}: Já existe, pulando... (${preview})`);
-                    return resolve();
-                }
-
-                console.error(`\n❌ Step ${step} FALHOU:`);
-                console.error(`   SQL: ${preview}...`);
-                console.error(`   Erro: ${err.message}`);
-                return reject(err);
+                reject(new Error(`❌ Database connection failed: ${err.message}`));
+                return;
             }
-            console.log(`✅ Step ${step}: ${preview}...`);
-            resolve();
-        });
-    });
-}
 
-async function verifyMigration(): Promise<void> {
-    console.log('\n🔍 VERIFICANDO MIGRAÇÃO...\n');
+            console.log('✅ Connected to database\n');
 
-    return new Promise((resolve) => {
-        let completedChecks = 0;
-        const totalChecks = 3;
-
-        function checkComplete() {
-            completedChecks++;
-            if (completedChecks === totalChecks) {
-                resolve();
-            }
-        }
-
-        // Check clinics table
-        db.get('SELECT COUNT(*) as count FROM clinics', [], (err, row: any) => {
-            if (err) {
-                console.error('❌ Erro ao verificar clinics:', err.message);
-            } else {
-                console.log(`✅ Clínicas cadastradas: ${row.count}`);
-
-                // Show clinic details
-                db.all(
-                    'SELECT id, name, slug, status, plan_tier FROM clinics',
-                    [],
-                    (err, rows: any[]) => {
-                        if (!err && rows.length > 0) {
-                            rows.forEach((clinic) => {
-                                console.log(
-                                    `   📍 #${clinic.id}: ${clinic.name} (${clinic.slug}) - ${clinic.plan_tier} [${clinic.status}]`
-                                );
-                            });
-                        }
-                        checkComplete();
+            // Executar migração em uma transação
+            db.serialize(() => {
+                db.run('BEGIN TRANSACTION', (err) => {
+                    if (err) {
+                        reject(new Error(`❌ Failed to start transaction: ${err.message}`));
+                        return;
                     }
-                );
-            }
-        });
 
-        // Check users with clinic_id
-        db.all(
-            'SELECT id, username, name, role, clinic_id, is_owner FROM users',
-            [],
-            (err, rows: any[]) => {
-                if (err) {
-                    console.error('❌ Erro ao verificar users:', err.message);
-                    checkComplete();
-                } else {
-                    console.log(`\n✅ Usuários migrados: ${rows.length}`);
-                    rows.forEach((user) => {
-                        const ownerBadge = user.is_owner ? '👑' : '  ';
-                        console.log(
-                            `   ${ownerBadge} #${user.id}: ${user.username} (${user.name}) | Role: ${user.role} | Clinic: ${user.clinic_id}`
-                        );
+                    console.log('📦 Starting migration transaction...\n');
+
+                    // Execute SQL file directly (not split by ;)
+                    db.exec(migrationSQL, (err) => {
+                        if (
+                            err &&
+                            !err.message.includes('duplicate column name') &&
+                            !err.message.includes('already exists')
+                        ) {
+                            db.run('ROLLBACK', () => {
+                                reject(new Error(`❌ Migration failed: ${err.message}`));
+                            });
+                            return;
+                        }
+
+                        // Commit transaction
+                        db.run('COMMIT', (err) => {
+                            if (err) {
+                                reject(
+                                    new Error(`❌ Failed to commit transaction: ${err.message}`)
+                                );
+                                return;
+                            }
+
+                            console.log('✅ Migration completed successfully!\n');
+
+                            // Verificar resultados
+                            verifyMigration(db)
+                                .then(() => {
+                                    db.close();
+                                    resolve();
+                                })
+                                .catch(reject);
+                        });
                     });
-                    checkComplete();
-                }
-            }
-        );
-
-        // Check leads with clinic_id
-        db.get(
-            'SELECT COUNT(*) as count, clinic_id FROM leads WHERE clinic_id = 1',
-            [],
-            (err, row: any) => {
-                if (err) {
-                    console.error('❌ Erro ao verificar leads:', err.message);
-                } else {
-                    console.log(`\n✅ Leads migrados para Clínica ID 1: ${row.count}`);
-                }
-                checkComplete();
-            }
-        );
+                });
+            });
+        });
     });
 }
 
-// Run migration
-runMigration().catch((err) => {
-    console.error('Erro fatal:', err);
-    process.exit(1);
-});
+async function verifyMigration(db: sqlite3.Database): Promise<void> {
+    return new Promise((resolve) => {
+        console.log('========================================');
+        console.log('🔍 Verifying Migration Results');
+        console.log('========================================\n');
+
+        const queries = [
+            { name: 'Clinics', query: 'SELECT COUNT(*) as count FROM clinics' },
+            {
+                name: 'Users with clinic_id',
+                query: 'SELECT COUNT(*) as count FROM users WHERE clinic_id IS NOT NULL',
+            },
+            {
+                name: 'Leads with clinic_id',
+                query: 'SELECT COUNT(*) as count FROM leads WHERE clinic_id IS NOT NULL',
+            },
+            { name: 'Patients', query: 'SELECT COUNT(*) as count FROM patients' },
+            { name: 'Appointments', query: 'SELECT COUNT(*) as count FROM appointments' },
+            { name: 'Kanban Columns', query: 'SELECT COUNT(*) as count FROM kanban_columns' },
+        ];
+
+        let completed = 0;
+
+        queries.forEach(({ name, query }) => {
+            db.get(query, [], (err, row: any) => {
+                if (err) {
+                    console.log(`❌ ${name}: Error - ${err.message}`);
+                } else {
+                    console.log(`✅ ${name}: ${row.count}`);
+                }
+
+                completed++;
+                if (completed === queries.length) {
+                    console.log('\n========================================');
+                    console.log('✅ Migration verification complete!');
+                    console.log('========================================\n');
+                    resolve();
+                }
+            });
+        });
+    });
+}
+
+// Execute migration
+runMigration()
+    .then(() => {
+        console.log('🎉 Migration completed successfully!\n');
+        console.log('Next steps:');
+        console.log('  1. Run: npm run seed:multi-tenant');
+        console.log('  2. Restart server: npm run dev\n');
+        process.exit(0);
+    })
+    .catch((error) => {
+        console.error('\n❌ Migration failed:', error.message);
+        process.exit(1);
+    });
