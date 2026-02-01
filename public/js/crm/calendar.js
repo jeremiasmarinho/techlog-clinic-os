@@ -108,6 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         extendedProps: {
                             phone: row.patient_phone || row.phone || '',
                             insurance: row.insurance || row.insurance_name || row.convenio || '',
+                            status: row.status || '',
+                            payment_status: row.payment_status || row.paymentStatus || '',
+                            payment_amount: row.amount || row.value || row.payment_amount || null,
                         },
                     };
                 });
@@ -145,9 +148,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         eventDidMount: (info) => {
-            const phone = info.event.extendedProps?.phone || '-';
-            const insurance = info.event.extendedProps?.insurance || '-';
-            info.el.setAttribute('title', `Telefone: ${phone}\nConvênio: ${insurance}`);
+            const { phone, insurance, status, payment_status, payment_amount } =
+                info.event.extendedProps || {};
+
+            if (payment_status === 'paid') {
+                info.el.classList.add('status-paid');
+            }
+
+            const iconContainer = document.createElement('span');
+            iconContainer.className = 'fc-event-icons';
+
+            if (status === 'confirmed') {
+                const confirmedIcon = document.createElement('span');
+                confirmedIcon.className = 'fc-event-icon fc-event-icon-confirmed';
+                confirmedIcon.textContent = '✓';
+                iconContainer.appendChild(confirmedIcon);
+            }
+
+            if (payment_status === 'paid') {
+                const paidIcon = document.createElement('span');
+                paidIcon.className = 'fc-event-icon fc-event-icon-paid';
+                paidIcon.textContent = '$';
+                iconContainer.appendChild(paidIcon);
+            }
+
+            if (iconContainer.childNodes.length) {
+                info.el.appendChild(iconContainer);
+            }
+
+            const statusLabel = status || 'pendente';
+            const paymentLabel =
+                payment_status === 'paid'
+                    ? `Pago${payment_amount ? ` (R$ ${Number(payment_amount).toFixed(2).replace('.', ',')})` : ''}`
+                    : 'Pendente';
+            const tooltipContent = `Paciente: ${info.event.title} | Status: ${statusLabel} | Pagamento: ${paymentLabel}`;
+
+            if (window.tippy) {
+                window.tippy(info.el, {
+                    content: tooltipContent,
+                    theme: 'glass',
+                    placement: 'top',
+                    delay: [200, 0],
+                });
+            } else {
+                info.el.setAttribute('title', tooltipContent);
+            }
         },
     });
 

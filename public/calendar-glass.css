@@ -70,6 +70,34 @@
   padding: 4px 6px;
 }
 
+.fc .fc-event .fc-event-icons {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.fc .fc-event .fc-event-icon {
+  font-size: 10px;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.4);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.fc .fc-event .fc-event-icon-confirmed {
+  color: #22c55e;
+}
+
+.fc .fc-event .fc-event-icon-paid {
+  color: #fbbf24;
+}
+
 /* Status colors - add these classes to events */
 .fc .fc-event.status-confirmado {
   border-left-color: #22c55e !important;
@@ -84,4 +112,25 @@
 .fc .fc-event.status-cancelado {
   border-left-color: #ef4444 !important;
   /* vermelho */
+}
+
+.fc .fc-event.status-paid {
+  border-left-color: #fbbf24 !important;
+  box-shadow: 0 12px 26px rgba(251, 191, 36, 0.25);
+}
+
+/* Tippy.js glass tooltip theme */
+.tippy-box[data-theme~='glass'] {
+  background: rgba(15, 23, 42, 0.85);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.tippy-box[data-theme~='glass'] .tippy-arrow {
+  color: rgba(15, 23, 42, 0.85);
 }

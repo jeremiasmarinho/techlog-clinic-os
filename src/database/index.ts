@@ -280,8 +280,63 @@ function initDb(): void {
         }
     );
 
+    // Tabela de Transações Financeiras
+    db.run(
+        `
+        CREATE TABLE IF NOT EXISTS transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clinic_id INTEGER NOT NULL DEFAULT 1,
+            patient_id INTEGER,
+            appointment_id INTEGER,
+            type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
+            amount DECIMAL(10, 2) NOT NULL,
+            category TEXT NOT NULL,
+            payment_method TEXT NOT NULL CHECK(payment_method IN ('pix', 'credit', 'debit', 'cash')),
+            status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'paid', 'cancelled')),
+            due_date DATETIME,
+            paid_at DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `,
+        (err) => {
+            if (err) {
+                console.error('❌ Erro ao criar tabela transactions:', err.message);
+            } else {
+                console.log('✅ Tabela "transactions" pronta');
+                db.run(
+                    'CREATE INDEX IF NOT EXISTS idx_transactions_clinic ON transactions(clinic_id)'
+                );
+                db.run('CREATE INDEX IF NOT EXISTS idx_transactions_type ON transactions(type)');
+                db.run(
+                    'CREATE INDEX IF NOT EXISTS idx_transactions_status ON transactions(status)'
+                );
+                db.run(
+                    'CREATE INDEX IF NOT EXISTS idx_transactions_due_date ON transactions(due_date)'
+                );
+                db.run(
+                    'CREATE INDEX IF NOT EXISTS idx_transactions_paid_at ON transactions(paid_at)'
+                );
+                db.run(
+                    'CREATE INDEX IF NOT EXISTS idx_transactions_patient ON transactions(patient_id)'
+                );
+                db.run(
+                    'CREATE INDEX IF NOT EXISTS idx_transactions_appointment ON transactions(appointment_id)'
+                );
+
+                // Create trigger for auto-update timestamp
+                db.run(`
+                    CREATE TRIGGER IF NOT EXISTS update_transactions_timestamp
+                    AFTER UPDATE ON transactions
+                    BEGIN
+                        UPDATE transactions SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+                    END
+                `);
+            }
+        }
+    );
+
     ensurePatientStatusSchema();
-    ensurePatientEndTimeColumn();
     ensureUserClinicColumns();
     ensureUserDocumentColumns();
     ensureClinicDocumentColumns();
@@ -438,9 +493,19 @@ function ensureUserClinicColumns(): void {
         if (!columns.includes('updated_at')) {
             db.run('ALTER TABLE users ADD COLUMN updated_at DATETIME');
         }
+        if (!columns.includes('last_login_at')) {
+            db.run('ALTER TABLE users ADD COLUMN last_login_at DATETIME', (loginErr) => {
+                if (loginErr) {
+                    console.warn('⚠️ Falha ao adicionar last_login_at em users:', loginErr.message);
+                } else {
+                    console.log('✅ Coluna last_login_at adicionada em users');
+                }
+            });
+        }
 
         db.run('CREATE INDEX IF NOT EXISTS idx_users_clinic ON users(clinic_id)');
         db.run('CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)');
+        db.run('CREATE INDEX IF NOT EXISTS idx_users_last_login ON users(last_login_at)');
     });
 }
 

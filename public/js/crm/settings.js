@@ -27,6 +27,8 @@ let allUsers = [];
 let filteredUsers = [];
 let insurancePlans = [];
 let currentLogo = null;
+let currentLogoFile = null;
+let currentLogoUrl = null;
 
 // ============================================
 // Initialization
@@ -522,6 +524,7 @@ async function loadClinicSettings() {
                 settings.identity.primaryColor || '#06b6d4';
 
             if (settings.identity.logo) {
+                currentLogoUrl = settings.identity.logo;
                 displayLogo(settings.identity.logo);
             }
         }
@@ -587,7 +590,7 @@ async function saveClinicSettings() {
                 phone: document.getElementById('clinicPhone').value.trim(),
                 address: document.getElementById('clinicAddress').value.trim(),
                 primaryColor: document.getElementById('primaryColor').value,
-                logo: currentLogo,
+                logo: currentLogoUrl,
             },
             hours: {
                 opening: document.getElementById('openingHour').value,
@@ -665,14 +668,10 @@ function handleLogoUpload(event) {
         return;
     }
 
-    // Read file and convert to Base64
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const base64 = e.target.result;
-        currentLogo = base64;
-        displayLogo(base64);
-    };
-    reader.readAsDataURL(file);
+    currentLogoFile = file;
+    const previewUrl = URL.createObjectURL(file);
+    currentLogo = previewUrl;
+    displayLogo(previewUrl);
 }
 
 function displayLogo(base64) {
@@ -682,6 +681,88 @@ function displayLogo(base64) {
     logoImage.src = base64;
     logoImage.classList.remove('hidden');
     logoIcon.classList.add('hidden');
+}
+
+// ============================================
+// Identity Visual (Multipart)
+// ============================================
+
+async function saveClinicIdentity() {
+    try {
+        const formData = new FormData();
+        const name = document.getElementById('clinicName').value.trim();
+        const address = document.getElementById('clinicAddress').value.trim();
+        const primaryColor = document.getElementById('primaryColor').value;
+        const logoInput = document.getElementById('logoInput');
+
+        formData.append('name', name);
+        formData.append('address', address);
+        formData.append('primaryColor', primaryColor);
+
+        if (logoInput?.files?.[0]) {
+            formData.append('logo', logoInput.files[0]);
+        }
+
+        const response = await fetch('/api/clinic/settings', {
+            method: 'PATCH',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || 'Erro ao salvar identidade visual');
+        }
+
+        const logoUrl = data.logo_url || currentLogo || '';
+        if (logoUrl) {
+            displayLogo(logoUrl);
+        }
+
+        currentLogoUrl = logoUrl || currentLogoUrl;
+        currentLogoFile = null;
+
+        sessionStorage.setItem('clinicName', data.name || name);
+        if (logoUrl) {
+            sessionStorage.setItem('clinicLogoUrl', logoUrl);
+        }
+        if (data.primary_color || primaryColor) {
+            sessionStorage.setItem('clinicPrimaryColor', data.primary_color || primaryColor);
+            document.documentElement.style.setProperty(
+                '--primary-color',
+                data.primary_color || primaryColor
+            );
+        }
+
+        const headerName = document.getElementById('clinicHeaderName');
+        if (headerName) {
+            headerName.textContent = data.name || name || 'Clínica';
+        }
+
+        const headerLogo = document.getElementById('clinicHeaderLogo');
+        const headerIcon = document.getElementById('clinicHeaderIcon');
+        if (logoUrl) {
+            if (headerLogo) {
+                headerLogo.src = logoUrl;
+                headerLogo.classList.remove('hidden');
+                if (headerIcon) headerIcon.classList.add('hidden');
+            } else if (headerIcon?.parentElement) {
+                const img = document.createElement('img');
+                img.id = 'clinicHeaderLogo';
+                img.src = logoUrl;
+                img.alt = 'Logo';
+                img.className = 'w-10 h-10 rounded-lg object-cover border border-white/20';
+                headerIcon.parentElement.replaceChild(img, headerIcon);
+            }
+        }
+
+        showNotification('✅ Identidade visual atualizada!', 'success');
+    } catch (error) {
+        console.error('❌ Erro ao salvar identidade visual:', error);
+        showNotification(`❌ ${error.message}`, 'error');
+    }
 }
 
 // ============================================

@@ -114,6 +114,17 @@ export class AuthController {
                 // Clear failed attempts on successful login
                 loginAttempts.delete(email);
 
+                // Update last login timestamp
+                db.run(
+                    'UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?',
+                    [row.id],
+                    (updateErr) => {
+                        if (updateErr) {
+                            console.warn('⚠️ Falha ao atualizar last_login_at:', updateErr.message);
+                        }
+                    }
+                );
+
                 // Generate JWT with clinic context
                 const token = jwt.sign(
                     {

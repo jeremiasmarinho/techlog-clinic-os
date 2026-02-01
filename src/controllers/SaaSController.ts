@@ -10,10 +10,24 @@ export class SaaSController {
     static listClinics(_req: Request, res: Response): void {
         db.all(
             `SELECT 
-                id, name, slug, status, plan_tier, 
-                owner_email, owner_phone, created_at, updated_at
-             FROM clinics 
-             ORDER BY created_at DESC`,
+                c.id, 
+                c.name, 
+                c.slug, 
+                c.status, 
+                c.plan_tier, 
+                c.owner_email, 
+                c.owner_phone, 
+                c.created_at, 
+                c.updated_at,
+                c.subscription_ends_at,
+                c.trial_ends_at,
+                MAX(u.last_login_at) as last_login,
+                COUNT(DISTINCT u.id) as user_count,
+                (SELECT COUNT(*) FROM leads WHERE clinic_id = c.id) as patient_count
+             FROM clinics c
+             LEFT JOIN users u ON u.clinic_id = c.id
+             GROUP BY c.id
+             ORDER BY c.created_at DESC`,
             [],
             (err, rows) => {
                 if (err) {
@@ -23,7 +37,10 @@ export class SaaSController {
                 }
 
                 console.log(`✅ Listando ${rows.length} clínicas para Super Admin`);
-                res.json(rows);
+                res.json({
+                    total: rows.length,
+                    clinics: rows,
+                });
             }
         );
     }
@@ -246,6 +263,285 @@ export class SaaSController {
     /**
      * Get system statistics
      * GET /api/saas/stats
+     *
+     * Returns:
+     * - MRR (Monthly Recurring Revenue)
+     * - Active clinics count
+     * - Total patients in system
+     * - Churn rate (cancellations)
+     */
+    static getSystemStats(_req: Request, res: Response): void {
+        // Base plan prices (in BRL)
+        const planPrices: { [key: string]: number } = {
+            basic: 97.0,
+            professional: 197.0,
+            enterprise: 497.0,
+        };
+
+        // 1. Get clinic counts and MRR
+        db.get(
+            `SELECT 
+                COUNT(*) as total_clinics,
+                SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_clinics,
+                SUM(CASE WHEN status = 'trial' THEN 1 ELSE 0 END) as trial_clinics,
+                SUM(CASE WHEN status = 'suspended' THEN 1 ELSE 0 END) as suspended_clinics,
+                SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_clinics
+             FROM clinics`,
+            [],
+            (clinicsErr, clinicsRow: any) => {
+                if (clinicsErr) {
+                    res.status(500).json({ error: clinicsErr.message });
+                    return;
+                }
+
+                // 2. Calculate MRR from active clinics
+                db.all(
+                    `SELECT plan_tier, COUNT(*) as count
+                     FROM clinics 
+                     WHERE status = 'active'
+                     GROUP BY plan_tier`,
+                    [],
+                    (mrrErr, mrrRows: any[]) => {
+                        if (mrrErr) {
+                            res.status(500).json({ error: mrrErr.message });
+                            return;
+                        }
+
+                        // Calculate total MRR
+                        const mrr = mrrRows.reduce((total, row) => {
+                            const price = planPrices[row.plan_tier] || 0;
+                            return total + price * row.count;
+                        }, 0);
+
+                        // 3. Get total patients
+                        db.get(
+                            `SELECT COUNT(*) as total_patients FROM leads`,
+                            [],
+                            (patientsErr, patientsRow: any) => {
+                                if (patientsErr) {
+                                    res.status(500).json({ error: patientsErr.message });
+                                    return;
+                                }
+
+                                // 4. Get total users
+                                db.get(
+                                    `SELECT COUNT(*) as total_users FROM users`,
+                                    [],
+                                    (usersErr, usersRow: any) => {
+                                        if (usersErr) {
+                                            res.status(500).json({ error: usersErr.message });
+                                            return;
+                                        }
+
+                                        // 5. Calculate churn rate (last 30 days)
+                                        db.all(
+                                            `SELECT 
+                                                strftime('%Y-%m', updated_at) as month,
+                                                COUNT(*) as count
+                                             FROM clinics
+                                             WHERE status = 'cancelled'
+                                             AND updated_at >= date('now', '-30 days')
+                                             GROUP BY month`,
+                                            [],
+                                            (churnErr, churnRows: any[]) => {
+                                                if (churnErr) {
+                                                    res.status(500).json({
+                                                        error: churnErr.message,
+                                                    });
+                                                    return;
+                                                }
+
+                                                const recentChurns = churnRows.reduce(
+                                                    (sum, row) => sum + row.count,
+                                                    0
+                                                );
+                                                const churnRate =
+                                                    clinicsRow.active_clinics > 0
+                                                        ? (
+                                                              (recentChurns /
+                                                                  (clinicsRow.active_clinics +
+                                                                      recentChurns)) *
+                                                              100
+                                                          ).toFixed(2)
+                                                        : '0.00';
+
+                                                // 6. Get plan distribution
+                                                db.all(
+                                                    `SELECT plan_tier, COUNT(*) as count
+                                                     FROM clinics
+                                                     WHERE status IN ('active', 'trial')
+                                                     GROUP BY plan_tier`,
+                                                    [],
+                                                    (planErr, planRows: any[]) => {
+                                                        if (planErr) {
+                                                            res.status(500).json({
+                                                                error: planErr.message,
+                                                            });
+                                                            return;
+                                                        }
+
+                                                        console.log(
+                                                            `📊 System Stats: MRR=R$${mrr.toFixed(2)}, Active=${clinicsRow.active_clinics}, Patients=${patientsRow.total_patients}`
+                                                        );
+
+                                                        res.json({
+                                                            mrr: {
+                                                                total: mrr,
+                                                                formatted: `R$ ${mrr.toFixed(2)}`,
+                                                                arr: mrr * 12, // Annual Recurring Revenue
+                                                                breakdown: mrrRows.map(
+                                                                    (row: any) => ({
+                                                                        plan: row.plan_tier,
+                                                                        clinics: row.count,
+                                                                        revenue:
+                                                                            planPrices[
+                                                                                row.plan_tier
+                                                                            ] * row.count,
+                                                                    })
+                                                                ),
+                                                            },
+                                                            clinics: {
+                                                                total: clinicsRow.total_clinics,
+                                                                active: clinicsRow.active_clinics,
+                                                                trial: clinicsRow.trial_clinics,
+                                                                suspended:
+                                                                    clinicsRow.suspended_clinics,
+                                                                cancelled:
+                                                                    clinicsRow.cancelled_clinics,
+                                                            },
+                                                            patients: {
+                                                                total: patientsRow.total_patients,
+                                                                average_per_clinic:
+                                                                    clinicsRow.active_clinics > 0
+                                                                        ? Math.round(
+                                                                              patientsRow.total_patients /
+                                                                                  clinicsRow.active_clinics
+                                                                          )
+                                                                        : 0,
+                                                            },
+                                                            users: {
+                                                                total: usersRow.total_users,
+                                                                average_per_clinic:
+                                                                    clinicsRow.active_clinics > 0
+                                                                        ? (
+                                                                              usersRow.total_users /
+                                                                              clinicsRow.active_clinics
+                                                                          ).toFixed(1)
+                                                                        : 0,
+                                                            },
+                                                            churn: {
+                                                                rate: parseFloat(churnRate),
+                                                                formatted: `${churnRate}%`,
+                                                                recent_cancellations: recentChurns,
+                                                                period: 'last_30_days',
+                                                            },
+                                                            plan_distribution: planRows,
+                                                        });
+                                                    }
+                                                );
+                                            }
+                                        );
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
+    }
+
+    /**
+     * Toggle clinic status (block/unblock)
+     * PATCH /api/saas/clinics/:id/status
+     *
+     * Body: { status: 'active' | 'suspended' | 'cancelled' }
+     */
+    static toggleClinicStatus(req: Request, res: Response): void {
+        const { id } = req.params;
+        const { status, reason } = req.body;
+
+        const validStatuses = ['active', 'trial', 'suspended', 'cancelled'];
+
+        if (!status || !validStatuses.includes(status)) {
+            res.status(400).json({
+                error: 'Status inválido',
+                allowed: validStatuses,
+            });
+            return;
+        }
+
+        // Prevent status change of default clinic
+        if (id === '1') {
+            res.status(403).json({ error: 'Não é possível alterar o status da clínica padrão' });
+            return;
+        }
+
+        // Get clinic info before update
+        db.get(
+            `SELECT id, name, slug, status, plan_tier FROM clinics WHERE id = ?`,
+            [id],
+            (getErr, clinic: any) => {
+                if (getErr) {
+                    res.status(500).json({ error: getErr.message });
+                    return;
+                }
+
+                if (!clinic) {
+                    res.status(404).json({ error: 'Clínica não encontrada' });
+                    return;
+                }
+
+                const oldStatus = clinic.status;
+
+                // Update status
+                db.run(
+                    `UPDATE clinics 
+                     SET status = ?, 
+                         updated_at = CURRENT_TIMESTAMP
+                     WHERE id = ?`,
+                    [status, id],
+                    function (err) {
+                        if (err) {
+                            res.status(500).json({ error: err.message });
+                            return;
+                        }
+
+                        if (this.changes === 0) {
+                            res.status(404).json({ error: 'Clínica não encontrada' });
+                            return;
+                        }
+
+                        const logMessage = reason
+                            ? `Status: ${oldStatus} → ${status}. Motivo: ${reason}`
+                            : `Status: ${oldStatus} → ${status}`;
+
+                        console.log(
+                            `⚠️  [SUPER ADMIN] Clínica "${clinic.name}" (ID: ${id}) ${logMessage}`
+                        );
+
+                        res.json({
+                            success: true,
+                            message: 'Status da clínica atualizado com sucesso',
+                            clinic: {
+                                id: clinic.id,
+                                name: clinic.name,
+                                slug: clinic.slug,
+                                old_status: oldStatus,
+                                new_status: status,
+                                plan_tier: clinic.plan_tier,
+                            },
+                            reason: reason || null,
+                        });
+                    }
+                );
+            }
+        );
+    }
+
+    /**
+     * @deprecated Use getSystemStats instead
+     * GET /api/saas/stats (old version)
      */
     static getStats(_req: Request, res: Response): void {
         db.get(

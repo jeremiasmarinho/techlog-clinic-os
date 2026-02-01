@@ -23,15 +23,34 @@ interface PrescriptionData {
 }
 
 export class PrescriptionPdfService {
+    /**
+     * Gera um buffer PDF da receita médica.
+     *
+     * FONTES: PDFKit usa fontes padrão (Helvetica, Times-Roman, Courier)
+     * que funcionam em qualquer ambiente. Para fontes customizadas,
+     * use doc.font('/path/to/font.ttf')
+     *
+     * FALLBACK: Se a fonte não existir, PDFKit continua com a fonte padrão.
+     */
     static async generatePdfBuffer(
         clinic: ClinicData,
         doctor: DoctorData,
         prescription: PrescriptionData
     ): Promise<Buffer> {
-        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        // PDFDocument com fontes padrão seguras (sempre disponíveis)
+        const doc = new PDFDocument({
+            size: 'A4',
+            margin: 50,
+            // Usar fontes padrão do PDF (sempre funcionam)
+            autoFirstPage: true,
+            bufferPages: true,
+        });
         const chunks: Buffer[] = [];
 
         doc.on('data', (chunk) => chunks.push(chunk));
+
+        // Aplicar fallback de fontes seguro
+        this.applyFontFallback(doc);
 
         const logoBuffer = this.dataUrlToBuffer(clinic.logoDataUrl || null);
         const remoteOrLocalLogo = logoBuffer ? null : clinic.logoUrl || null;
@@ -157,5 +176,140 @@ export class PrescriptionPdfService {
 
         const parts = [name, dose, notes].filter(Boolean);
         return parts.join(' - ');
+    }
+
+    /**
+     * Aplica fallback de fontes seguro.
+     *
+     * PDFKit suporta 4 famílias de fontes padrão que SEMPRE funcionam:
+     * - 'Helvetica' (sans-serif, padrão)
+     * - 'Times-Roman' (serif)
+     * - 'Courier' (monospace)
+     * - 'Symbol' e 'ZapfDingbats' (símbolos)
+     *
+     * Para fontes customizadas, use:
+     * doc.font('/caminho/para/fonte.ttf')
+     *
+     * Se a fonte customizada falhar, PDFKit automaticamente
+     * usa Helvetica como fallback.
+     */
+    private static applyFontFallback(doc: PDFKit.PDFDocument): void {
+        try {
+            // Testar se conseguimos aplicar a fonte padrão
+            doc.font('Helvetica');
+        } catch (error) {
+            // Se até Helvetica falhar (improvável), PDFKit usa fonte embutida
+            console.warn('⚠️  Helvetica não disponível, usando fonte padrão do PDF', error);
+            // PDFKit continua funcionando com fonte interna
+        }
+    }
+
+    /**
+     * Gera um PDF de teste com caracteres especiais para validação.
+     * Útil para testar encoding UTF-8 no servidor.
+     */
+    static async generateTestPdfBuffer(): Promise<Buffer> {
+        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        const chunks: Buffer[] = [];
+
+        doc.on('data', (chunk) => chunks.push(chunk));
+
+        // Aplicar fonte padrão segura
+        this.applyFontFallback(doc);
+
+        // Título
+        doc.fontSize(20)
+            .fillColor('#0f172a')
+            .text('📄 Teste de Fontes PDFKit', 50, 50, { align: 'center' });
+
+        doc.moveDown(2);
+
+        // Informações do sistema
+        doc.fontSize(12)
+            .fillColor('#64748b')
+            .text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 50, 100);
+        doc.text(`Node.js: ${process.version}`, 50, 120);
+        doc.text(`Plataforma: ${process.platform}`, 50, 140);
+
+        doc.moveDown(2);
+
+        // Teste de caracteres especiais
+        doc.fontSize(14)
+            .fillColor('#0f172a')
+            .text('Teste de Caracteres Especiais (UTF-8):', 50, 180);
+
+        doc.fontSize(11).fillColor('#334155');
+
+        const testStrings = [
+            '✅ Acentuação: á à â ã é ê í ó ô õ ú ü ç',
+            '✅ Maiúsculas: Á À Â Ã É Ê Í Ó Ô Õ Ú Ü Ç',
+            '✅ Português: José, João, André, Ângela, Célia',
+            '✅ Medicamentos: Paracetamol 500mg - Administração oral',
+            '✅ Instruções: Tomar 1 comprimido a cada 6 horas',
+            '✅ Observações: Não ingerir bebidas alcoólicas',
+            '✅ Símbolos: ® © ™ § ¶ † ‡ • ◦ ‣',
+            '✅ Números: 1234567890 ½ ¼ ¾',
+            '✅ Moeda: R$ 100,00 US$ 50.00 € 75,50',
+            '✅ Espanhol: ñ Ñ ¿ ¡',
+            '✅ Francês: œ Œ æ Æ ë ï',
+        ];
+
+        let y = 210;
+        testStrings.forEach((str) => {
+            doc.text(str, 60, y, { width: 480 });
+            y += 20;
+        });
+
+        doc.moveDown(2);
+
+        // Fontes disponíveis
+        doc.fontSize(14)
+            .fillColor('#0f172a')
+            .text('Fontes Padrão do PDFKit:', 50, y + 20);
+
+        doc.fontSize(11).fillColor('#334155');
+
+        const fonts = [
+            { name: 'Helvetica', sample: 'The quick brown fox - Rápido zumbido' },
+            { name: 'Helvetica-Bold', sample: 'The quick brown fox - Rápido zumbido' },
+            { name: 'Times-Roman', sample: 'The quick brown fox - Rápido zumbido' },
+            { name: 'Courier', sample: 'The quick brown fox - Rápido zumbido' },
+        ];
+
+        y += 50;
+        fonts.forEach((fontInfo) => {
+            try {
+                doc.font(fontInfo.name).text(`${fontInfo.name}: ${fontInfo.sample}`, 60, y, {
+                    width: 480,
+                });
+                y += 25;
+            } catch (error) {
+                doc.font('Helvetica')
+                    .fillColor('#ef4444')
+                    .text(`${fontInfo.name}: ❌ Não disponível`, 60, y, { width: 480 });
+                y += 25;
+            }
+        });
+
+        // Footer
+        doc.fontSize(10)
+            .fillColor('#94a3b8')
+            .text(
+                'Se todos os caracteres acima estão legíveis, o encoding está correto! ✅',
+                50,
+                750,
+                {
+                    align: 'center',
+                    width: 495,
+                }
+            );
+
+        doc.end();
+
+        return new Promise((resolve) => {
+            doc.on('end', () => {
+                resolve(Buffer.concat(chunks));
+            });
+        });
     }
 }

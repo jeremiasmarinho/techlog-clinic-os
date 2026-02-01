@@ -75,9 +75,11 @@ npm start
 ## 🔌 Endpoints da API
 
 ### `GET /`
+
 Rota de teste do sistema.
 
 **Resposta:**
+
 ```json
 {
   "message": "TechLog Clinic OS - Sistema Online 🚀"
@@ -85,9 +87,11 @@ Rota de teste do sistema.
 ```
 
 ### `POST /api/leads`
+
 Cadastra um novo lead no sistema.
 
 **Body:**
+
 ```json
 {
   "name": "João Silva",
@@ -97,6 +101,7 @@ Cadastra um novo lead no sistema.
 ```
 
 **Resposta:**
+
 ```json
 {
   "id": 1,
@@ -106,9 +111,11 @@ Cadastra um novo lead no sistema.
 ```
 
 ### `GET /api/leads`
+
 Lista todos os leads cadastrados.
 
 **Resposta:**
+
 ```json
 {
   "total": 1,
@@ -126,14 +133,17 @@ Lista todos os leads cadastrados.
 ```
 
 ### `PATCH /api/leads/:id` 🔒
+
 Atualiza o status de um lead (requer autenticação).
 
 **Headers:**
+
 ```
 x-access-token: techlog-secret-2026
 ```
 
 **Body:**
+
 ```json
 {
   "status": "Agendado"
@@ -141,6 +151,7 @@ x-access-token: techlog-secret-2026
 ```
 
 **Resposta:**
+
 ```json
 {
   "message": "Status atualizado com sucesso",
@@ -151,14 +162,17 @@ x-access-token: techlog-secret-2026
 ```
 
 ### `DELETE /api/leads/:id` 🔒
+
 Remove um lead do sistema (requer autenticação).
 
 **Headers:**
+
 ```
 x-access-token: techlog-secret-2026
 ```
 
 **Resposta:**
+
 ```json
 {
   "message": "Lead removido com sucesso",
@@ -169,7 +183,7 @@ x-access-token: techlog-secret-2026
 
 ## 🔐 Autenticação
 
-Rotas protegidas (PATCH e DELETE) requerem o header `x-access-token`. 
+Rotas protegidas (PATCH e DELETE) requerem o header `x-access-token`.
 
 Configure a variável de ambiente `ACCESS_TOKEN` ou use o padrão: `techlog-secret-2026`
 
@@ -184,9 +198,28 @@ Configure a variável de ambiente `ACCESS_TOKEN` ou use o padrão: `techlog-secr
 O servidor roda na porta **3001** por padrão.
 
 Para rodar em produção:
+
 ```bash
 npm run build && npm start
 ```
+
+### 📋 Deploy Completo
+
+Ver guia detalhado: [DEPLOY_GUIDE.md](DEPLOY_GUIDE.md)
+
+**Deploy automático:**
+
+```bash
+bash scripts/deploy-prod.sh
+```
+
+**Instalar fontes para PDFs (primeira vez):**
+
+```bash
+sudo bash scripts/install-fonts.sh
+```
+
+Ver: [FONTS_GUIDE.md](FONTS_GUIDE.md) | [FONTS_CHECKLIST.md](FONTS_CHECKLIST.md)
 
 ## 📄 Licença
 

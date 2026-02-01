@@ -7,6 +7,7 @@ class ClinicHeader {
     constructor() {
         this.clinicName = sessionStorage.getItem('clinicName') || 'Clínica';
         this.clinicSlug = sessionStorage.getItem('clinicSlug') || '';
+        this.clinicLogoUrl = sessionStorage.getItem('clinicLogoUrl') || '';
         this.userName = sessionStorage.getItem('userName') || 'Usuário';
         this.userRole = sessionStorage.getItem('userRole') || 'staff';
         this.isOwner = sessionStorage.getItem('isOwner') === 'true';
@@ -71,9 +72,9 @@ class ClinicHeader {
                         <!-- Logo e Nome da Clínica -->
                         <div class="flex items-center space-x-4">
                             <div class="flex items-center space-x-2">
-                                <i class="fas fa-hospital text-cyan-400 text-2xl"></i>
+                                ${this.clinicLogoUrl ? `<img id="clinicHeaderLogo" src="${this.clinicLogoUrl}" class="w-10 h-10 rounded-lg object-cover border border-white/20" alt="Logo">` : '<i id="clinicHeaderIcon" class="fas fa-hospital text-cyan-400 text-2xl"></i>'}
                                 <div>
-                                    <h1 class="text-white font-bold text-lg leading-tight">${this.clinicName}</h1>
+                                    <h1 id="clinicHeaderName" class="text-white font-bold text-lg leading-tight">${this.clinicName}</h1>
                                     <div class="flex items-center gap-2 mt-0.5">
                                         ${this.getPlanBadge()}
                                         <span class="bg-green-500/20 text-green-400 text-xs font-semibold px-2 py-0.5 rounded">

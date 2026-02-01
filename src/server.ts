@@ -16,6 +16,7 @@ import patientRoutes from './routes/patient.routes'; // Rotas de pacientes
 import prescriptionRoutes from './routes/prescription.routes'; // Rotas de receitas
 import calendarRoutes from './routes/calendar.routes'; // Rotas de agendamentos
 import appointmentsRoutes from './routes/appointments.routes'; // Rotas de appointments
+import financialRoutes from './routes/financial.routes'; // Rotas financeiras
 import './database'; // Inicia o banco de dados
 
 export class Server {
@@ -74,6 +75,7 @@ export class Server {
         this.app.use(express.json());
         this.app.use(express.static(path.join(__dirname, '../public')));
         this.app.use('/shared', express.static(path.join(__dirname, '../shared')));
+        this.app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
     }
 
     private routes(): void {
@@ -84,6 +86,31 @@ export class Server {
                 uptime: process.uptime(),
                 timestamp: new Date().toISOString(),
             });
+        });
+
+        // Debug PDF Test Endpoint (temporary - remove in production)
+        this.app.get('/debug/pdf-test', async (_req, res) => {
+            try {
+                const { PrescriptionPdfService } =
+                    await import('./services/PrescriptionPdfService');
+                const buffer = await PrescriptionPdfService.generateTestPdfBuffer();
+
+                res.setHeader('Content-Type', 'application/pdf');
+                res.setHeader('Content-Disposition', 'inline; filename="font-test.pdf"');
+                res.send(buffer);
+            } catch (error) {
+                console.error('Erro ao gerar PDF de teste:', error);
+                res.status(500).json({
+                    error: 'Erro ao gerar PDF de teste',
+                    message: error instanceof Error ? error.message : 'Erro desconhecido',
+                    stack:
+                        process.env.NODE_ENV === 'development'
+                            ? error instanceof Error
+                                ? error.stack
+                                : undefined
+                            : undefined,
+                });
+            }
         });
 
         // API Routes
@@ -97,6 +124,7 @@ export class Server {
         this.app.use('/api/prescriptions', prescriptionRoutes); // Prescriptions
         this.app.use('/api/calendar', calendarRoutes); // Calendar
         this.app.use('/api/appointments', appointmentsRoutes); // Appointments
+        this.app.use('/api/financial', financialRoutes); // Financial
 
         // Rota de Teste (Usando _req para o TypeScript não reclamar)
         this.app.get('/api', (_req, res) => {
