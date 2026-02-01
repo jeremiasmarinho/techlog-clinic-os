@@ -1,8 +1,26 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
 
-const DB_PATH = path.resolve(__dirname, '../clinic.db');
+dotenv.config();
+
+function getDatabasePath(): string {
+    const nodeEnv = process.env.NODE_ENV || 'development';
+
+    switch (nodeEnv) {
+        case 'test':
+            return path.resolve(__dirname, '../database.test.sqlite');
+        case 'production':
+            return path.resolve(__dirname, '../database.prod.sqlite');
+        case 'development':
+        default:
+            return path.resolve(__dirname, '../database.dev.sqlite');
+    }
+}
+
+const DB_PATH = getDatabasePath();
+console.log(`🗑️  Resetting database: ${DB_PATH}`);
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
@@ -20,7 +38,7 @@ async function resetDatabase() {
     try {
         // Limpar apenas a tabela de leads (preserva users)
         await new Promise<void>((resolve, reject) => {
-            db.run("DELETE FROM leads", (err) => {
+            db.run('DELETE FROM leads', (err) => {
                 if (err) reject(err);
                 else resolve();
             });
@@ -47,10 +65,10 @@ async function resetDatabase() {
         if (!adminExists) {
             console.log('\n👤 Criando usuário admin...');
             const hashedPassword = await bcrypt.hash('123', 10);
-            
+
             await new Promise<void>((resolve, reject) => {
                 db.run(
-                    "INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)",
+                    'INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)',
                     ['Administrador', 'admin', hashedPassword, 'admin'],
                     (err) => {
                         if (err) reject(err);
@@ -64,7 +82,7 @@ async function resetDatabase() {
         }
 
         console.log('ℹ️  Tabela "users" preservada');
-        
+
         db.close((err) => {
             if (err) {
                 console.error('❌ Erro ao fechar banco:', err.message);
@@ -73,7 +91,6 @@ async function resetDatabase() {
                 console.log('💡 Execute "npm start" para iniciar o servidor\n');
             }
         });
-
     } catch (error: any) {
         console.error('❌ Erro ao resetar banco:', error.message);
         db.close();

@@ -1,7 +1,25 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
+import dotenv from 'dotenv';
 
-const DB_PATH = path.resolve(__dirname, '../clinic.db');
+dotenv.config();
+
+function getDatabasePath(): string {
+    const nodeEnv = process.env.NODE_ENV || 'development';
+
+    switch (nodeEnv) {
+        case 'test':
+            return path.resolve(__dirname, '../database.test.sqlite');
+        case 'production':
+            return path.resolve(__dirname, '../database.prod.sqlite');
+        case 'development':
+        default:
+            return path.resolve(__dirname, '../database.dev.sqlite');
+    }
+}
+
+const DB_PATH = getDatabasePath();
+console.log(`🌱 Seeding database: ${DB_PATH}`);
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
@@ -39,11 +57,11 @@ function seedRealisticData(): void {
     }) => {
         // Formato novo: {"financial":{"paymentType":"X","insuranceName":"Y","value":"Z"}}
         const financialData: any = {};
-        
+
         if (data.paymentType) {
             financialData.paymentType = data.paymentType;
         }
-        
+
         if (data.insuranceName) {
             financialData.insuranceName = data.insuranceName;
         }
@@ -70,14 +88,14 @@ function seedRealisticData(): void {
             status: 'novo',
             type: 'Atendimento Humano',
             source: 'Manual',
-            value: 30000.00,
+            value: 30000.0,
             created_at: twoDaysAgo.toISOString(),
             notes: createNotes({
                 type: 'Atendimento Humano',
                 paymentType: 'plano',
                 insuranceName: 'Unimed',
-                observations: 'Paciente com histórico de procedimentos anteriores. Urgente.'
-            })
+                observations: 'Paciente com histórico de procedimentos anteriores. Urgente.',
+            }),
         },
         {
             name: 'Jeremias Marinho',
@@ -89,8 +107,8 @@ function seedRealisticData(): void {
             created_at: yesterday.toISOString(),
             notes: createNotes({
                 type: 'Atendimento Humano',
-                observations: 'Contato inicial via WhatsApp. Aguardando retorno.'
-            })
+                observations: 'Contato inicial via WhatsApp. Aguardando retorno.',
+            }),
         },
         {
             name: 'Anna Victória',
@@ -105,8 +123,8 @@ function seedRealisticData(): void {
             notes: createNotes({
                 type: 'Primeira Consulta',
                 doctor: 'Dr. Cleber',
-                observations: 'Paciente novo. Primeira consulta marcada para hoje.'
-            })
+                observations: 'Paciente novo. Primeira consulta marcada para hoje.',
+            }),
         },
         {
             name: 'Carlos Eduardo Souza',
@@ -118,8 +136,8 @@ function seedRealisticData(): void {
             created_at: today.toISOString(),
             notes: createNotes({
                 type: 'Exame',
-                observations: 'Solicitação de exames laboratoriais. Aguardando agendamento.'
-            })
+                observations: 'Solicitação de exames laboratoriais. Aguardando agendamento.',
+            }),
         },
 
         // ============================================
@@ -138,8 +156,8 @@ function seedRealisticData(): void {
             notes: createNotes({
                 type: 'Primeira Consulta',
                 doctor: 'Dr. Cleber',
-                observations: 'Atendimento iniciado ontem. Em andamento.'
-            })
+                observations: 'Atendimento iniciado ontem. Em andamento.',
+            }),
         },
         {
             name: 'Roberto Carlos Mendes',
@@ -154,8 +172,8 @@ function seedRealisticData(): void {
             notes: createNotes({
                 type: 'Consulta',
                 doctor: 'Dra. Marina Santos',
-                observations: 'Consulta de rotina em andamento.'
-            })
+                observations: 'Consulta de rotina em andamento.',
+            }),
         },
         {
             name: 'Patricia Ferreira Lima',
@@ -171,8 +189,8 @@ function seedRealisticData(): void {
                 type: 'Sessão/Recorrente',
                 doctor: 'Dr. Cleber',
                 paymentType: 'particular',
-                observations: 'Paciente em tratamento contínuo. 5ª sessão.'
-            })
+                observations: 'Paciente em tratamento contínuo. 5ª sessão.',
+            }),
         },
 
         // ============================================
@@ -189,8 +207,8 @@ function seedRealisticData(): void {
             created_at: today.toISOString(),
             notes: createNotes({
                 type: 'Primeira Consulta',
-                observations: 'Agendamento confirmado para amanhã. Primeira consulta.'
-            })
+                observations: 'Agendamento confirmado para amanhã. Primeira consulta.',
+            }),
         },
         {
             name: 'Jeremias Marinho Jr',
@@ -198,7 +216,7 @@ function seedRealisticData(): void {
             status: 'agendado',
             type: 'Consulta',
             source: 'WhatsApp',
-            value: 450.00,
+            value: 450.0,
             appointment_date: dayAfterTomorrow.toISOString(),
             doctor: 'Dr. Cleber',
             created_at: today.toISOString(),
@@ -207,8 +225,8 @@ function seedRealisticData(): void {
                 paymentType: 'plano',
                 insuranceName: 'Unimed',
                 doctor: 'Dr. Cleber',
-                observations: 'Consulta de retorno agendada. Plano de saúde confirmado.'
-            })
+                observations: 'Consulta de retorno agendada. Plano de saúde confirmado.',
+            }),
         },
         {
             name: 'Fernanda Costa Silva',
@@ -224,8 +242,8 @@ function seedRealisticData(): void {
                 type: 'Retorno',
                 paymentType: 'retorno',
                 doctor: 'Dra. Marina Santos',
-                observations: 'Retorno após cirurgia. Sem cobrança.'
-            })
+                observations: 'Retorno após cirurgia. Sem cobrança.',
+            }),
         },
         {
             name: 'Ricardo Alves Pereira',
@@ -233,14 +251,14 @@ function seedRealisticData(): void {
             status: 'agendado',
             type: 'exame',
             source: 'WhatsApp',
-            value: 350.00,
+            value: 350.0,
             appointment_date: dayAfterTomorrow.toISOString(),
             created_at: yesterday.toISOString(),
             notes: createNotes({
                 type: 'Exame',
                 paymentType: 'particular',
-                observations: 'Exame de sangue completo. Agendado para depois de amanhã.'
-            })
+                observations: 'Exame de sangue completo. Agendado para depois de amanhã.',
+            }),
         },
 
         // ============================================
@@ -252,7 +270,7 @@ function seedRealisticData(): void {
             status: 'finalizado',
             type: 'primeira_consulta',
             source: 'WhatsApp',
-            value: 43200.00,
+            value: 43200.0,
             attendance_status: 'compareceu',
             doctor: 'Dr. Cleber',
             created_at: yesterday.toISOString(),
@@ -261,8 +279,8 @@ function seedRealisticData(): void {
                 type: 'Primeira Consulta',
                 paymentType: 'particular',
                 doctor: 'Dr. Cleber',
-                observations: 'Procedimento cirúrgico realizado com sucesso. Paciente compareceu.'
-            })
+                observations: 'Procedimento cirúrgico realizado com sucesso. Paciente compareceu.',
+            }),
         },
         {
             name: 'Daniel Henrique Santos',
@@ -270,15 +288,15 @@ function seedRealisticData(): void {
             status: 'finalizado',
             type: 'Consulta',
             source: 'WhatsApp',
-            value: 250.00,
+            value: 250.0,
             attendance_status: 'compareceu',
             created_at: twoDaysAgo.toISOString(),
             appointment_date: twoDaysAgo.toISOString(),
             notes: createNotes({
                 type: 'Consulta',
                 paymentType: 'particular',
-                observations: 'Consulta realizada. Paciente compareceu e pagou em dinheiro.'
-            })
+                observations: 'Consulta realizada. Paciente compareceu e pagou em dinheiro.',
+            }),
         },
         {
             name: 'Juliana Martins Costa',
@@ -295,8 +313,8 @@ function seedRealisticData(): void {
                 type: 'Retorno',
                 paymentType: 'retorno',
                 doctor: 'Dra. Marina Santos',
-                observations: 'Retorno pós-operatório. Tudo OK. Sem cobrança.'
-            })
+                observations: 'Retorno pós-operatório. Tudo OK. Sem cobrança.',
+            }),
         },
         {
             name: 'Marcos Paulo Andrade',
@@ -304,15 +322,15 @@ function seedRealisticData(): void {
             status: 'finalizado',
             type: 'exame',
             source: 'WhatsApp',
-            value: 180.00,
+            value: 180.0,
             attendance_status: 'nao_compareceu',
             created_at: yesterday.toISOString(),
             appointment_date: yesterday.toISOString(),
             notes: createNotes({
                 type: 'Exame',
                 paymentType: 'particular',
-                observations: 'Paciente NÃO compareceu ao exame agendado. Tentar reagendar.'
-            })
+                observations: 'Paciente NÃO compareceu ao exame agendado. Tentar reagendar.',
+            }),
         },
         {
             name: 'Beatriz Souza Oliveira',
@@ -320,7 +338,7 @@ function seedRealisticData(): void {
             status: 'finalizado',
             type: 'primeira_consulta',
             source: 'WhatsApp',
-            value: 320.00,
+            value: 320.0,
             attendance_status: 'remarcado',
             doctor: 'Dr. Cleber',
             created_at: twoDaysAgo.toISOString(),
@@ -329,9 +347,9 @@ function seedRealisticData(): void {
                 type: 'Primeira Consulta',
                 paymentType: 'particular',
                 doctor: 'Dr. Cleber',
-                observations: 'Consulta remarcada a pedido do paciente. Novo horário pendente.'
-            })
-        }
+                observations: 'Consulta remarcada a pedido do paciente. Novo horário pendente.',
+            }),
+        },
     ];
 
     console.log(`📝 Inserindo ${leads.length} leads de exemplo no banco...\n`);
@@ -362,11 +380,16 @@ function seedRealisticData(): void {
             lead.created_at || new Date().toISOString(),
             (err: any) => {
                 if (err) {
-                    console.error(`❌ Erro ao inserir lead ${index + 1} (${lead.name}):`, err.message);
+                    console.error(
+                        `❌ Erro ao inserir lead ${index + 1} (${lead.name}):`,
+                        err.message
+                    );
                     errors++;
                 } else {
                     inserted++;
-                    console.log(`✅ Lead ${inserted}/${leads.length}: ${lead.name} (${lead.status}) - ${lead.type || 'geral'}`);
+                    console.log(
+                        `✅ Lead ${inserted}/${leads.length}: ${lead.name} (${lead.status}) - ${lead.type || 'geral'}`
+                    );
                 }
 
                 // Finalizar quando todos forem processados
@@ -378,20 +401,31 @@ function seedRealisticData(): void {
                         console.log(`✅ Leads inseridos: ${inserted}`);
                         console.log(`❌ Erros: ${errors}`);
                         console.log('\n📊 DISTRIBUIÇÃO POR STATUS:');
-                        console.log(`   • Novos: ${leads.filter(l => l.status === 'novo').length}`);
-                        console.log(`   • Em Atendimento: ${leads.filter(l => l.status === 'em_atendimento').length}`);
-                        console.log(`   • Agendados: ${leads.filter(l => l.status === 'agendado').length}`);
-                        console.log(`   • Finalizados: ${leads.filter(l => l.status === 'finalizado').length}`);
-                        console.log('\n💰 VALOR TOTAL ESTIMADO: R$ ' + 
-                            leads.reduce((sum, l) => sum + (l.value || 0), 0).toLocaleString('pt-BR', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })
+                        console.log(
+                            `   • Novos: ${leads.filter((l) => l.status === 'novo').length}`
+                        );
+                        console.log(
+                            `   • Em Atendimento: ${leads.filter((l) => l.status === 'em_atendimento').length}`
+                        );
+                        console.log(
+                            `   • Agendados: ${leads.filter((l) => l.status === 'agendado').length}`
+                        );
+                        console.log(
+                            `   • Finalizados: ${leads.filter((l) => l.status === 'finalizado').length}`
+                        );
+                        console.log(
+                            '\n💰 VALOR TOTAL ESTIMADO: R$ ' +
+                                leads
+                                    .reduce((sum, l) => sum + (l.value || 0), 0)
+                                    .toLocaleString('pt-BR', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    })
                         );
                         console.log('\n🚀 Sistema pronto para uso!');
                         console.log('📌 Acesse: http://localhost:3001/admin.html');
                         console.log('🔑 Credenciais: admin / 123\n');
-                        
+
                         db.close();
                         process.exit(0);
                     });

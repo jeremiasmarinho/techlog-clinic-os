@@ -11,10 +11,19 @@ const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
 export class AuthController {
     static async login(req: Request, res: Response): Promise<void> {
         const { email, password } = req.body;
-        
+
         // Validação básica
         if (!email || !password) {
             res.status(400).json({ error: 'E-mail e senha são obrigatórios' });
+            return;
+        }
+
+        // Trim whitespace and validate
+        const trimmedEmail = email.trim();
+        const trimmedPassword = password.trim();
+
+        if (!trimmedEmail || !trimmedPassword) {
+            res.status(401).json({ error: 'Credenciais inválidas' });
             return;
         }
 
@@ -23,22 +32,22 @@ export class AuthController {
             const attempts = loginAttempts.get(email);
             if (attempts) {
                 const timeSinceLastAttempt = Date.now() - attempts.lastAttempt;
-                
+
                 if (attempts.count >= MAX_ATTEMPTS && timeSinceLastAttempt < LOCKOUT_TIME) {
                     const remainingTime = Math.ceil((LOCKOUT_TIME - timeSinceLastAttempt) / 60000);
-                    res.status(429).json({ 
-                        error: `Muitas tentativas de login. Tente novamente em ${remainingTime} minutos.` 
+                    res.status(429).json({
+                        error: `Muitas tentativas de login. Tente novamente em ${remainingTime} minutos.`,
                     });
                     return;
                 }
-                
+
                 // Reset if lockout time has passed
                 if (timeSinceLastAttempt >= LOCKOUT_TIME) {
                     loginAttempts.delete(email);
                 }
             }
         }
-        
+
         // Query database for user with clinic info
         db.get(
             `SELECT u.id, u.name, u.username, u.password, u.role, u.clinic_id, u.is_owner,
@@ -46,7 +55,7 @@ export class AuthController {
              FROM users u
              LEFT JOIN clinics c ON u.clinic_id = c.id
              WHERE u.username = ?`,
-            [email],
+            [trimmedEmail],
             async (err, row: any) => {
                 if (err) {
                     console.error('❌ Erro no login:', err.message);
@@ -58,38 +67,38 @@ export class AuthController {
                     // Track failed attempt (only in production)
                     if (process.env.NODE_ENV === 'production') {
                         const current = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
-                        loginAttempts.set(email, { 
-                            count: current.count + 1, 
-                            lastAttempt: Date.now() 
+                        loginAttempts.set(email, {
+                            count: current.count + 1,
+                            lastAttempt: Date.now(),
                         });
                     }
-                    
+
                     res.status(401).json({ error: 'Credenciais inválidas' });
                     return;
                 }
 
                 // Check if clinic is active (except for super_admin)
                 if (row.role !== 'super_admin' && row.clinic_status !== 'active') {
-                    res.status(403).json({ 
+                    res.status(403).json({
                         error: 'Clínica suspensa ou inativa. Entre em contato com o suporte.',
-                        clinic_status: row.clinic_status
+                        clinic_status: row.clinic_status,
                     });
                     return;
                 }
 
                 // Verify password
-                const isPasswordValid = await bcrypt.compare(password, row.password);
-                
+                const isPasswordValid = await bcrypt.compare(trimmedPassword, row.password);
+
                 if (!isPasswordValid) {
                     // Track failed attempt (only in production)
                     if (process.env.NODE_ENV === 'production') {
                         const current = loginAttempts.get(email) || { count: 0, lastAttempt: 0 };
-                        loginAttempts.set(email, { 
-                            count: current.count + 1, 
-                            lastAttempt: Date.now() 
+                        loginAttempts.set(email, {
+                            count: current.count + 1,
+                            lastAttempt: Date.now(),
                         });
                     }
-                    
+
                     res.status(401).json({ error: 'Credenciais inválidas' });
                     return;
                 }
@@ -105,14 +114,16 @@ export class AuthController {
                         name: row.name,
                         role: row.role,
                         clinicId: row.clinic_id,
-                        isOwner: row.is_owner === 1
+                        isOwner: row.is_owner === 1,
                     },
                     process.env.JWT_SECRET as string,
                     { expiresIn: '8h' }
                 );
 
-                console.log(`✅ Login: ${row.username} (${row.role}) - Clínica: ${row.clinic_name || 'N/A'}`);
-                
+                console.log(
+                    `✅ Login: ${row.username} (${row.role}) - Clínica: ${row.clinic_name || 'N/A'}`
+                );
+
                 res.json({
                     success: true,
                     token,
@@ -128,9 +139,9 @@ export class AuthController {
                             name: row.clinic_name,
                             slug: row.clinic_slug,
                             status: row.clinic_status,
-                            plan: row.plan_tier
-                        }
-                    }
+                            plan: row.plan_tier,
+                        },
+                    },
                 });
             }
         );

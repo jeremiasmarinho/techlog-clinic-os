@@ -1,7 +1,25 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
+import dotenv from 'dotenv';
 
-const DB_PATH = path.resolve(__dirname, '../clinic.db');
+dotenv.config();
+
+function getDatabasePath(): string {
+    const nodeEnv = process.env.NODE_ENV || 'development';
+
+    switch (nodeEnv) {
+        case 'test':
+            return path.resolve(__dirname, '../database.test.sqlite');
+        case 'production':
+            return path.resolve(__dirname, '../database.prod.sqlite');
+        case 'development':
+        default:
+            return path.resolve(__dirname, '../database.dev.sqlite');
+    }
+}
+
+const DB_PATH = getDatabasePath();
+console.log(`🗑️  Resetting and seeding database: ${DB_PATH}`);
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
@@ -17,7 +35,7 @@ function resetDatabase() {
     console.log('\n🗑️  LIMPANDO DADOS EXISTENTES...\n');
 
     // Limpar apenas a tabela de leads (preserva users)
-    db.run("DELETE FROM leads", (err) => {
+    db.run('DELETE FROM leads', (err) => {
         if (err) {
             console.error('❌ Erro ao limpar leads:', err.message);
             db.close();
@@ -25,18 +43,20 @@ function resetDatabase() {
         } else {
             console.log('✅ Tabela "leads" limpa com sucesso');
             console.log('ℹ️  Tabela "users" preservada (admin mantido)');
-            
+
             // Resetar autoincrement
             db.run("DELETE FROM sqlite_sequence WHERE name='leads'", (err) => {
                 if (err && !err.message.includes('no such table')) {
                     console.warn('⚠️ Aviso ao resetar autoincrement:', err.message);
                 }
-                
+
                 db.close((err) => {
                     if (err) {
                         console.error('❌ Erro ao fechar banco:', err.message);
                     } else {
-                        console.log('\n✅ Banco resetado! Reinicie o servidor para recarregar os dados de seed.');
+                        console.log(
+                            '\n✅ Banco resetado! Reinicie o servidor para recarregar os dados de seed.'
+                        );
                         console.log('💡 Execute: npm start\n');
                     }
                 });

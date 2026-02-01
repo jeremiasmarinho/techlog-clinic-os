@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+
+echo "🔍 Running tests before push..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Run Jest tests
+npm test
+
+# Check exit code
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ PUSH BLOQUEADO! Testes falharam."
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  echo "⚠️  Corrija os erros nos testes antes de fazer push."
+  echo ""
+  echo "Comandos úteis:"
+  echo "  npm test              - Rodar todos os testes"
+  echo "  npm run test:unit     - Rodar apenas testes unitários"
+  echo "  npm run test:watch    - Modo watch para desenvolvimento"
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  exit 1
+fi
+
+echo ""
+echo "✅ Todos os testes passaram! Push liberado."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
