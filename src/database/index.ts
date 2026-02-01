@@ -102,6 +102,7 @@ function initDb(): void {
             type TEXT DEFAULT 'geral',
             status TEXT DEFAULT 'novo',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            clinic_id INTEGER NOT NULL DEFAULT 1,
             appointment_date DATETIME,
             doctor TEXT,
             notes TEXT,
@@ -466,15 +467,22 @@ function ensureClinicDocumentColumns(): void {
 
 // Função auxiliar para adicionar coluna com segurança
 function addColumnIfNotExists(columnName: string, columnType: string): void {
-    db.run(`ALTER TABLE leads ADD COLUMN ${columnName} ${columnType}`, (err) => {
+    db.all('PRAGMA table_info(leads)', [], (err, rows: Array<{ name: string }>) => {
         if (err) {
-            // Coluna já existe ou outro erro (ignorar silenciosamente)
-            if (!err.message.includes('duplicate column name')) {
-                console.warn(`⚠️ Aviso ao adicionar coluna ${columnName}:`, err.message);
-            }
-        } else {
-            console.log(`✅ Coluna "${columnName}" adicionada`);
+            console.warn('⚠️ Não foi possível verificar colunas de leads:', err.message);
+            return;
         }
+
+        const columns = rows?.map((row) => row.name) || [];
+        if (columns.includes(columnName)) return;
+
+        db.run(`ALTER TABLE leads ADD COLUMN ${columnName} ${columnType}`, (alterErr) => {
+            if (alterErr) {
+                console.warn(`⚠️ Aviso ao adicionar coluna ${columnName}:`, alterErr.message);
+            } else {
+                console.log(`✅ Coluna "${columnName}" adicionada`);
+            }
+        });
     });
 }
 
