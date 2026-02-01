@@ -15,8 +15,8 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 const storage = multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, uploadDir),
-    filename: (_req, file, cb) => {
+    destination: (_req: any, _file: any, cb: any) => cb(null, uploadDir),
+    filename: (_req: any, file: any, cb: any) => {
         const ext = path.extname(file.originalname) || '.png';
         const filename = `logo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
         cb(null, filename);
@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage,
     limits: { fileSize: 2 * 1024 * 1024 },
-    fileFilter: (_req, file, cb) => {
+    fileFilter: (_req: any, file: any, cb: any) => {
         if (!file.mimetype.startsWith('image/')) {
             return cb(new Error('Formato de arquivo inválido'));
         }

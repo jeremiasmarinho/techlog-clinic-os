@@ -434,25 +434,27 @@ function ensurePatientStatusSchema(): void {
     );
 }
 
-function ensurePatientEndTimeColumn(): void {
-    db.all('PRAGMA table_info(patients)', [], (err, rows: Array<{ name: string }>) => {
-        if (err) {
-            console.warn('⚠️ Não foi possível verificar colunas de patients:', err.message);
-            return;
-        }
+// COMMENTED OUT - Function declared but never used (TS6133)
+// If needed in the future, uncomment and call from initDb()
+// function ensurePatientEndTimeColumn(): void {
+//     db.all('PRAGMA table_info(patients)', [], (err, rows: Array<{ name: string }>) => {
+//         if (err) {
+//             console.warn('⚠️ Não foi possível verificar colunas de patients:', err.message);
+//             return;
+//         }
 
-        const hasEndTime = rows?.some((row) => row.name === 'end_time');
-        if (hasEndTime) return;
+//         const hasEndTime = rows?.some((row) => row.name === 'end_time');
+//         if (hasEndTime) return;
 
-        db.run('ALTER TABLE patients ADD COLUMN end_time DATETIME', (alterErr) => {
-            if (alterErr) {
-                console.warn('⚠️ Falha ao adicionar end_time em patients:', alterErr.message);
-            } else {
-                console.log('✅ Coluna end_time adicionada em patients');
-            }
-        });
-    });
-}
+//         db.run('ALTER TABLE patients ADD COLUMN end_time DATETIME', (alterErr) => {
+//             if (alterErr) {
+//                 console.warn('⚠️ Falha ao adicionar end_time em patients:', alterErr.message);
+//             } else {
+//                 console.log('✅ Coluna end_time adicionada em patients');
+//             }
+//         });
+//     });
+// }
 
 function ensureUserDocumentColumns(): void {
     db.all('PRAGMA table_info(users)', [], (err, rows: Array<{ name: string }>) => {

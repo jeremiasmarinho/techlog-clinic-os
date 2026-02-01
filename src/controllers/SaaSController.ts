@@ -15,8 +15,6 @@ export class SaaSController {
                 c.slug, 
                 c.status, 
                 c.plan_tier, 
-                c.owner_email, 
-                c.owner_phone, 
                 c.created_at, 
                 c.updated_at,
                 c.subscription_ends_at,
@@ -26,7 +24,7 @@ export class SaaSController {
                 (SELECT COUNT(*) FROM leads WHERE clinic_id = c.id) as patient_count
              FROM clinics c
              LEFT JOIN users u ON u.clinic_id = c.id
-             GROUP BY c.id
+             GROUP BY c.id, c.name, c.slug, c.status, c.plan_tier, c.created_at, c.updated_at, c.subscription_ends_at, c.trial_ends_at
              ORDER BY c.created_at DESC`,
             [],
             (err, rows) => {

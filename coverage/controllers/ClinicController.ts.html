@@ -355,13 +355,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -409,7 +405,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -457,6 +452,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -580,6 +578,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -633,70 +633,65 @@
 <span class="cstat-no" title="statement not covered" >import { db } from '../database';</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export class C</span>linicController {
-    
     /**
      * Get Clinic Settings (GET /api/clinic/settings)
      * Returns settings for the authenticated user's clinic
      */
 <span class="fstat-no" title="function not covered" >    static </span>getSettings(req: Request, res: Response): void {
         const clinicId = <span class="cstat-no" title="statement not covered" >req.clinicId || 1;</span> // From JWT token
-        
-<span class="cstat-no" title="statement not covered" >        db.get(</span>
-            "SELECT * FROM clinic_settings WHERE clinic_id = ?",
-            [clinicId],
-<span class="fstat-no" title="function not covered" >            (e</span>rr, row: any) =&gt; {
-<span class="cstat-no" title="statement not covered" >                if (err) {</span>
-<span class="cstat-no" title="statement not covered" >                    console.error('❌ Erro ao buscar configurações:', err.message);</span>
-<span class="cstat-no" title="statement not covered" >                    res.status(500).json({ error: err.message });</span>
-<span class="cstat-no" title="statement not covered" >                    return;</span>
-                }
-                
-<span class="cstat-no" title="statement not covered" >                if (!row) {</span>
-                    // Return default settings if none exist
-<span class="cstat-no" title="statement not covered" >                    res.json({</span>
-                        identity: {
-                            name: '',
-                            phone: '',
-                            address: '',
-                            primaryColor: '#06b6d4',
-                            logo: null
-                        },
-                        hours: {
-                            opening: '08:00',
-                            closing: '18:00',
-                            lunchStart: '',
-                            lunchEnd: '',
-                            workingDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
-                        },
-                        insurancePlans: [],
-                        chatbot: {
-                            greeting: '',
-                            awayMessage: '',
-                            instructions: ''
-                        }
-                    });
-<span class="cstat-no" title="statement not covered" >                    return;</span>
-                }
-                
-                // Parse JSON fields
-<span class="cstat-no" title="statement not covered" >                try {</span>
-                    const settings = <span class="cstat-no" title="statement not covered" >{</span>
-                        identity: JSON.parse(row.identity),
-                        hours: JSON.parse(row.hours),
-                        insurancePlans: JSON.parse(row.insurance_plans),
-                        chatbot: JSON.parse(row.chatbot)
-                    };
-                    
-<span class="cstat-no" title="statement not covered" >                    console.log(`✅ Configurações retornadas para clinic_id=${clinicId}`);</span>
-<span class="cstat-no" title="statement not covered" >                    res.json(settings);</span>
-                } catch (parseError) {
-<span class="cstat-no" title="statement not covered" >                    console.error('❌ Erro ao parsear JSON:', parseError);</span>
-<span class="cstat-no" title="statement not covered" >                    res.status(500).json({ error: 'Erro ao processar configurações' });</span>
-                }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >        db.get('SELECT * FROM clinic_settings WHERE clinic_id = ?', [clinicId], <span class="fstat-no" title="function not covered" >(e</span>rr, row: any) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            if (err) {</span>
+<span class="cstat-no" title="statement not covered" >                console.error('❌ Erro ao buscar configurações:', err.message);</span>
+<span class="cstat-no" title="statement not covered" >                res.status(500).json({ error: err.message });</span>
+<span class="cstat-no" title="statement not covered" >                return;</span>
             }
-        );
+&nbsp;
+<span class="cstat-no" title="statement not covered" >            if (!row) {</span>
+                // Return default settings if none exist
+<span class="cstat-no" title="statement not covered" >                res.json({</span>
+                    identity: {
+                        name: '',
+                        phone: '',
+                        address: '',
+                        primaryColor: '#06b6d4',
+                        logo: null,
+                    },
+                    hours: {
+                        opening: '08:00',
+                        closing: '18:00',
+                        lunchStart: '',
+                        lunchEnd: '',
+                        workingDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
+                    },
+                    insurancePlans: [],
+                    chatbot: {
+                        greeting: '',
+                        awayMessage: '',
+                        instructions: '',
+                    },
+                });
+<span class="cstat-no" title="statement not covered" >                return;</span>
+            }
+&nbsp;
+            // Parse JSON fields
+<span class="cstat-no" title="statement not covered" >            try {</span>
+                const settings = <span class="cstat-no" title="statement not covered" >{</span>
+                    identity: JSON.parse(row.identity),
+                    hours: JSON.parse(row.hours),
+                    insurancePlans: JSON.parse(row.insurance_plans),
+                    chatbot: JSON.parse(row.chatbot),
+                };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >                console.log(`✅ Configurações retornadas para clinic_id=${clinicId}`);</span>
+<span class="cstat-no" title="statement not covered" >                res.json(settings);</span>
+            } catch (parseError) {
+<span class="cstat-no" title="statement not covered" >                console.error('❌ Erro ao parsear JSON:', parseError);</span>
+<span class="cstat-no" title="statement not covered" >                res.status(500).json({ error: 'Erro ao processar configurações' });</span>
+            }
+        });
     }
-    
+&nbsp;
     /**
      * Update Clinic Settings (PUT /api/clinic/settings)
      * Updates or creates settings for the authenticated user's clinic
@@ -704,24 +699,24 @@
 <span class="fstat-no" title="function not covered" >    static </span>updateSettings(req: Request, res: Response): void {
         const clinicId = <span class="cstat-no" title="statement not covered" >req.clinicId || 1;</span> // From JWT token
         const { identity, hours, insurancePlans, chatbot } = <span class="cstat-no" title="statement not covered" >req.body;</span>
-        
+&nbsp;
         // Validate required fields
 <span class="cstat-no" title="statement not covered" >        if (!identity || !hours || !insurancePlans || !chatbot) {</span>
-<span class="cstat-no" title="statement not covered" >            res.status(400).json({ </span>
-                error: 'Campos obrigatórios: identity, hours, insurancePlans, chatbot' 
+<span class="cstat-no" title="statement not covered" >            res.status(400).json({</span>
+                error: 'Campos obrigatórios: identity, hours, insurancePlans, chatbot',
             });
 <span class="cstat-no" title="statement not covered" >            return;</span>
         }
-        
+&nbsp;
         // Convert to JSON strings
         const identityJson = <span class="cstat-no" title="statement not covered" >JSON.stringify(identity);</span>
         const hoursJson = <span class="cstat-no" title="statement not covered" >JSON.stringify(hours);</span>
         const insurancePlansJson = <span class="cstat-no" title="statement not covered" >JSON.stringify(insurancePlans);</span>
         const chatbotJson = <span class="cstat-no" title="statement not covered" >JSON.stringify(chatbot);</span>
-        
+&nbsp;
         // Check if settings already exist
 <span class="cstat-no" title="statement not covered" >        db.get(</span>
-            "SELECT id FROM clinic_settings WHERE clinic_id = ?",
+            'SELECT id FROM clinic_settings WHERE clinic_id = ?',
             [clinicId],
 <span class="fstat-no" title="function not covered" >            (e</span>rr, row: any) =&gt; {
 <span class="cstat-no" title="statement not covered" >                if (err) {</span>
@@ -729,7 +724,7 @@
 <span class="cstat-no" title="statement not covered" >                    res.status(500).json({ error: err.message });</span>
 <span class="cstat-no" title="statement not covered" >                    return;</span>
                 }
-                
+&nbsp;
 <span class="cstat-no" title="statement not covered" >                if (row) {</span>
                     // Update existing settings
 <span class="cstat-no" title="statement not covered" >                    db.run(</span>
@@ -737,17 +732,20 @@
                          SET identity = ?, hours = ?, insurance_plans = ?, chatbot = ?, updated_at = CURRENT_TIMESTAMP
                          WHERE clinic_id = ?`,
                         [identityJson, hoursJson, insurancePlansJson, chatbotJson, clinicId],
-<span class="fstat-no" title="function not covered" >                        function(u</span>pdateErr) {
+<span class="fstat-no" title="function not covered" >                        function (u</span>pdateErr) {
 <span class="cstat-no" title="statement not covered" >                            if (updateErr) {</span>
-<span class="cstat-no" title="statement not covered" >                                console.error('❌ Erro ao atualizar configurações:', updateErr.message);</span>
+<span class="cstat-no" title="statement not covered" >                                console.error(</span>
+                                    '❌ Erro ao atualizar configurações:',
+                                    updateErr.message
+                                );
 <span class="cstat-no" title="statement not covered" >                                res.status(500).json({ error: updateErr.message });</span>
 <span class="cstat-no" title="statement not covered" >                                return;</span>
                             }
-                            
+&nbsp;
 <span class="cstat-no" title="statement not covered" >                            console.log(`✅ Configurações atualizadas para clinic_id=${clinicId}`);</span>
-<span class="cstat-no" title="statement not covered" >                            res.json({ </span>
+<span class="cstat-no" title="statement not covered" >                            res.json({</span>
                                 message: 'Configurações atualizadas com sucesso',
-                                clinicId
+                                clinicId,
                             });
                         }
                     );
@@ -757,18 +755,18 @@
                         `INSERT INTO clinic_settings (clinic_id, identity, hours, insurance_plans, chatbot)
                          VALUES (?, ?, ?, ?, ?)`,
                         [clinicId, identityJson, hoursJson, insurancePlansJson, chatbotJson],
-<span class="fstat-no" title="function not covered" >                        function(i</span>nsertErr) {
+<span class="fstat-no" title="function not covered" >                        function (i</span>nsertErr) {
 <span class="cstat-no" title="statement not covered" >                            if (insertErr) {</span>
 <span class="cstat-no" title="statement not covered" >                                console.error('❌ Erro ao criar configurações:', insertErr.message);</span>
 <span class="cstat-no" title="statement not covered" >                                res.status(500).json({ error: insertErr.message });</span>
 <span class="cstat-no" title="statement not covered" >                                return;</span>
                             }
-                            
+&nbsp;
 <span class="cstat-no" title="statement not covered" >                            console.log(`✅ Configurações criadas para clinic_id=${clinicId}`);</span>
-<span class="cstat-no" title="statement not covered" >                            res.status(201).json({ </span>
+<span class="cstat-no" title="statement not covered" >                            res.status(201).json({</span>
                                 message: 'Configurações criadas com sucesso',
                                 clinicId,
-                                id: this.lastID
+                                id: this.lastID,
                             });
                         }
                     );
@@ -862,7 +860,9 @@
                                         [JSON.stringify(nextIdentity), clinicId],
 <span class="fstat-no" title="function not covered" >                                        (i</span>dentityErr) =&gt; {
 <span class="cstat-no" title="statement not covered" >                                            if (identityErr) {</span>
-<span class="cstat-no" title="statement not covered" >                                                res.status(500).json({ error: identityErr.message });</span>
+<span class="cstat-no" title="statement not covered" >                                                res.status(500).json({</span>
+                                                    error: identityErr.message,
+                                                });
 <span class="cstat-no" title="statement not covered" >                                                return;</span>
                                             }
 &nbsp;
@@ -919,7 +919,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-01T06:57:01.948Z
+                at 2026-02-01T08:47:56.313Z
             </div>
         <script src="../prettify.js"></script>
         <script>
