@@ -271,6 +271,16 @@ trace.txt
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # ============================================================
+# 🧪 ARQUIVOS DE TESTE AVULSOS (RAIZ)
+# ============================================================
+# Scripts de teste temporários na raiz do projeto
+test-*.ts
+test-*.js
+test-*.mjs
+test-*.html
+test.pdf
+
+# ============================================================
 # 📝 DOCUMENTAÇÃO TEMPORÁRIA (OPCIONAL)
 # ============================================================
 # Descomentar se houver docs gerados automaticamente
