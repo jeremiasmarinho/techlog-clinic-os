@@ -32,7 +32,6 @@ export interface Transaction {
     category: TransactionCategory;
     payment_method: PaymentMethod;
     status: TransactionStatus;
-    description?: string;
     due_date?: string;
     paid_at?: string;
     created_at: string;
@@ -48,7 +47,6 @@ export interface CreateTransactionDTO {
     category: TransactionCategory | string;
     payment_method: PaymentMethod | string;
     status?: TransactionStatus;
-    description?: string | null;
     due_date?: string | null;
     paid_at?: string | null;
 }
@@ -61,7 +59,6 @@ export interface UpdateTransactionDTO {
     category?: TransactionCategory;
     payment_method?: PaymentMethod;
     status?: TransactionStatus;
-    description?: string | null;
     due_date?: string | null;
     paid_at?: string | null;
 }
@@ -169,8 +166,8 @@ export class TransactionRepository {
         const sql = `
             INSERT INTO transactions (
                 clinic_id, patient_id, appointment_id, type, amount, 
-                category, payment_method, status, description, due_date, paid_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                category, payment_method, status, due_date, paid_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const params = [
             data.clinic_id,
@@ -181,7 +178,6 @@ export class TransactionRepository {
             data.category,
             data.payment_method,
             data.status || 'pending',
-            data.description || null,
             data.due_date || null,
             data.paid_at || null,
         ];
@@ -224,10 +220,6 @@ export class TransactionRepository {
         if (data.status !== undefined) {
             fields.push('status = ?');
             params.push(data.status);
-        }
-        if (data.description !== undefined) {
-            fields.push('description = ?');
-            params.push(data.description);
         }
         if (data.due_date !== undefined) {
             fields.push('due_date = ?');
@@ -390,5 +382,126 @@ export class TransactionRepository {
 
         const result = await dbAsync.get<{ count: number }>(sql, params);
         return result?.count || 0;
+    }
+
+    /**
+     * Dashboard financeiro
+     */
+    static async getDashboard(clinicId: number): Promise<{
+        daily_balance: number;
+        monthly_income: number;
+        monthly_expense: number;
+    }> {
+        // Balanço diário
+        const dailyQuery = `
+            SELECT
+                COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) -
+                COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS daily_balance
+            FROM transactions
+            WHERE clinic_id = ?
+              AND status = 'paid'
+              AND paid_at IS NOT NULL
+              AND date(paid_at) = date('now')
+        `;
+
+        const dailyRow = await dbAsync.get<{ daily_balance: number }>(dailyQuery, [clinicId]);
+
+        // Resumo mensal
+        const monthlyQuery = `
+            SELECT
+                COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS monthly_income,
+                COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS monthly_expense
+            FROM transactions
+            WHERE clinic_id = ?
+              AND status = 'paid'
+              AND paid_at IS NOT NULL
+              AND strftime('%Y-%m', paid_at) = strftime('%Y-%m', 'now')
+        `;
+
+        const monthlyRow = await dbAsync.get<{ monthly_income: number; monthly_expense: number }>(
+            monthlyQuery,
+            [clinicId]
+        );
+
+        return {
+            daily_balance: dailyRow?.daily_balance ?? 0,
+            monthly_income: monthlyRow?.monthly_income ?? 0,
+            monthly_expense: monthlyRow?.monthly_expense ?? 0,
+        };
+    }
+
+    /**
+     * Relatório financeiro por período
+     */
+    static async getFinancialReport(
+        clinicId: number,
+        startDate: string,
+        endDate: string
+    ): Promise<{
+        summary: { total_income: number; total_expense: number; balance: number };
+        by_category: Array<{ category: string; type: string; amount: number }>;
+        by_payment_method: Array<{ payment_method: string; amount: number }>;
+    }> {
+        const dateFilter = `date(COALESCE(paid_at, due_date, created_at)) BETWEEN date(?) AND date(?)`;
+        const baseParams = [clinicId, startDate, endDate];
+
+        // Resumo
+        const summaryQuery = `
+            SELECT
+                COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) AS total_income,
+                COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS total_expense,
+                COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0) -
+                COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0) AS balance
+            FROM transactions
+            WHERE clinic_id = ?
+              AND ${dateFilter}
+        `;
+
+        const summaryRow = await dbAsync.get<{
+            total_income: number;
+            total_expense: number;
+            balance: number;
+        }>(summaryQuery, baseParams);
+
+        // Por categoria
+        const categoryQuery = `
+            SELECT category, type, COALESCE(SUM(amount), 0) AS amount
+            FROM transactions
+            WHERE clinic_id = ?
+              AND ${dateFilter}
+            GROUP BY category, type
+            ORDER BY type ASC, amount DESC
+        `;
+
+        const categoryRows = await dbAsync.all<{ category: string; type: string; amount: number }>(
+            categoryQuery,
+            baseParams
+        );
+
+        // Por método de pagamento
+        const paymentQuery = `
+            SELECT payment_method, COALESCE(SUM(amount), 0) AS amount
+            FROM transactions
+            WHERE clinic_id = ?
+              AND ${dateFilter}
+              AND type = 'income'
+            GROUP BY payment_method
+            ORDER BY amount DESC
+        `;
+
+        const paymentRows = await dbAsync.all<{ payment_method: string; amount: number }>(
+            paymentQuery,
+            baseParams
+        );
+
+        return {
+            summary: {
+                total_income: summaryRow?.total_income ?? 0,
+                total_expense: summaryRow?.total_expense ?? 0,
+                balance: summaryRow?.balance ?? 0,
+            },
+            by_category: categoryRows || [],
+            by_payment_method: paymentRows || [],
+        };
     }
 }

@@ -1,352 +1,208 @@
+/**
+ * ============================================================================
+ * LEAD CONTROLLER - TechLog Clinic OS (Refatorado)
+ * ============================================================================
+ *
+ * Controller de Leads usando:
+ * - LeadRepository para acesso ao banco
+ * - Validators Zod para validação
+ * - Respostas padronizadas
+ * - Async/Await (sem callbacks)
+ *
+ * @usage Rotas em routes/lead.routes.ts
+ */
+
 import { Request, Response } from 'express';
-import sqlite3 from 'sqlite3';
-import { db } from '../database';
+import { LeadRepository } from '../repositories/lead.repository';
 import { createLeadSchema, updateLeadSchema } from '../validators/lead.validator';
+import {
+    sendSuccess,
+    sendCreated,
+    sendValidationError,
+    sendNotFound,
+} from '../shared/api-response';
+import { asyncHandler } from '../middleware/error.middleware';
+
+// Helper para extrair ID de params de forma segura
+const getParamId = (id: string | string[]): number => parseInt(Array.isArray(id) ? id[0] : id, 10);
 
 export class LeadController {
-    
-    // Listar (GET) - Protegido por authMiddleware
-    static index(req: Request, res: Response): void {
+    /**
+     * GET /api/leads
+     * Lista leads com filtros
+     */
+    static index = asyncHandler(async (req: Request, res: Response): Promise<void> => {
         const view = req.query.view as string;
         const showArchived = req.query.show_archived === 'true';
-        const date = req.query.date as string; // Para agenda: YYYY-MM-DD
-        const doctor = req.query.doctor as string; // Filtro por profissional
-        const period = req.query.period as string; // NEW: Date filter (today, 7days, 30days, thisMonth, all)
+        const date = req.query.date as string;
+        const doctor = req.query.doctor as string;
+        const period = req.query.period as string;
 
-        // Get user context from middleware
         const user = (req as any).user;
+        const clinicId = user?.role !== 'super_admin' ? (req as any).clinicId : undefined;
+
+        let leads;
+
+        if (showArchived) {
+            leads = await LeadRepository.findAll(clinicId, { showArchived: true });
+        } else if (view === 'agenda') {
+            const targetDate = date || new Date().toISOString().split('T')[0];
+            leads = await LeadRepository.findForAgenda(targetDate, clinicId, doctor);
+        } else if (view === 'kanban') {
+            leads = await LeadRepository.findForKanban(clinicId, period);
+        } else {
+            leads = await LeadRepository.findAll(clinicId, { excludeStatus: 'archived' });
+        }
+
+        // Manter compatibilidade - retorna array direto para não quebrar frontend
+        res.json(leads);
+    });
+
+    /**
+     * GET /api/leads/:id
+     * Busca lead por ID
+     */
+    static show = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.params;
         const clinicId = (req as any).clinicId;
 
-        let query = "SELECT * FROM leads WHERE status != 'archived'";
-        const params: any[] = [];
-        
-        // CLINIC ISOLATION: Add clinic filter (except for super_admin)
-        if (user && user.role !== 'super_admin' && clinicId) {
-            query += " AND clinic_id = ?";
-            params.push(clinicId);
-        }
-        
-        query += " ORDER BY created_at DESC";
-        
-        // If show_archived=true: Return ONLY archived leads
-        if (showArchived) {
-            query = "SELECT * FROM leads WHERE status = 'archived'";
-            
-            if (user && user.role !== 'super_admin' && clinicId) {
-                query += " AND clinic_id = ?";
-                params.length = 0; // Clear params
-                params.push(clinicId);
-            }
-            
-            query += " ORDER BY created_at DESC";
-        }
-        // If view=agenda: Return leads with appointment_date for specific date or today
-        else if (view === 'agenda') {
-            const targetDate = date || new Date().toISOString().split('T')[0];
-            query = `
-                SELECT * FROM leads 
-                WHERE date(appointment_date) = date(?)
-                  AND status != 'archived'
-            `;
-            params.length = 0; // Clear params
-            params.push(targetDate);
-            
-            if (user && user.role !== 'super_admin' && clinicId) {
-                query += " AND clinic_id = ?";
-                params.push(clinicId);
-            }
-            
-            if (doctor) {
-                query += " AND doctor = ?";
-                params.push(doctor);
-            }
-            
-            query += " ORDER BY appointment_date ASC";
-        }
-        // If view=kanban: Apply intelligent date filtering
-        else if (view === 'kanban') {
-            let dateFilter = '';
-            
-            // Build date filter SQL based on period
-            if (period && period !== 'all') {
-                switch (period) {
-                    case 'today':
-                        dateFilter = "datetime('now', 'start of day')";
-                        break;
-                    case '7days':
-                        dateFilter = "datetime('now', '-7 days')";
-                        break;
-                    case '30days':
-                        dateFilter = "datetime('now', '-30 days')";
-                        break;
-                    case 'thisMonth':
-                        dateFilter = "datetime('now', 'start of month')";
-                        break;
-                    default:
-                        dateFilter = "datetime('now', '-7 days')";
-                }
-            }
-            
-            query = `
-                SELECT * FROM leads 
-                WHERE status != 'archived'
-            `;
-            params.length = 0; // Clear params
-            
-            // Add clinic isolation
-            if (user && user.role !== 'super_admin' && clinicId) {
-                query += " AND clinic_id = ?";
-                params.push(clinicId);
-            }
-            
-            if (dateFilter) {
-                // With date filter: Intelligent filtering by status
-                query += `
-                      AND (
-                        status IN ('novo', 'em_atendimento')
-                        OR
-                        (status = 'agendado' 
-                         AND appointment_date IS NOT NULL
-                         AND datetime(appointment_date) >= ${dateFilter})
-                        OR
-                        (status IN ('finalizado', 'Finalizado')
-                         AND (
-                           (updated_at IS NOT NULL AND datetime(updated_at) >= ${dateFilter})
-                           OR
-                           (updated_at IS NULL AND datetime(created_at) >= ${dateFilter})
-                         ))
-                      )
-                `;
-            }
-            
-            query += `
-                    ORDER BY 
-                      CASE 
-                        WHEN status = 'novo' THEN 1
-                        WHEN status = 'em_atendimento' THEN 2
-                        WHEN status = 'agendado' THEN 3
-                        WHEN status IN ('finalizado', 'Finalizado') THEN 4
-                        ELSE 5
-                      END,
-                      created_at DESC
-            `;
-        }
-        
-        db.all(query, params, (err, rows) => {
-            if (err) {
-                console.error('Database error:', err);
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            
-            console.log(`Query returned ${rows.length} leads for view=${view}, period=${period || 'none'}, clinic=${clinicId || 'all'}`);
-            res.json(rows);
-        });
-    }
+        const lead = await LeadRepository.findById(getParamId(id), clinicId);
 
-    // Atualizar Status (PATCH) - Protegido por authMiddleware
-    static update(req: Request, res: Response): void {
-        const { id } = req.params;
-        
-        // Validar com Zod
-        const result = updateLeadSchema.safeParse(req.body);
-        if (!result.success) {
-            const formatted = result.error.format();
-            const firstError = Object.keys(formatted)
-                .filter(k => k !== '_errors')
-                .map(k => (formatted as any)[k]._errors?.[0])
-                .find(e => e) || 'Erro de validação';
-            res.status(400).json({ error: firstError });
+        if (!lead) {
+            sendNotFound(res, 'Lead não encontrado');
             return;
         }
 
-        const { status, appointment_date, doctor, notes, type, attendance_status, archive_reason } = result.data;
+        sendSuccess(res, lead);
+    });
 
-        // Get user context (for future use in audit logs)
-        // const user = (req as any).user;
-        // const clinicId = (req as any).clinicId;
-
-        // Construir query dinâmica baseada nos campos enviados
-        const updates: string[] = [];
-        const values: any[] = [];
-
-        if (status !== undefined) {
-            updates.push('status = ?');
-            values.push(status);
-            updates.push('status_updated_at = CURRENT_TIMESTAMP');
-        }
-        if (appointment_date !== undefined) {
-            updates.push('appointment_date = ?');
-            values.push(appointment_date);
-        }
-        if (doctor !== undefined) {
-            updates.push('doctor = ?');
-            values.push(doctor);
-        }
-        if (notes !== undefined) {
-            updates.push('notes = ?');
-            values.push(notes);
-        }
-        if (type !== undefined) {
-            updates.push('type = ?');
-            values.push(type);
-        }
-        if (attendance_status !== undefined) {
-            updates.push('attendance_status = ?');
-            values.push(attendance_status);
-        }
-        if (archive_reason !== undefined) {
-            updates.push('archive_reason = ?');
-            values.push(archive_reason);
-        }
-
-        if (updates.length === 0) {
-            res.status(400).json({ error: 'Nenhum campo para atualizar' });
-            return;
-        }
-
-        values.push(id);
-        const query = `UPDATE leads SET ${updates.join(', ')} WHERE id = ?`;
-
-        db.run(query, values, function(err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json({ message: 'Lead atualizado!', changes: this.changes });
-        });
-    }
-
-    // Deletar (DELETE) - Protegido por authMiddleware
-    static delete(req: Request, res: Response): void {
-        const { id } = req.params;
-
-        db.run("DELETE FROM leads WHERE id = ?", [id], function(err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json({ message: 'Lead removido.', changes: this.changes });
-        });
-    }
-
-    // Dashboard Métricas (GET) - Protegido por authMiddleware
-    static metrics(_req: Request, res: Response): void {
-
-        // Total de leads
-        db.get("SELECT COUNT(*) as total FROM leads", [], (err, totalRow: any) => {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-
-            // Leads por status
-            db.all("SELECT status, COUNT(*) as count FROM leads GROUP BY status", [], (err, statusRows: any[]) => {
-                if (err) {
-                    res.status(500).json({ error: err.message });
-                    return;
-                }
-
-                // Leads por tipo
-                db.all("SELECT type, COUNT(*) as count FROM leads GROUP BY type", [], (err, typeRows: any[]) => {
-                    if (err) {
-                        res.status(500).json({ error: err.message });
-                        return;
-                    }
-
-                    // Histórico dos últimos 7 dias
-                    db.all("SELECT date(created_at) as date, COUNT(*) as count FROM leads GROUP BY date(created_at) ORDER BY date(created_at) DESC LIMIT 7", [], (err, historyRows: any[]) => {
-                        if (err) {
-                            res.status(500).json({ error: err.message });
-                            return;
-                        }
-
-                        // Leads por resultado de atendimento (attendance_status)
-                        db.all("SELECT attendance_status, COUNT(*) as count FROM leads WHERE attendance_status IS NOT NULL GROUP BY attendance_status", [], (err, attendanceRows: any[]) => {
-                            if (err) {
-                                res.status(500).json({ error: err.message });
-                                return;
-                            }
-
-                            res.json({
-                                total: totalRow.total,
-                                byStatus: statusRows,
-                                byType: typeRows,
-                                byAttendanceStatus: attendanceRows,
-                                history: historyRows.reverse() // Inverter para ordem cronológica
-                            });
-                        });
-                    });
-                });
-            });
-        });
-    }
-
-    // Criar (POST) - Público
-    static create(req: Request, res: Response): void {
+    /**
+     * POST /api/leads
+     * Cria novo lead
+     */
+    static create = asyncHandler(async (req: Request, res: Response): Promise<void> => {
         // Validar com Zod
         const result = createLeadSchema.safeParse(req.body);
         if (!result.success) {
             const formatted = result.error.format();
-            const firstError = Object.keys(formatted)
-                .filter(k => k !== '_errors')
-                .map(k => (formatted as any)[k]._errors?.[0])
-                .find(e => e) || 'Erro de validação';
-            res.status(400).json({ error: firstError });
+            const firstError =
+                Object.keys(formatted)
+                    .filter((k) => k !== '_errors')
+                    .map((k) => (formatted as any)[k]._errors?.[0])
+                    .find((e) => e) || 'Erro de validação';
+            sendValidationError(res, firstError);
             return;
         }
 
         const { name, phone, type } = result.data;
+        const clinicId = (req as any).clinicId;
 
-        const stmt = db.prepare("INSERT INTO leads (name, phone, type) VALUES (?, ?, ?)");
-        stmt.run(name, phone, type, function(this: sqlite3.RunResult, err: Error | null) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json({ 
-                id: this.lastID, 
-                message: 'Lead salvo com sucesso!'
-            });
+        const id = await LeadRepository.create({
+            name,
+            phone,
+            type: type as any,
+            clinic_id: clinicId,
         });
-        stmt.finalize();
-    }
 
-    // Arquivar (PUT) - Protegido por authMiddleware
-    static archive(req: Request, res: Response): void {
+        sendCreated(res, {
+            id,
+            message: 'Lead salvo com sucesso!',
+        });
+    });
+
+    /**
+     * PATCH /api/leads/:id
+     * Atualiza lead
+     */
+    static update = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.params;
+        const clinicId = (req as any).clinicId;
+
+        // Validar com Zod
+        const result = updateLeadSchema.safeParse(req.body);
+        if (!result.success) {
+            const formatted = result.error.format();
+            const firstError =
+                Object.keys(formatted)
+                    .filter((k) => k !== '_errors')
+                    .map((k) => (formatted as any)[k]._errors?.[0])
+                    .find((e) => e) || 'Erro de validação';
+            sendValidationError(res, firstError);
+            return;
+        }
+
+        const changes = await LeadRepository.update(getParamId(id), result.data as any, clinicId);
+
+        sendSuccess(res, {
+            message: 'Lead atualizado!',
+            changes,
+        });
+    });
+
+    /**
+     * DELETE /api/leads/:id
+     * Remove lead (soft delete - arquiva)
+     */
+    static delete = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const { id } = req.params;
+        const clinicId = (req as any).clinicId;
+
+        const changes = await LeadRepository.delete(getParamId(id), clinicId);
+
+        sendSuccess(res, {
+            message: 'Lead removido.',
+            changes,
+        });
+    });
+
+    /**
+     * PUT /api/leads/:id/archive
+     * Arquiva lead
+     */
+    static archive = asyncHandler(async (req: Request, res: Response): Promise<void> => {
         const { id } = req.params;
         const { archive_reason } = req.body;
+        const clinicId = (req as any).clinicId;
 
-        let query = "UPDATE leads SET status = 'archived'";
-        const params: any[] = [];
-        
-        if (archive_reason) {
-            query += ", archive_reason = ?";
-            params.push(archive_reason);
-        }
-        
-        query += " WHERE id = ?";
-        params.push(id);
+        const changes = await LeadRepository.archive(getParamId(id), archive_reason, clinicId);
 
-        db.run(query, params, function(err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json({ message: 'Lead arquivado com sucesso!', changes: this.changes });
+        sendSuccess(res, {
+            message: 'Lead arquivado com sucesso!',
+            changes,
         });
-    }
+    });
 
-    // Desarquivar (PUT) - Protegido por authMiddleware
-    static unarchive(req: Request, res: Response): void {
+    /**
+     * PUT /api/leads/:id/unarchive
+     * Restaura lead arquivado
+     */
+    static unarchive = asyncHandler(async (req: Request, res: Response): Promise<void> => {
         const { id } = req.params;
+        const clinicId = (req as any).clinicId;
 
-        db.run("UPDATE leads SET status = 'novo' WHERE id = ?", [id], function(err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json({ message: 'Lead restaurado com sucesso!', changes: this.changes });
+        const changes = await LeadRepository.unarchive(getParamId(id), clinicId);
+
+        sendSuccess(res, {
+            message: 'Lead restaurado com sucesso!',
+            changes,
         });
-    }
+    });
+
+    /**
+     * GET /api/leads/metrics
+     * Retorna métricas dos leads
+     */
+    static metrics = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+        const clinicId = (req as any).clinicId;
+
+        const metrics = await LeadRepository.getMetrics(clinicId);
+
+        res.json(metrics);
+    });
 }
+
+// ============================================================================
+// EXPORTS para compatibilidade com rotas existentes
+// ============================================================================
+
+export default LeadController;
