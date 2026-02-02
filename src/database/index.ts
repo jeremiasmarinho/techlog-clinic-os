@@ -55,6 +55,15 @@ const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READWRITE | sqlite3.OPEN_C
     } else {
         console.log(`✅ Conectado ao banco SQLite com sucesso!`);
 
+        // Habilitar Foreign Keys - CRÍTICO para integridade referencial
+        db.run('PRAGMA foreign_keys = ON', (fkErr) => {
+            if (fkErr) {
+                console.warn('⚠️ Could not enable foreign_keys:', fkErr.message);
+            } else {
+                console.log('✅ Foreign keys habilitadas');
+            }
+        });
+
         // Para ambiente de teste, desabilitar WAL para evitar locks
         if (process.env.NODE_ENV === 'test') {
             db.run('PRAGMA journal_mode = DELETE', (pragmaErr) => {

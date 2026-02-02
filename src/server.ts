@@ -9,6 +9,7 @@ import rateLimit from 'express-rate-limit';
 import leadRoutes from './routes/lead.routes'; // Importação sem chaves {} (Default)
 import userRoutes from './routes/user.routes'; // Rotas de autenticação e usuários
 import authRoutes from './routes/auth.routes'; // Rotas de autenticação JWT
+import { errorHandler, notFoundHandler } from './middleware/error.middleware'; // Error handlers
 import metricsRoutes from './routes/metrics.routes'; // Rotas de métricas
 import saasRoutes from './routes/saas.routes'; // Rotas de gestão SaaS
 import clinicRoutes from './routes/clinic.routes'; // Rotas de configurações da clínica
@@ -138,6 +139,10 @@ export class Server {
         this.app.get('/api', (_req, res) => {
             res.json({ message: 'Medical CRM API Online 🚀' });
         });
+
+        // Error Handlers - DEVEM ser os últimos middlewares
+        this.app.use(notFoundHandler); // 404 para rotas não encontradas
+        this.app.use(errorHandler); // Handler global de erros
     }
 
     public start(): void {
