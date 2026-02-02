@@ -115,8 +115,16 @@ export class Server {
 
         // API Routes
         this.app.use('/api/leads', leadRoutes);
-        this.app.use('/api', userRoutes); // Login e Users
-        this.app.use('/api/auth', authRoutes); // JWT Authentication
+        this.app.use('/api', userRoutes); // Users CRUD (login removido - ver authRoutes)
+        this.app.use('/api/auth', authRoutes); // JWT Authentication (guardião único)
+
+        // Alias: /api/login -> /api/auth/login (compatibilidade)
+        this.app.post('/api/login', (req, res, next) => {
+            // Redireciona para o AuthController
+            req.url = '/login';
+            authRoutes(req, res, next);
+        });
+
         this.app.use('/api/metrics', metricsRoutes); // Metrics
         this.app.use('/api/saas', saasRoutes); // SaaS Multi-Clinic Management
         this.app.use('/api', clinicRoutes); // Clinic Settings

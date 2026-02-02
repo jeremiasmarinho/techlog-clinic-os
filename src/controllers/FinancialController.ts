@@ -246,7 +246,7 @@ export class FinancialController {
             return;
         }
 
-        params.push(id, clinicId);
+        params.push(String(id), clinicId);
 
         db.run(
             `UPDATE transactions
@@ -348,9 +348,9 @@ export class FinancialController {
                 }
 
                 res.json({
-                    daily_balance: dailyRow?.daily_balance ?? 0,
-                    monthly_income: row?.monthly_income ?? 0,
-                    monthly_expense: row?.monthly_expense ?? 0,
+                    daily_balance: (dailyRow as any)?.daily_balance ?? 0,
+                    monthly_income: (row as any)?.monthly_income ?? 0,
+                    monthly_expense: (row as any)?.monthly_expense ?? 0,
                 });
             });
         });
@@ -426,9 +426,9 @@ export class FinancialController {
 
                     res.json({
                         summary: {
-                            total_income: summaryRow?.total_income ?? 0,
-                            total_expense: summaryRow?.total_expense ?? 0,
-                            balance: summaryRow?.balance ?? 0,
+                            total_income: (summaryRow as any)?.total_income ?? 0,
+                            total_expense: (summaryRow as any)?.total_expense ?? 0,
+                            balance: (summaryRow as any)?.balance ?? 0,
                         },
                         by_category: categoryRows || [],
                         by_payment_method: paymentRows || [],

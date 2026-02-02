@@ -5,8 +5,8 @@ import { auditLogger } from '../middleware/audit.middleware';
 
 const router = Router();
 
-// Login (Público)
-router.post('/login', UserController.login);
+// ⚠️ NOTA: A rota POST /login foi movida para auth.routes.ts
+// Use AuthController.login como ponto único de autenticação
 
 // CRUD de Usuários (Requer autenticação JWT + Admin)
 router.get('/users', tenantMiddleware, auditLogger, ensureClinicAdmin, UserController.index);

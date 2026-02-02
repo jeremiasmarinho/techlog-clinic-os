@@ -34,7 +34,10 @@ function getDatabasePath(): string {
             break;
     }
 
-    const dbPath = path.resolve(__dirname, '../../', dbFileName);
+    const dbPath =
+        nodeEnv === 'test' && process.env.TEST_DB_PATH
+            ? process.env.TEST_DB_PATH
+            : path.resolve(__dirname, '../../', dbFileName);
     console.log(`📊 Database environment: ${envLabel}`);
     console.log(`📁 Database path: ${dbPath}`);
 
@@ -44,12 +47,23 @@ function getDatabasePath(): string {
 const DB_PATH = getDatabasePath();
 
 // Inicializar conexão com o banco de dados
-const db = new sqlite3.Database(DB_PATH, (err) => {
+// Usa OPEN_READWRITE | OPEN_CREATE para garantir permissão de escrita
+const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
         console.error('❌ Erro ao abrir banco de dados:', err.message);
         process.exit(1);
     } else {
         console.log(`✅ Conectado ao banco SQLite com sucesso!`);
+
+        // Para ambiente de teste, desabilitar WAL para evitar locks
+        if (process.env.NODE_ENV === 'test') {
+            db.run('PRAGMA journal_mode = DELETE', (pragmaErr) => {
+                if (pragmaErr) {
+                    console.warn('⚠️ Could not set journal_mode:', pragmaErr.message);
+                }
+            });
+        }
+
         initDb();
     }
 });
@@ -126,6 +140,7 @@ function initDb(): void {
                 addColumnIfNotExists('notes', 'TEXT');
                 addColumnIfNotExists('attendance_status', 'TEXT');
                 addColumnIfNotExists('archive_reason', 'TEXT');
+                addColumnIfNotExists('type', "TEXT DEFAULT 'geral'");
                 addColumnIfNotExists('source', "TEXT DEFAULT 'Manual'");
                 addColumnIfNotExists('value', 'REAL DEFAULT 0');
                 addColumnIfNotExists('updated_at', 'DATETIME');
@@ -235,16 +250,16 @@ function initDb(): void {
                                 }
                             }
                         );
-                        const hashedPassword = await bcrypt.hash('123', 10);
+                        const hashedPassword = await bcrypt.hash('Mudar123!', 10);
                         db.run(
-                            'INSERT INTO users (name, username, password, role) VALUES (?, ?, ?, ?)',
-                            ['Administrador', 'admin', hashedPassword, 'admin'],
+                            'INSERT OR IGNORE INTO users (name, username, password, role, clinic_id, is_owner) VALUES (?, ?, ?, ?, 1, 1)',
+                            ['Administrador', 'admin', hashedPassword, 'clinic_admin'],
                             (err) => {
                                 if (err) {
                                     console.error('❌ Erro ao criar usuário admin:', err.message);
                                 } else {
                                     console.log(
-                                        '✅ Usuário admin criado (username: admin, password: 123)'
+                                        '✅ Usuário admin criado (username: admin, password: Mudar123!)'
                                     );
                                 }
                             }

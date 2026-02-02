@@ -3,64 +3,82 @@ import { db } from '../database';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { createUserSchema } from '../validators/user.validator';
+import { APP_CONFIG, HTTP_STATUS, ERROR_MESSAGES } from '../config/constants';
 
 export class UserController {
-    // Login (POST /api/login)
+    /**
+     * @deprecated Use AuthController.login instead
+     * Este método será removido em versões futuras.
+     * A rota POST /api/login agora aponta para AuthController.login
+     *
+     * Login (POST /api/login) - LEGADO
+     */
     static async login(req: Request, res: Response): Promise<void> {
-        const { username, password } = req.body;
+        console.warn('⚠️ [DEPRECATED] UserController.login foi chamado. Use AuthController.login');
 
-        if (!username || !password) {
-            res.status(400).json({ success: false, error: 'Usuário e senha são obrigatórios' });
+        const { username, password, email } = req.body;
+        const loginField = username || email;
+
+        if (!loginField || !password) {
+            res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                error: ERROR_MESSAGES.AUTH.EMAIL_PASSWORD_REQUIRED,
+            });
             return;
         }
 
         db.get(
-            'SELECT id, name, username, password, role FROM users WHERE username = ?',
-            [username],
+            'SELECT id, name, username, password, role, clinic_id FROM users WHERE username = ?',
+            [loginField],
             async (err, row: any) => {
                 if (err) {
-                    console.error('❌ Erro no login:', err.message);
-                    res.status(500).json({ success: false, error: 'Erro no servidor' });
+                    console.error('[UserController] Database error:', err.message);
+                    res.status(HTTP_STATUS.SERVER_ERROR).json({
+                        success: false,
+                        error: ERROR_MESSAGES.GENERAL.SERVER_ERROR,
+                    });
                     return;
                 }
 
-                if (row) {
-                    // Verificar senha com bcrypt
-                    const isPasswordValid = await bcrypt.compare(password, row.password);
+                if (!row) {
+                    res.status(HTTP_STATUS.UNAUTHORIZED).json({
+                        success: false,
+                        error: ERROR_MESSAGES.AUTH.CREDENTIALS_INVALID,
+                    });
+                    return;
+                }
 
-                    if (isPasswordValid) {
-                        console.log(`✅ Login bem-sucedido: ${row.username} (${row.role})`);
+                const isPasswordValid = await bcrypt.compare(password, row.password);
 
-                        // Gerar JWT token
-                        const token = jwt.sign(
-                            {
-                                userId: row.id,
-                                username: row.username,
-                                name: row.name,
-                                role: row.role,
-                                clinicId: row.clinic_id || 1,
-                            },
-                            process.env.JWT_SECRET as string,
-                            { expiresIn: '24h' }
-                        );
+                if (isPasswordValid) {
+                    const token = jwt.sign(
+                        {
+                            userId: row.id,
+                            username: row.username,
+                            name: row.name,
+                            role: row.role,
+                            clinicId: row.clinic_id || 1,
+                        },
+                        process.env.JWT_SECRET as string,
+                        { expiresIn: APP_CONFIG.TOKEN_EXPIRY }
+                    );
 
-                        res.json({
-                            success: true,
-                            token,
-                            user: {
-                                id: row.id,
-                                name: row.name,
-                                username: row.username,
-                                role: row.role,
-                            },
-                        });
-                    } else {
-                        console.log(`❌ Senha inválida para usuário: ${username}`);
-                        res.status(401).json({ success: false, error: 'Credenciais inválidas' });
-                    }
+                    res.json({
+                        success: true,
+                        token,
+                        user: {
+                            id: row.id,
+                            name: row.name,
+                            username: row.username,
+                            role: row.role,
+                            clinic_id: row.clinic_id,
+                        },
+                    });
                 } else {
-                    console.log(`❌ Usuário não encontrado: ${username}`);
-                    res.status(401).json({ success: false, error: 'Credenciais inválidas' });
+                    res.status(HTTP_STATUS.UNAUTHORIZED).json({
+                        success: false,
+                        error: ERROR_MESSAGES.AUTH.CREDENTIALS_INVALID,
+                    });
                 }
             }
         );

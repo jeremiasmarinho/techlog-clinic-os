@@ -9,15 +9,15 @@ import * as path from 'path';
 
 async function globalTeardown() {
     console.log('\n✨ E2E Tests Complete!\n');
-    
-    const testDbPath = path.join(__dirname, '..', '..', 'clinic.test.db');
-    
+
+    const testDbPath = process.env.TEST_DB_PATH || path.join('/tmp', 'database.test.sqlite');
+
     console.log('📊 Test database preserved at:', testDbPath);
-    console.log('   Use SQLite to inspect: sqlite3 clinic.test.db');
+    console.log(`   Use SQLite to inspect: sqlite3 ${testDbPath}`);
     console.log('\n📁 Test results available at:');
     console.log('   - HTML Report: playwright-report/index.html');
     console.log('   - JSON Results: test-results/results.json\n');
-    
+
     // Clean up environment variables
     delete process.env.TEST_MODE;
     delete process.env.TEST_DB_PATH;
