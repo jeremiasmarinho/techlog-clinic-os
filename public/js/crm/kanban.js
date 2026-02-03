@@ -15,7 +15,8 @@ if (!token) {
 import { formatTime } from '../utils/formatters.js';
 
 // Ensure API_URL is available in module scope
-const API_URL = window.API_URL || '/api/leads';
+// Changed to use appointments API for unified data source
+const API_URL = window.API_URL || '/api/appointments';
 
 // ============================================
 // HELPER FUNCTIONS
@@ -330,22 +331,26 @@ async function sendTomorrowReminders() {
             sessionStorage.getItem('token') ||
             sessionStorage.getItem('accessToken');
 
-        const response = await fetch('/api/leads', {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch leads');
-
-        const leads = await response.json();
+        // Use appointments API
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-        const tomorrowLeads = leads.filter((lead) => {
-            if (!lead.appointment_date) return false;
-            const apptDate = lead.appointment_date.split('T')[0];
-            return apptDate === tomorrowStr && lead.status === 'agendado';
-        });
+        const response = await fetch(
+            `/api/appointments?startDate=${tomorrowStr}&endDate=${tomorrowStr}T23:59:59`,
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+
+        if (!response.ok) throw new Error('Failed to fetch appointments');
+
+        const appointments = await response.json();
+
+        // Transform and filter tomorrow's appointments
+        const tomorrowLeads = appointments
+            .map((apt) => transformAppointmentToLead(apt))
+            .filter((lead) => lead.status === 'agendado');
 
         if (tomorrowLeads.length === 0) {
             showNotification('ℹ️ Nenhum agendamento para amanhã', 'info');
@@ -354,7 +359,7 @@ async function sendTomorrowReminders() {
 
         // Open WhatsApp for first patient
         const lead = tomorrowLeads[0];
-        const phone = lead.phone.replace(/\D/g, '');
+        const phone = (lead.phone || '').replace(/\D/g, '');
         const apptTime = extractTimeFromDate(lead.appointment_date);
 
         const message = `Olá ${lead.name}! 😊\n\nEste é um lembrete da sua consulta *amanhã* às *${apptTime}*.\n\nAguardamos você!\n\nSe precisar reagendar, responda esta mensagem.`;
@@ -381,6 +386,147 @@ async function sendTomorrowReminders() {
 }
 
 /**
+ * Open Confirmation Queue Modal - Show patients scheduled for tomorrow
+ * that need WhatsApp confirmation
+ */
+async function openConfirmationQueue() {
+    const modal = document.getElementById('confirmationQueueModal');
+    const listContainer = document.getElementById('confirmationList');
+
+    if (!modal || !listContainer) {
+        showNotification('❌ Modal de confirmação não encontrado', 'error');
+        return;
+    }
+
+    // Show modal with loading state
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    listContainer.innerHTML = `
+        <div class="text-center py-8 text-slate-400">
+            <i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i>
+            <p>Carregando...</p>
+        </div>
+    `;
+
+    try {
+        const token =
+            sessionStorage.getItem('MEDICAL_CRM_TOKEN') ||
+            sessionStorage.getItem('token') ||
+            sessionStorage.getItem('accessToken');
+
+        // Get tomorrow's date
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+        const response = await fetch(
+            `/api/appointments?startDate=${tomorrowStr}&endDate=${tomorrowStr}T23:59:59`,
+            {
+                headers: { Authorization: `Bearer ${token}` },
+            }
+        );
+
+        if (!response.ok) throw new Error('Erro ao carregar agendamentos');
+
+        const appointments = await response.json();
+
+        // Filter only scheduled appointments (need confirmation)
+        const needsConfirmation = appointments
+            .map((apt) => transformAppointmentToLead(apt))
+            .filter((lead) => lead.status === 'agendado');
+
+        if (needsConfirmation.length === 0) {
+            listContainer.innerHTML = `
+                <div class="text-center py-12">
+                    <i class="fa-solid fa-check-circle text-emerald-400 text-5xl mb-4"></i>
+                    <p class="text-white text-lg font-medium">Tudo certo!</p>
+                    <p class="text-slate-400 mt-2">Nenhum paciente para confirmar amanhã.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Build confirmation list
+        let listHTML = '';
+
+        needsConfirmation.forEach((lead) => {
+            const time = extractTimeFromDate(lead.appointment_date);
+            const phone = (lead.phone || '').replace(/\D/g, '');
+
+            listHTML += `
+                <div class="flex items-center justify-between bg-slate-700/50 p-4 rounded-xl border border-slate-600/50 hover:border-emerald-500/30 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
+                            ${(lead.name || 'P').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <p class="text-white font-medium">${lead.name || 'Paciente'}</p>
+                            <p class="text-slate-400 text-sm">
+                                <i class="fa-solid fa-clock mr-1"></i>${time}
+                                ${lead.phone ? ` • <i class="fa-solid fa-phone mr-1"></i>${lead.phone}` : ' • <span class="text-red-400">Sem telefone</span>'}
+                            </p>
+                        </div>
+                    </div>
+                    <button 
+                        onclick="sendConfirmationWhatsApp('${phone}', '${lead.name || 'Paciente'}', '${time}')"
+                        class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 font-medium ${!phone ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${!phone ? 'disabled' : ''}
+                    >
+                        <i class="fa-brands fa-whatsapp"></i>
+                        Enviar
+                    </button>
+                </div>
+            `;
+        });
+
+        listContainer.innerHTML = listHTML;
+    } catch (error) {
+        console.error('❌ Error opening confirmation queue:', error);
+        listContainer.innerHTML = `
+            <div class="text-center py-8 text-red-400">
+                <i class="fa-solid fa-exclamation-circle text-3xl mb-3"></i>
+                <p>Erro ao carregar agendamentos</p>
+                <p class="text-sm text-slate-500 mt-2">${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Close Confirmation Queue Modal
+ */
+function closeConfirmationQueue() {
+    const modal = document.getElementById('confirmationQueueModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+/**
+ * Send confirmation WhatsApp message
+ */
+function sendConfirmationWhatsApp(phone, name, time) {
+    if (!phone) {
+        showNotification('❌ Telefone não informado', 'error');
+        return;
+    }
+
+    const message = `Olá ${name}! 😊
+
+Este é um lembrete da sua consulta *amanhã* às *${time}*.
+
+Por favor, confirme sua presença respondendo esta mensagem.
+
+Aguardamos você! 🏥`;
+
+    const whatsappUrl = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+
+    showNotification(`✅ WhatsApp aberto para ${name}`, 'success');
+}
+
+/**
  * Format currency helper
  */
 function formatCurrency(value) {
@@ -393,6 +539,9 @@ function formatCurrency(value) {
 // Expose functions globally
 window.sendTomorrowReminders = sendTomorrowReminders;
 window.updateBusinessMetrics = updateBusinessMetrics;
+window.openConfirmationQueue = openConfirmationQueue;
+window.closeConfirmationQueue = closeConfirmationQueue;
+window.sendConfirmationWhatsApp = sendConfirmationWhatsApp;
 
 // ============================================
 // Timer Calculation - Time in Status Feature
@@ -554,18 +703,57 @@ let lastLeadCount = 0;
 let isFirstLoad = true;
 let privacyMode = false;
 
-// Load leads from API
+// Load leads from API (now using unified appointments API)
 async function loadLeads() {
     console.log('🔄 loadLeads starting... Token:', token ? 'exists' : 'MISSING');
     showLoading(true);
 
     try {
         // Build URL with date filter
-        let url = `${API_URL}?view=kanban`;
+        let url = API_URL;
 
-        // Add date filter parameter
+        // Add date filter parameters for appointments API
         if (currentDateFilter && currentDateFilter !== 'all') {
-            url += `&period=${currentDateFilter}`;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let startDate, endDate;
+
+            switch (currentDateFilter) {
+                case 'today':
+                    startDate = today.toISOString().split('T')[0];
+                    endDate = today.toISOString().split('T')[0] + 'T23:59:59';
+                    break;
+                case '7days':
+                    const sevenDaysAgo = new Date(today);
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    startDate = sevenDaysAgo.toISOString().split('T')[0];
+                    const sevenDaysAhead = new Date(today);
+                    sevenDaysAhead.setDate(sevenDaysAhead.getDate() + 30); // Show future too
+                    endDate = sevenDaysAhead.toISOString().split('T')[0];
+                    break;
+                case '30days':
+                    const thirtyDaysAgo = new Date(today);
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    startDate = thirtyDaysAgo.toISOString().split('T')[0];
+                    const thirtyDaysAhead = new Date(today);
+                    thirtyDaysAhead.setDate(thirtyDaysAhead.getDate() + 30);
+                    endDate = thirtyDaysAhead.toISOString().split('T')[0];
+                    break;
+                case 'thisMonth':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1)
+                        .toISOString()
+                        .split('T')[0];
+                    endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0)
+                        .toISOString()
+                        .split('T')[0];
+                    break;
+            }
+
+            if (startDate) {
+                url += `?startDate=${encodeURIComponent(startDate)}`;
+                if (endDate) url += `&endDate=${encodeURIComponent(endDate)}`;
+            }
         }
 
         console.log('📡 Fetching:', url);
@@ -591,7 +779,10 @@ async function loadLeads() {
         }
 
         const data = await response.json();
-        const leads = Array.isArray(data) ? data : data.leads || [];
+        const rawAppointments = Array.isArray(data) ? data : data.appointments || [];
+
+        // Transform appointments to kanban format
+        const leads = rawAppointments.map((apt) => transformAppointmentToLead(apt));
 
         // Update global cache
         allLeadsCache = leads;
@@ -619,9 +810,67 @@ async function loadLeads() {
     }
 }
 
+/**
+ * Transform appointment format to kanban/lead format
+ * This ensures unified data works with existing kanban UI
+ */
+function transformAppointmentToLead(apt) {
+    // Map appointment status to kanban columns
+    // Note: completed, cancelled, no_show should NOT appear in kanban (archived)
+    const statusMap = {
+        scheduled: 'agendado',
+        confirmed: 'agendado', // Confirmed still in 'agendado' column
+        completed: 'archived', // Completed goes to archive, not kanban
+        cancelled: 'archived',
+        no_show: 'archived',
+        agendado: 'agendado',
+        novo: 'novo',
+        em_atendimento: 'em_atendimento',
+        finalizado: 'finalizado',
+        archived: 'archived',
+    };
+
+    return {
+        id: apt.id,
+        name: apt.patient_name || apt.name || 'Paciente',
+        phone: apt.patient_phone || apt.phone || '',
+        type: apt.type || 'geral',
+        status: statusMap[apt.status] || apt.status || 'agendado',
+        notes: apt.notes || '',
+        doctor: apt.doctor || '',
+        appointment_date: apt.start_time || apt.appointment_date,
+        end_time: apt.end_time,
+        insurance: apt.insurance || 'Particular',
+        source: apt.source || 'appointment', // Track origin
+        raw_id: apt.raw_id || apt.id,
+        created_at: apt.created_at,
+        status_updated_at: apt.status_updated_at,
+    };
+}
+
+/**
+ * Transform kanban status to API status for PATCH requests
+ * Kanban uses: novo, em_atendimento, agendado, finalizado
+ * API uses: scheduled, confirmed, completed, cancelled
+ */
+function transformKanbanStatusToApi(kanbanStatus) {
+    const statusMap = {
+        novo: 'scheduled',
+        em_atendimento: 'scheduled',
+        agendado: 'scheduled',
+        finalizado: 'completed',
+        archived: 'cancelled',
+    };
+    return statusMap[kanbanStatus] || kanbanStatus;
+}
+
 // Render leads in columns
 function renderLeads(leads) {
     console.log('📊 renderLeads called with', leads.length, 'leads');
+
+    // Filter out archived leads (completed, cancelled, no_show) - they should not appear in kanban
+    const activeLeads = leads.filter((lead) => lead.status !== 'archived');
+    console.log('📊 Active leads (non-archived):', activeLeads.length);
 
     // Clear all columns
     ['novo', 'em_atendimento', 'agendado', 'finalizado'].forEach((status) => {
@@ -634,7 +883,7 @@ function renderLeads(leads) {
     });
 
     // Distribute leads in columns
-    leads.forEach((lead) => {
+    activeLeads.forEach((lead) => {
         const card = createLeadCard(lead);
         const status = lead.status || 'novo';
         const column = document.getElementById(`column-${status}`);
@@ -644,8 +893,8 @@ function renderLeads(leads) {
         }
     });
 
-    // Update counters
-    updateCounters(leads);
+    // Update counters with active leads only
+    updateCounters(activeLeads);
 }
 
 // Create lead card
@@ -972,8 +1221,10 @@ async function drop(e) {
     columnContainer.appendChild(currentDraggedCard);
     currentDraggedCard.dataset.status = newStatus;
 
-    // If moving to "Finalizado", ask for attendance status
+    // If moving to "Finalizado", ask for attendance status and map to proper API status
     let attendanceStatus = null;
+    let apiStatus = transformKanbanStatusToApi(newStatus);
+
     if (newStatus === 'Finalizado' || newStatus === 'finalizado') {
         const result = await customPromptOptions('Qual foi o resultado da consulta?', [
             { value: 'compareceu', label: 'Compareceu', icon: 'fas fa-check-circle' },
@@ -983,11 +1234,20 @@ async function drop(e) {
         ]);
 
         attendanceStatus = result || 'compareceu';
+
+        // Map attendance_status to proper API status
+        const attendanceToApiStatus = {
+            compareceu: 'completed',
+            nao_compareceu: 'no_show',
+            cancelado: 'cancelled',
+            remarcado: 'scheduled',
+        };
+        apiStatus = attendanceToApiStatus[attendanceStatus] || 'completed';
     }
 
     // Update backend
     try {
-        const body = { status: newStatus };
+        const body = { status: apiStatus };
         if (attendanceStatus) {
             body.attendance_status = attendanceStatus;
         }
@@ -1052,8 +1312,10 @@ async function moveToColumn(newStatus) {
         return;
     }
 
-    // If moving to "Finalizado", ask for attendance status
+    // If moving to "Finalizado", ask for attendance status and map to proper API status
     let attendanceStatus = null;
+    let apiStatus = transformKanbanStatusToApi(newStatus);
+
     if (newStatus === 'Finalizado' || newStatus === 'finalizado') {
         const result = await customPromptOptions('Qual foi o resultado da consulta?', [
             { value: 'compareceu', label: 'Compareceu', icon: 'fas fa-check-circle' },
@@ -1063,12 +1325,21 @@ async function moveToColumn(newStatus) {
         ]);
 
         attendanceStatus = result || 'compareceu';
+
+        // Map attendance_status to proper API status
+        const attendanceToApiStatus = {
+            compareceu: 'completed',
+            nao_compareceu: 'no_show',
+            cancelado: 'cancelled',
+            remarcado: 'scheduled',
+        };
+        apiStatus = attendanceToApiStatus[attendanceStatus] || 'completed';
     }
 
     showLoading(true);
 
     try {
-        const body = { status: newStatus };
+        const body = { status: apiStatus };
         if (attendanceStatus) {
             body.attendance_status = attendanceStatus;
         }
@@ -1234,29 +1505,44 @@ async function scheduleReturn(leadId) {
     }
 }
 
-// Archive Lead - Move to archived status
+// Archive Lead - Move to archived/cancelled/no_show status
 async function archiveLead(leadId) {
-    const confirmed = await confirm(
-        '📦 Arquivar Lead\n\nDeseja arquivar este paciente? Ele será removido do quadro principal.'
+    // Ask for the archive reason
+    const archiveReason = await customPromptOptions(
+        '📦 Arquivar Lead\n\nQual o motivo do arquivamento?',
+        [
+            { value: 'completed', label: 'Atendimento concluído', icon: 'fas fa-check-circle' },
+            { value: 'no_show', label: 'Não compareceu', icon: 'fas fa-user-slash' },
+            { value: 'cancelled', label: 'Cancelado pelo paciente', icon: 'fas fa-times-circle' },
+        ]
     );
-    if (!confirmed) {
-        return;
+
+    if (!archiveReason) {
+        return; // User cancelled
     }
 
     showLoading(true);
 
     try {
-        console.log('🗄️ Archiving lead:', leadId);
+        console.log('🗄️ Archiving lead:', leadId, 'with status:', archiveReason);
 
-        // Use dedicated archive endpoint
-        const response = await fetch(`${API_URL}/${leadId}/archive`, {
-            method: 'PUT',
+        // Map archive reason to attendance_status for record keeping
+        const attendanceStatusMap = {
+            completed: 'compareceu',
+            no_show: 'nao_compareceu',
+            cancelled: 'cancelado',
+        };
+
+        // Use PATCH to update status based on archive reason
+        const response = await fetch(`${API_URL}/${leadId}`, {
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-                archive_reason: 'manual_archive_from_kanban',
+                status: archiveReason,
+                attendance_status: attendanceStatusMap[archiveReason],
             }),
         });
 
@@ -1287,7 +1573,16 @@ async function archiveLead(leadId) {
             allLeadsCache = allLeadsCache.filter((l) => l.id !== leadId);
         }
 
-        showNotification('📦 Lead arquivado com sucesso!', 'success');
+        // Show appropriate success message based on archive reason
+        const successMessages = {
+            completed: '✅ Atendimento finalizado e arquivado!',
+            no_show: '⚠️ Marcado como não compareceu',
+            cancelled: '📦 Lead cancelado e arquivado',
+        };
+        showNotification(
+            successMessages[archiveReason] || '📦 Lead arquivado com sucesso!',
+            'success'
+        );
 
         // Reload after animation
         setTimeout(() => {
@@ -1828,6 +2123,7 @@ window.moveToColumn = moveToColumn;
 window.togglePrivacyMode = togglePrivacyMode;
 window.openWhatsAppMenuKanban = openWhatsAppMenuKanban;
 window.handleDateFilterChange = handleDateFilterChange;
+window.loadLeads = loadLeads;
 
 // Confirm global exposure
 console.log('✅ Kanban functions exposed globally:', {
