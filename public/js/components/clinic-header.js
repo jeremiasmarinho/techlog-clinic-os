@@ -184,6 +184,9 @@ if (
     !window.location.pathname.endsWith('/')
 ) {
     document.addEventListener('DOMContentLoaded', () => {
+        if (document.body?.dataset?.hideClinicHeader === 'true') {
+            return;
+        }
         // Verificar autenticação
         if (ClinicHeader.checkAuth()) {
             // Injetar header

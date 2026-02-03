@@ -368,7 +368,7 @@
     <script src="./js/components/sidebar.js"></script>
     <script src="./js/components/clinic-header.js"></script>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col" data-hide-clinic-header="true">
 
     <!-- Multi-Tenant Clinic Header -->
     <!-- Injected automatically by clinic-header.js -->
@@ -804,24 +804,51 @@
 
     <!-- Kanban Board -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <!-- Quick Search Bar -->
+        <!-- Quick Search Bar + Action Buttons -->
         <div class="mb-6">
-            <div class="relative max-w-md">
-                <input 
-                    type="text" 
-                    id="quickSearch" 
-                    placeholder="🔍 Buscar paciente por nome ou telefone..."
-                    class="w-full px-4 py-3 pl-12 bg-slate-800/60 border border-slate-700/50 rounded-xl text-white placeholder-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 backdrop-blur-sm"
-                    oninput="filterLeads(this.value)"
-                >
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <button 
-                    id="clearSearch" 
-                    onclick="clearSearch()" 
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition hidden"
-                >
-                    <i class="fas fa-times"></i>
-                </button>
+            <div class="flex items-center justify-between gap-4">
+                <!-- Search Input -->
+                <div class="relative flex-1 max-w-md">
+                    <input 
+                        type="text" 
+                        id="quickSearch" 
+                        placeholder="🔍 Buscar paciente por nome ou telefone..."
+                        class="w-full px-4 py-3 pl-12 bg-slate-800/60 border border-slate-700/50 rounded-xl text-white placeholder-slate-400 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-200 backdrop-blur-sm"
+                        oninput="filterLeads(this.value)"
+                    >
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <button 
+                        id="clearSearch" 
+                        onclick="clearSearch()" 
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition hidden"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Action Buttons (Right Side) -->
+                <div class="flex items-center gap-2">
+                    <!-- Privacy Button -->
+                    <button 
+                        id="togglePrivacy" 
+                        onclick="togglePrivacyMode()" 
+                        class="flex items-center gap-2 px-4 py-3 bg-slate-800/60 border border-slate-700/50 rounded-xl text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all duration-200"
+                        title="Modo Privacidade (LGPD)"
+                    >
+                        <i class="fas fa-eye" id="privacyIcon"></i>
+                        <span class="hidden sm:inline text-sm font-medium">Privacidade</span>
+                    </button>
+                    
+                    <!-- Refresh Button -->
+                    <button 
+                        onclick="loadLeads()" 
+                        class="flex items-center gap-2 px-4 py-3 bg-slate-800/60 border border-slate-700/50 rounded-xl text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all duration-200"
+                        title="Atualizar dados"
+                    >
+                        <i class="fas fa-sync-alt"></i>
+                        <span class="hidden sm:inline text-sm font-medium">Atualizar</span>
+                    </button>
+                </div>
             </div>
             <p id="searchResults" class="text-xs text-slate-400 mt-2 hidden">
                 Mostrando <span id="searchCount">0</span> resultado(s)

@@ -1,6 +1,7 @@
 /**
  * Agenda - Advanced Daily Appointments View
  * Features: JSON parsing, financial badges, CRUD actions, strict badge rules
+ * NOTE: View modal and CRUD functions are now in appointments-service.js
  */
 
 // Import centralized formatters
@@ -578,8 +579,13 @@ function showCheckoutForm() {
  * Now fetches from API if not found locally
  */
 async function openEditModal(appointmentId) {
+    console.log('🔧 openEditModal called with ID:', appointmentId);
+
     let appointment = currentAppointments.find(
-        (a) => a.id === appointmentId || a.id === Number(appointmentId)
+        (a) =>
+            a.id === appointmentId ||
+            a.id === Number(appointmentId) ||
+            String(a.id) === String(appointmentId)
     );
 
     // If not found locally, fetch from API

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arquivo - TechLog Clinic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(71, 85, 105, 0.5); }
+        .status-badge { @apply px-2 py-1 rounded-full text-xs font-medium; }
+        .filter-btn { @apply px-4 py-2 rounded-lg font-medium transition-all duration-200; }
+        .filter-btn.active { @apply bg-cyan-500 text-white shadow-lg shadow-cyan-500/30; }
+        .filter-btn:not(.active) { @apply bg-slate-700 text-slate-300 hover:bg-slate-600; }
+        .archive-card:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        
+        /* Sidebar Styles */
+        #sidebar {
+            width: 5rem; /* 80px collapsed */
+            transition: width 0.3s ease;
+        }
+        
+        #sidebar.expanded {
+            width: 16rem; /* 256px expanded */
+        }
+        
+        #mainContent {
+            margin-left: 5rem;
+            transition: margin-left 0.3s ease;
+        }
+        
+        #mainContent.expanded {
+            margin-left: 16rem;
+        }
+        
+        .sidebar-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar.expanded .sidebar-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .sidebar-item:hover {
+            background: rgba(6, 182, 212, 0.15);
+            color: #06b6d4;
+            transform: translateX(2px);
+        }
+        
+        .sidebar-item i {
+            width: 1.25rem;
+            text-align: center;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-item:hover i {
+            transform: scale(1.1);
+        }
+        
+        .sidebar-item span {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #sidebar.expanded .sidebar-item span {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        #sidebar.expanded #toggleIcon {
+            transform: rotate(180deg);
+        }
+        
+        #toggleIcon {
+            transition: transform 0.3s ease;
+        }
+    </style>
+    <script src="./js/components/sidebar.js"></script>
+    <script src="./js/components/clinic-header.js"></script>
+</head>
+<body class="text-slate-200" data-hide-clinic-header="true">
+    <div class="flex">
+        <!-- Sidebar Component -->
+        <medical-sidebar active="arquivo" show-date-filter="false"></medical-sidebar>
+
+        <!-- Main Content -->
+        <main id="mainContent" class="flex-1 p-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+                    <i class="fa-solid fa-box-archive text-cyan-400"></i>
+                    Arquivo de Atendimentos
+                </h1>
+                <p class="text-slate-400 mt-1">Histórico de agendamentos finalizados, cancelados e não comparecimentos</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="totalCount" class="px-4 py-2 bg-slate-700 rounded-lg text-slate-300">
+                    <i class="fa-solid fa-database mr-2"></i>
+                    <span id="totalNumber">0</span> registros
+                </span>
+            </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <!-- Row 1: Status Filters -->
+            <div class="flex flex-wrap items-center gap-4 mb-4 pb-4 border-b border-slate-700">
+                <span class="text-slate-400 text-sm font-medium">Status:</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="setFilter('all')" data-filter="all" class="filter-btn active">
+                        <i class="fa-solid fa-list mr-1"></i> Todos
+                    </button>
+                    <button onclick="setFilter('completed')" data-filter="completed" class="filter-btn">
+                        <i class="fa-solid fa-check-circle mr-1 text-green-400"></i> Finalizados
+                    </button>
+                    <button onclick="setFilter('cancelled')" data-filter="cancelled" class="filter-btn">
+                        <i class="fa-solid fa-ban mr-1 text-red-400"></i> Cancelados
+                    </button>
+                    <button onclick="setFilter('no_show')" data-filter="no_show" class="filter-btn">
+                        <i class="fa-solid fa-user-slash mr-1 text-orange-400"></i> Não Veio
+                    </button>
+                </div>
+            </div>
+
+            <!-- Row 2: Period + Search + Export -->
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Date Range -->
+                <span class="text-slate-400 text-sm font-medium">Período:</span>
+                <div class="flex items-center gap-2">
+                    <input 
+                        type="date" 
+                        id="dateFrom"
+                        onchange="loadArchive()"
+                        class="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-500"
+                    >
+                    <span class="text-slate-400">até</span>
+                    <input 
+                        type="date" 
+                        id="dateTo"
+                        onchange="loadArchive()"
+                        class="px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-500"
+                    >
+                    <button onclick="clearDates()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-400 rounded-lg text-sm transition" title="Limpar datas">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Spacer -->
+                <div class="flex-1"></div>
+
+                <!-- Search -->
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="Buscar por nome ou telefone..."
+                        oninput="debounceSearch(this.value)"
+                        class="pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500 w-64"
+                    >
+                </div>
+
+                <!-- Export -->
+                <button onclick="exportArchive()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 transition flex items-center gap-2">
+                    <i class="fa-solid fa-download"></i>
+                    Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-4 gap-4 mb-6">
+            <div class="glass-card rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-check-circle text-green-400 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-white" id="statCompleted">0</p>
+                        <p class="text-sm text-slate-400">Finalizados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-ban text-red-400 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-white" id="statCancelled">0</p>
+                        <p class="text-sm text-slate-400">Cancelados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-user-slash text-orange-400 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-white" id="statNoShow">0</p>
+                        <p class="text-sm text-slate-400">Não Compareceu</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card rounded-xl p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-rotate-left text-purple-400 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-white" id="statRestored">0</p>
+                        <p class="text-sm text-slate-400">Restaurados Hoje</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Archive List -->
+        <div class="glass-card rounded-2xl p-6">
+            <div id="archiveList" class="space-y-3">
+                <!-- Loading -->
+                <div class="text-center py-12">
+                    <i class="fa-solid fa-spinner fa-spin text-4xl text-cyan-400 mb-4"></i>
+                    <p class="text-slate-400">Carregando arquivo...</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="pagination" class="flex items-center justify-between mt-6 pt-6 border-t border-slate-700 hidden">
+                <p class="text-slate-400 text-sm">
+                    Mostrando <span id="showingFrom">1</span>-<span id="showingTo">20</span> de <span id="showingTotal">0</span>
+                </p>
+                <div class="flex items-center gap-2">
+                    <button onclick="prevPage()" id="btnPrev" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
+                    </button>
+                    <span id="pageInfo" class="px-4 py-2 text-slate-400">Página 1</span>
+                    <button onclick="nextPage()" id="btnNext" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        Próxima <i class="fa-solid fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- View Details Modal -->
+    <div id="detailsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="bg-slate-800 rounded-2xl w-full max-w-lg mx-4 border border-slate-700 shadow-2xl">
+            <div class="p-6 border-b border-slate-700 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-white">Detalhes do Atendimento</h3>
+                <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="detailsContent" class="p-6">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="p-6 border-t border-slate-700 flex justify-end gap-3">
+                <button onclick="restoreFromModal()" class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> Restaurar
+                </button>
+                <button onclick="deleteFromModal()" class="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-trash"></i> Excluir
+                </button>
+                <button onclick="closeDetailsModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // STATE
+        // ============================================
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let currentPage = 1;
+        let totalPages = 1;
+        let archiveData = [];
+        let currentViewingId = null;
+        const ITEMS_PER_PAGE = 20;
+        let searchTimeout = null;
+
+        // ============================================
+        // AUTH
+        // ============================================
+        function getToken() {
+            return localStorage.getItem('token') || sessionStorage.getItem('token');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
+            window.location.href = '/login.html';
+        }
+
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // ============================================
+        // FILTERS
+        // ============================================
+        function setFilter(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            // Update UI
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
+            
+            loadArchive();
+        }
+
+        function debounceSearch(value) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentSearch = value;
+                currentPage = 1;
+                loadArchive();
+            }, 300);
+        }
+
+        function clearDates() {
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            currentPage = 1;
+            loadArchive();
+        }
+
+        // ============================================
+        // LOAD DATA
+        // ============================================
+        async function loadArchive() {
+            const listContainer = document.getElementById('archiveList');
+            
+            // Show loading
+            listContainer.innerHTML = `
+                <div class="text-center py-12">
+                    <i class="fa-solid fa-spinner fa-spin text-4xl text-cyan-400 mb-4"></i>
+                    <p class="text-slate-400">Carregando arquivo...</p>
+                </div>
+            `;
+
+            try {
+                const token = getToken();
+                const dateFrom = document.getElementById('dateFrom').value;
+                const dateTo = document.getElementById('dateTo').value;
+                
+                // Build query params
+                const params = new URLSearchParams({
+                    limit: ITEMS_PER_PAGE,
+                    offset: (currentPage - 1) * ITEMS_PER_PAGE
+                });
+                
+                if (currentFilter !== 'all') params.append('status', currentFilter);
+                if (currentSearch) params.append('search', currentSearch);
+                if (dateFrom) params.append('dateFrom', dateFrom);
+                if (dateTo) params.append('dateTo', dateTo);
+                
+                const response = await fetch(`/api/appointments/archived?${params}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao carregar arquivo');
+                
+                const data = await response.json();
+                archiveData = data.archived || [];
+                const total = data.total || 0;
+                
+                // Calculate stats from filtered data (not from backend general stats)
+                const stats = calculateStatsFromData(archiveData);
+                updateStats(stats);
+                
+                // Update total count
+                document.getElementById('totalNumber').textContent = total;
+                
+                // Calculate pagination
+                totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+                updatePagination(total);
+                
+                // Render list
+                if (archiveData.length === 0) {
+                    listContainer.innerHTML = `
+                        <div class="text-center py-16">
+                            <i class="fa-solid fa-box-open text-slate-500 text-6xl mb-4"></i>
+                            <p class="text-slate-400 text-lg">Nenhum registro encontrado</p>
+                            <p class="text-slate-500 text-sm mt-2">
+                                ${currentSearch ? 'Tente outro termo de busca' : 'Agendamentos arquivados aparecerão aqui'}
+                            </p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                listContainer.innerHTML = archiveData.map(item => renderArchiveCard(item)).join('');
+                
+            } catch (error) {
+                console.error('Error loading archive:', error);
+                listContainer.innerHTML = `
+                    <div class="text-center py-12 text-red-400">
+                        <i class="fa-solid fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Erro ao carregar arquivo</p>
+                        <button onclick="loadArchive()" class="mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 transition">
+                            <i class="fa-solid fa-refresh mr-2"></i> Tentar novamente
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('statCompleted').textContent = stats.completed || 0;
+            document.getElementById('statCancelled').textContent = stats.cancelled || 0;
+            document.getElementById('statNoShow').textContent = stats.no_show || 0;
+            document.getElementById('statRestored').textContent = stats.restored_today || 0;
+        }
+
+        function calculateStatsFromData(data) {
+            const stats = {
+                completed: 0,
+                cancelled: 0,
+                no_show: 0,
+                restored_today: 0
+            };
+            
+            data.forEach(item => {
+                if (item.status === 'completed') {
+                    stats.completed++;
+                } else if (item.status === 'cancelled' || item.status === 'archived') {
+                    stats.cancelled++;
+                } else if (item.status === 'no_show') {
+                    stats.no_show++;
+                }
+            });
+            
+            return stats;
+        }
+
+        function updatePagination(total) {
+            const pagination = document.getElementById('pagination');
+            
+            if (total <= ITEMS_PER_PAGE) {
+                pagination.classList.add('hidden');
+                return;
+            }
+            
+            pagination.classList.remove('hidden');
+            
+            const from = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            const to = Math.min(currentPage * ITEMS_PER_PAGE, total);
+            
+            document.getElementById('showingFrom').textContent = from;
+            document.getElementById('showingTo').textContent = to;
+            document.getElementById('showingTotal').textContent = total;
+            document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+            
+            document.getElementById('btnPrev').disabled = currentPage === 1;
+            document.getElementById('btnNext').disabled = currentPage === totalPages;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                loadArchive();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadArchive();
+            }
+        }
+
+        // ============================================
+        // RENDER
+        // ============================================
+        function renderArchiveCard(item) {
+            const name = item.patient_name || 'Paciente';
+            const phone = item.patient_phone || '';
+            const date = item.appointment_date ? new Date(item.appointment_date).toLocaleDateString('pt-BR') : '-';
+            const time = item.appointment_date ? new Date(item.appointment_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+            const archivedAt = item.archived_at ? new Date(item.archived_at).toLocaleDateString('pt-BR') : '-';
+            
+            // Status badge
+            let statusBadge = '';
+            let statusIcon = '';
+            switch(item.status) {
+                case 'completed':
+                    statusBadge = 'bg-green-500/20 text-green-300';
+                    statusIcon = '<i class="fa-solid fa-check-circle mr-1"></i>';
+                    break;
+                case 'cancelled':
+                case 'archived':
+                    statusBadge = 'bg-red-500/20 text-red-300';
+                    statusIcon = '<i class="fa-solid fa-ban mr-1"></i>';
+                    break;
+                case 'no_show':
+                    statusBadge = 'bg-orange-500/20 text-orange-300';
+                    statusIcon = '<i class="fa-solid fa-user-slash mr-1"></i>';
+                    break;
+                default:
+                    statusBadge = 'bg-slate-500/20 text-slate-300';
+            }
+            
+            const statusLabel = {
+                'completed': 'Finalizado',
+                'cancelled': 'Cancelado',
+                'archived': 'Arquivado',
+                'no_show': 'Não Compareceu'
+            }[item.status] || item.status;
+            
+            // Source badge
+            const sourceBadge = item.source === 'lead' 
+                ? '<span class="px-2 py-0.5 rounded text-xs bg-purple-500/20 text-purple-300">Lead</span>'
+                : '<span class="px-2 py-0.5 rounded text-xs bg-cyan-500/20 text-cyan-300">Agendamento</span>';
+            
+            return `
+                <div class="glass-card rounded-xl p-4 archive-card transition-all duration-200 cursor-pointer hover:border-slate-500" onclick="openDetails('${item.id}')">
+                    <div class="flex items-center gap-4">
+                        <!-- Avatar -->
+                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                            ${name.charAt(0).toUpperCase()}
+                        </div>
+                        
+                        <!-- Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="text-white font-semibold truncate">${name}</h4>
+                                ${sourceBadge}
+                            </div>
+                            <p class="text-slate-400 text-sm">
+                                ${phone ? `<i class="fa-solid fa-phone mr-1"></i>${phone}` : '<span class="text-slate-500">Sem telefone</span>'}
+                            </p>
+                            <div class="flex items-center gap-3 mt-2">
+                                <span class="px-2 py-0.5 rounded text-xs ${statusBadge}">
+                                    ${statusIcon}${statusLabel}
+                                </span>
+                                ${item.type ? `<span class="text-slate-500 text-xs"><i class="fa-solid fa-tag mr-1"></i>${item.type}</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Date Info -->
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-white font-medium">${date}</p>
+                            <p class="text-slate-400 text-sm">${time}</p>
+                            <p class="text-slate-500 text-xs mt-1">
+                                <i class="fa-solid fa-archive mr-1"></i>Arquivado: ${archivedAt}
+                            </p>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex flex-col gap-2 flex-shrink-0">
+                            <button onclick="event.stopPropagation(); restoreItem('${item.id}')" class="px-3 py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg text-sm transition flex items-center gap-1" title="Restaurar">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteItem('${item.id}')" class="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm transition flex items-center gap-1" title="Excluir">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================
+        // ACTIONS
+        // ============================================
+        async function restoreItem(id) {
+            if (!confirm('Restaurar este agendamento? Ele voltará para a agenda.')) return;
+            
+            try {
+                const token = getToken();
+                const response = await fetch(`/api/appointments/${id}/restore`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao restaurar');
+                
+                alert('✅ Agendamento restaurado com sucesso!');
+                loadArchive();
+                
+            } catch (error) {
+                console.error('Error restoring:', error);
+                alert('❌ Erro ao restaurar agendamento');
+            }
+        }
+
+        async function deleteItem(id) {
+            if (!confirm('⚠️ Excluir PERMANENTEMENTE este registro?\n\nEsta ação não pode ser desfeita!')) return;
+            
+            try {
+                const token = getToken();
+                const response = await fetch(`/api/appointments/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao excluir');
+                
+                alert('✅ Registro excluído permanentemente!');
+                loadArchive();
+                
+            } catch (error) {
+                console.error('Error deleting:', error);
+                alert('❌ Erro ao excluir registro');
+            }
+        }
+
+        // ============================================
+        // DETAILS MODAL
+        // ============================================
+        function parseFinancialData(notes) {
+            if (!notes) return null;
+            try {
+                // Try to find JSON with financial data in notes
+                const jsonMatch = notes.match(/\{"financial":\s*\{[^}]+\}\}/);
+                if (jsonMatch) {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    return parsed.financial || null;
+                }
+                return null;
+            } catch (e) {
+                console.log('Error parsing financial:', e);
+                return null;
+            }
+        }
+
+        function cleanNotes(notes) {
+            if (!notes) return '';
+            // Remove JSON financial data from notes display
+            return notes.replace(/\{"financial":\s*\{[^}]+\}\}/g, '').trim();
+        }
+
+        function formatCurrency(value) {
+            if (!value) return '-';
+            const num = parseFloat(value);
+            if (isNaN(num)) return '-';
+            return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function openDetails(id) {
+            const item = archiveData.find(a => String(a.id) === String(id));
+            if (!item) return;
+            
+            currentViewingId = id;
+            
+            const date = item.appointment_date ? new Date(item.appointment_date).toLocaleDateString('pt-BR') : '-';
+            const time = item.appointment_date ? new Date(item.appointment_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+            const archivedAt = item.archived_at ? new Date(item.archived_at).toLocaleString('pt-BR') : '-';
+            
+            const statusLabel = {
+                'completed': 'Finalizado',
+                'cancelled': 'Cancelado',
+                'archived': 'Arquivado',
+                'no_show': 'Não Compareceu'
+            }[item.status] || item.status;
+
+            // Parse financial data from notes
+            const financial = parseFinancialData(item.notes);
+            const cleanedNotes = cleanNotes(item.notes);
+            
+            // Build financial section if available
+            const financialSection = financial ? `
+                <div class="pt-4 border-t border-slate-700">
+                    <p class="text-slate-500 text-sm mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-money-bill-wave text-green-400"></i>
+                        Informações Financeiras
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 bg-slate-700/30 rounded-lg p-4">
+                        <div>
+                            <p class="text-slate-500 text-xs">Tipo de Pagamento</p>
+                            <p class="text-white font-medium">${financial.paymentType === 'particular' ? 'Particular' : financial.paymentType === 'convenio' ? 'Convênio' : financial.paymentType || '-'}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-xs">Valor</p>
+                            <p class="text-green-400 font-bold text-lg">${formatCurrency(financial.value)}</p>
+                        </div>
+                        ${financial.insuranceName ? `
+                        <div class="col-span-2">
+                            <p class="text-slate-500 text-xs">Convênio</p>
+                            <p class="text-white">${financial.insuranceName}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            ` : '';
+            
+            document.getElementById('detailsContent').innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-bold text-2xl">
+                            ${(item.patient_name || 'P').charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-white">${item.patient_name || 'Paciente'}</h4>
+                            <p class="text-slate-400">${item.patient_phone || 'Sem telefone'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-700">
+                        <div>
+                            <p class="text-slate-500 text-sm">Data/Hora</p>
+                            <p class="text-white">${date} às ${time}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-sm">Status</p>
+                            <p class="text-white">${statusLabel}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-sm">Tipo</p>
+                            <p class="text-white">${item.type || '-'}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-sm">Origem</p>
+                            <p class="text-white">${item.source === 'lead' ? 'Lead/CRM' : 'Agendamento'}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-sm">Médico</p>
+                            <p class="text-white">${item.doctor || '-'}</p>
+                        </div>
+                        <div>
+                            <p class="text-slate-500 text-sm">Convênio</p>
+                            <p class="text-white">${item.insurance || '-'}</p>
+                        </div>
+                    </div>
+                    
+                    ${financialSection}
+                    
+                    ${cleanedNotes ? `
+                        <div class="pt-4 border-t border-slate-700">
+                            <p class="text-slate-500 text-sm mb-2">Observações</p>
+                            <p class="text-slate-300 bg-slate-700/50 rounded-lg p-3">${cleanedNotes}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="pt-4 border-t border-slate-700">
+                        <p class="text-slate-500 text-sm">Arquivado em</p>
+                        <p class="text-white">${archivedAt}</p>
+                    </div>
+                </div>
+            `;
+            
+            const modal = document.getElementById('detailsModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDetailsModal() {
+            const modal = document.getElementById('detailsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentViewingId = null;
+        }
+
+        function restoreFromModal() {
+            if (currentViewingId) {
+                closeDetailsModal();
+                restoreItem(currentViewingId);
+            }
+        }
+
+        function deleteFromModal() {
+            if (currentViewingId) {
+                closeDetailsModal();
+                deleteItem(currentViewingId);
+            }
+        }
+
+        // ============================================
+        // EXPORT
+        // ============================================
+        async function exportArchive() {
+            try {
+                const token = getToken();
+                const params = new URLSearchParams({ limit: 10000 });
+                
+                if (currentFilter !== 'all') params.append('status', currentFilter);
+                if (currentSearch) params.append('search', currentSearch);
+                
+                const dateFrom = document.getElementById('dateFrom').value;
+                const dateTo = document.getElementById('dateTo').value;
+                if (dateFrom) params.append('dateFrom', dateFrom);
+                if (dateTo) params.append('dateTo', dateTo);
+                
+                const response = await fetch(`/api/appointments/archived?${params}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                const data = await response.json();
+                const items = data.archived || [];
+                
+                // Create CSV
+                const headers = ['Nome', 'Telefone', 'Data', 'Status', 'Tipo', 'Origem', 'Arquivado em'];
+                const rows = items.map(item => [
+                    item.patient_name || '',
+                    item.patient_phone || '',
+                    item.appointment_date ? new Date(item.appointment_date).toLocaleString('pt-BR') : '',
+                    item.status || '',
+                    item.type || '',
+                    item.source || '',
+                    item.archived_at ? new Date(item.archived_at).toLocaleString('pt-BR') : ''
+                ]);
+                
+                const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+                
+                // Download
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `arquivo_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                alert('Erro ao exportar arquivo');
+            }
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!checkAuth()) return;
+            
+            // Load archive without date filters (show all)
+            loadArchive();
+        });
+
+        // Close modal on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDetailsModal();
+        });
+    </script>
+        </main>
+    </div>
+</body>
+</html>

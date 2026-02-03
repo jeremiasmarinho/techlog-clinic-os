@@ -140,7 +140,7 @@
     <script src="./js/components/clinic-header.js"></script>
     <script src="./js/services/clinic-service.js"></script>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col" data-hide-clinic-header="true">
 
     <!-- Multi-Tenant Clinic Header (injected automatically) -->
 
@@ -171,7 +171,7 @@
                         <option value="">Todos</option>
                     </select>
                 </div>
-                <div class="flex items-end">
+                <div class="flex items-end gap-2">
                     <button 
                         onclick="loadAgenda()" 
                         class="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded-lg font-medium transition">
@@ -225,6 +225,95 @@
         <div id="appointmentsList" class="hidden"></div>
         </div>
     </main>
+
+    <!-- VIEW MODAL - Read-only appointment details -->
+    <div id="viewModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg mx-4 shadow-2xl">
+            
+            <!-- Header -->
+            <div class="flex justify-between items-center p-5 border-b border-slate-700">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-check text-cyan-400"></i>
+                    Detalhes do Agendamento
+                </h3>
+                <button onclick="closeViewModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-5 space-y-4">
+                <!-- Patient Info -->
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-xl font-bold" id="viewPatientInitial">
+                        J
+                    </div>
+                    <div>
+                        <h4 id="viewPatientName" class="text-xl font-semibold text-white">João Silva</h4>
+                        <p id="viewPatientPhone" class="text-slate-400 flex items-center gap-2">
+                            <i class="fas fa-phone text-cyan-400"></i>
+                            (11) 99999-1111
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <div class="bg-slate-900/50 rounded-lg p-3">
+                        <span class="text-slate-500 text-xs uppercase tracking-wide">Data/Hora</span>
+                        <p id="viewDateTime" class="text-white font-medium mt-1">
+                            <i class="fas fa-clock text-cyan-400 mr-2"></i>03/02/2026 às 08:19
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/50 rounded-lg p-3">
+                        <span class="text-slate-500 text-xs uppercase tracking-wide">Status</span>
+                        <p id="viewStatus" class="mt-1">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300">Agendado</span>
+                        </p>
+                    </div>
+                    <div class="bg-slate-900/50 rounded-lg p-3">
+                        <span class="text-slate-500 text-xs uppercase tracking-wide">Tipo</span>
+                        <p id="viewType" class="text-white font-medium mt-1">Consulta</p>
+                    </div>
+                    <div class="bg-slate-900/50 rounded-lg p-3">
+                        <span class="text-slate-500 text-xs uppercase tracking-wide">Profissional</span>
+                        <p id="viewDoctor" class="text-white font-medium mt-1">-</p>
+                    </div>
+                </div>
+
+                <!-- Financial -->
+                <div class="bg-slate-900/50 rounded-lg p-3">
+                    <span class="text-slate-500 text-xs uppercase tracking-wide">Valor / Pagamento</span>
+                    <p id="viewFinancial" class="text-emerald-400 font-semibold text-lg mt-1">R$ 0,00 - Particular</p>
+                </div>
+
+                <!-- Notes -->
+                <div id="viewNotesSection" class="bg-slate-900/50 rounded-lg p-3">
+                    <span class="text-slate-500 text-xs uppercase tracking-wide">Observações</span>
+                    <p id="viewNotes" class="text-slate-300 mt-1 text-sm">-</p>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="p-5 border-t border-slate-700 flex flex-wrap gap-2">
+                <button onclick="confirmAppointmentFromView()" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+                <button onclick="editAppointmentFromView()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button onclick="openWhatsAppFromView()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp"></i>
+                </button>
+                <button onclick="archiveAppointmentFromView()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                    <i class="fas fa-archive"></i>
+                </button>
+                <button onclick="deleteAppointmentFromView()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- EDIT MODAL - Single Step (Simplified) -->
     <div id="editModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
@@ -547,6 +636,8 @@
     <script src="js/crm/whatsapp-templates.js"></script>
     <script src="js/utils/masks.js"></script>
     <script type="module" src="js/utils/formatters.js"></script>
+    <!-- Centralized Appointments Service -->
+    <script src="js/services/appointments-service.js"></script>
     <script src="https://unpkg.com/fullcalendar@6.1.11/index.global.min.js"></script>
     <script src="https://unpkg.com/@fullcalendar/core@6.1.11/locales-all.global.min.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>

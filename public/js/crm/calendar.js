@@ -203,7 +203,9 @@ function initCalendar() {
                         classNames: [statusToClass(row.status)],
                         extendedProps: {
                             phone: row.patient_phone || row.phone || '',
-                            insurance: row.insurance || row.insurance_name || row.convenio || '',
+                            doctor: row.doctor || '',
+                            insurance:
+                                row.insurance || row.insurance_name || row.convenio || 'Particular',
                             status: row.status || '',
                             payment_status: row.payment_status || row.paymentStatus || '',
                             payment_amount: row.amount || row.value || row.payment_amount || null,
@@ -277,37 +279,48 @@ function initCalendar() {
                 payment_status === 'paid'
                     ? `Pago${payment_amount ? ` (R$ ${Number(payment_amount).toFixed(2).replace('.', ',')})` : ''}`
                     : 'Pendente';
+
+            // Get doctor and insurance from extended props
+            const doctor = info.event.extendedProps?.doctor || '';
+            const insuranceLabel = insurance || 'Particular';
+
             const tooltipContent = `
-                <div style="text-align: left;">
+                <div style="text-align: left; font-size: 12px;">
                     <strong>${info.event.title}</strong><br>
-                    Status: ${statusLabel}<br>
-                    Pagamento: ${paymentLabel}<br>
-                    <div style="margin-top: 8px; display: flex; gap: 4px;">
-                        <button onclick="editAppointment('${info.event.id}')" style="background: #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; border: none; cursor: pointer;">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button onclick="archiveAppointment('${info.event.id}')" style="background: #f59e0b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; border: none; cursor: pointer;">
-                            <i class="fas fa-archive"></i> Arquivar
-                        </button>
-                        <button onclick="deleteAppointment('${info.event.id}')" style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; border: none; cursor: pointer;">
-                            <i class="fas fa-trash"></i> Excluir
-                        </button>
-                    </div>
+                    ${doctor ? `👨‍⚕️ ${doctor}<br>` : ''}
+                    🏥 ${insuranceLabel}<br>
+                    📋 Status: ${statusLabel}<br>
+                    💰 ${paymentLabel}<br>
+                    <small style="color: #888; margin-top: 4px; display: block;">Clique para ver detalhes</small>
                 </div>
             `;
 
             if (window.tippy) {
                 window.tippy(info.el, {
                     content: tooltipContent,
-                    theme: 'light-border',
+                    theme: 'glass',
                     placement: 'top',
-                    delay: [200, 0],
+                    delay: [300, 0],
                     allowHTML: true,
-                    interactive: true,
+                    interactive: false,
                     appendTo: document.body,
                 });
             } else {
                 info.el.setAttribute('title', `${info.event.title} - ${statusLabel}`);
+            }
+        },
+        // Open modal when clicking on event
+        eventClick: (info) => {
+            info.jsEvent.preventDefault();
+            const eventId = info.event.id;
+
+            // Call the openViewModal function from agenda.js (read-only view)
+            if (typeof window.openViewModal === 'function') {
+                window.openViewModal(eventId);
+            } else if (typeof window.openEditModal === 'function') {
+                window.openEditModal(eventId);
+            } else {
+                console.warn('No view/edit function available');
             }
         },
     });

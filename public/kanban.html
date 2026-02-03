@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./kanban.css">
 </head>
-<body class="min-h-screen bg-slate-900 text-white">
+<body class="min-h-screen bg-slate-900 text-white" data-hide-clinic-header="true">
     <div class="max-w-7xl mx-auto px-6 py-8">
         <header class="mb-8">
             <h1 class="text-3xl font-bold">Kanban de Pacientes</h1>
@@ -164,6 +164,7 @@
     </div>
 
     <script src="/shared/constants/statuses.js"></script>
+    <script src="./js/services/appointments-service.js"></script>
     <script src="./js/kanban.js"></script>
 
     <!-- Medical Modal (Atendimento) -->

@@ -199,6 +199,11 @@ class MedicalSidebar extends HTMLElement {
                             <span>Pacientes</span>
                         </a>
                         
+                        <a href="arquivo.html" class="sidebar-item ${this.activePage === 'arquivo' ? 'bg-cyan-500/20' : ''}">
+                            <i class="fas fa-box-archive"></i>
+                            <span>Arquivo</span>
+                        </a>
+                        
                         <a href="relatorios.html" class="sidebar-item ${this.activePage === 'relatorios' ? 'bg-cyan-500/20' : ''}">
                             <i class="fas fa-chart-pie"></i>
                             <span>Relatórios</span>
@@ -208,27 +213,6 @@ class MedicalSidebar extends HTMLElement {
                             <i class="fas fa-cog"></i>
                             <span>Configurações</span>
                         </a>
-                        
-                        ${
-                            this.activePage === 'admin'
-                                ? `
-                        <button id="teamButton" onclick="openTeamModal()" class="sidebar-item hidden">
-                            <i class="fas fa-user-cog"></i>
-                            <span>Equipe</span>
-                        </button>
-                        
-                        <button id="togglePrivacy" onclick="togglePrivacyMode()" class="sidebar-item" title="Modo Privacidade">
-                            <i class="fas fa-eye" id="privacyIcon"></i>
-                            <span>Privacidade</span>
-                        </button>
-                        
-                        <button onclick="loadLeads()" class="sidebar-item">
-                            <i class="fas fa-sync-alt"></i>
-                            <span>Atualizar</span>
-                        </button>
-                        `
-                                : ''
-                        }
                     </nav>
 
                     <!-- Logout -->
