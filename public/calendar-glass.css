@@ -99,24 +99,65 @@
 }
 
 /* Status colors - add these classes to events */
-.fc .fc-event.status-confirmado {
+.fc .fc-event.status-confirmado,
+.fc .fc-event.status-confirmed {
   border-left-color: #22c55e !important;
-  /* verde */
+  background: rgba(34, 197, 94, 0.15) !important;
 }
 
-.fc .fc-event.status-pendente {
+.fc .fc-event.status-pendente,
+.fc .fc-event.status-scheduled {
   border-left-color: #f59e0b !important;
-  /* amarelo */
+  background: rgba(245, 158, 11, 0.15) !important;
 }
 
-.fc .fc-event.status-cancelado {
+.fc .fc-event.status-cancelado,
+.fc .fc-event.status-cancelled {
   border-left-color: #ef4444 !important;
-  /* vermelho */
+  background: rgba(239, 68, 68, 0.15) !important;
+  opacity: 0.6;
+}
+
+.fc .fc-event.status-completed {
+  border-left-color: #06b6d4 !important;
+  background: rgba(6, 182, 212, 0.15) !important;
+}
+
+.fc .fc-event.status-no_show {
+  border-left-color: #64748b !important;
+  background: rgba(100, 116, 139, 0.15) !important;
+  opacity: 0.5;
 }
 
 .fc .fc-event.status-paid {
   border-left-color: #fbbf24 !important;
   box-shadow: 0 12px 26px rgba(251, 191, 36, 0.25);
+}
+
+/* Better overlapping event handling */
+.fc-timegrid-event-harness {
+  margin-right: 2px !important;
+}
+
+.fc .fc-timegrid-event {
+  font-size: 11px;
+}
+
+.fc .fc-event-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc .fc-event-time {
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+/* Improve visibility of overlapping events */
+.fc-timegrid-event-harness-inset .fc-timegrid-event {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Tippy.js glass tooltip theme */

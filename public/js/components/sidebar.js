@@ -13,11 +13,11 @@ class MedicalSidebar extends HTMLElement {
         // Read attributes here, when they are guaranteed to be available
         this.activePage = this.getAttribute('active') || 'admin';
         this.showDateFilter = this.getAttribute('show-date-filter') === 'true';
-        
+
         this.render();
         this.initSidebar();
         this.loadUserName();
-        
+
         // ============================================
         // APPLY CLINIC BRANDING (LOGO + COLORS)
         // ============================================
@@ -27,57 +27,72 @@ class MedicalSidebar extends HTMLElement {
             console.error('❌ Error applying sidebar branding:', error);
         }
     }
-    
+
     async applyClinicBranding() {
         try {
-            const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token') || sessionStorage.getItem('accessToken');
+            const token =
+                sessionStorage.getItem('MEDICAL_CRM_TOKEN') ||
+                sessionStorage.getItem('token') ||
+                sessionStorage.getItem('accessToken');
             if (!token) {
                 console.warn('⚠️ No token, skipping branding');
                 return;
             }
-            
+
             // Check cache first
             const cached = localStorage.getItem('clinicSettings');
             let settings;
-            
+
             if (cached) {
                 const { settings: cachedSettings, timestamp } = JSON.parse(cached);
                 const now = Date.now();
-                if (now - timestamp < 5 * 60 * 1000) { // 5 min cache
+                if (now - timestamp < 5 * 60 * 1000) {
+                    // 5 min cache
                     settings = cachedSettings;
                     console.log('✅ Using cached clinic settings for branding');
                 }
             }
-            
-            // Fetch if no cache
+
+            // Fetch if no cache - use /api/clinic/info (doesn't require admin)
             if (!settings) {
-                const response = await fetch('/api/clinic/settings', {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const response = await fetch('/api/clinic/info', {
+                    headers: { Authorization: `Bearer ${token}` },
                 });
-                
+
                 if (response.ok) {
-                    settings = await response.json();
+                    const data = await response.json();
+                    // Map clinic info to settings format
+                    settings = {
+                        identity: {
+                            name: data.clinic?.name || data.name,
+                            logo: data.clinic?.logo_url || data.logo_url,
+                            primaryColor: data.clinic?.primary_color || '#0891b2',
+                        },
+                    };
                     // Cache it
-                    localStorage.setItem('clinicSettings', JSON.stringify({
-                        settings,
-                        timestamp: Date.now()
-                    }));
-                    console.log('✅ Clinic settings loaded from API');
+                    localStorage.setItem(
+                        'clinicSettings',
+                        JSON.stringify({
+                            settings,
+                            timestamp: Date.now(),
+                        })
+                    );
+                    console.log('✅ Clinic info loaded from API');
                 }
             }
-            
+
             if (settings && settings.identity) {
                 // Apply logo
                 const sidebarLogo = this.querySelector('#sidebar-logo');
                 const logoIcon = this.querySelector('#logo-icon');
-                
+
                 if (sidebarLogo && settings.identity.logo) {
                     sidebarLogo.src = settings.identity.logo;
                     sidebarLogo.classList.remove('hidden');
                     if (logoIcon) logoIcon.classList.add('hidden');
                     console.log('✅ Sidebar logo updated');
                 }
-                
+
                 // Apply clinic name
                 if (settings.identity.name) {
                     const clinicNameEl = this.querySelector('.clinic-name');
@@ -85,21 +100,24 @@ class MedicalSidebar extends HTMLElement {
                         clinicNameEl.textContent = settings.identity.name;
                     }
                 }
-                
+
                 // Apply primary color
                 if (settings.identity.primaryColor) {
-                    document.documentElement.style.setProperty('--primary-color', settings.identity.primaryColor);
+                    document.documentElement.style.setProperty(
+                        '--primary-color',
+                        settings.identity.primaryColor
+                    );
                     console.log('✅ Primary color applied:', settings.identity.primaryColor);
                 }
             }
-            
         } catch (error) {
             console.error('❌ Error in applyClinicBranding:', error);
         }
     }
 
     render() {
-        const dateFilterHTML = this.showDateFilter ? `
+        const dateFilterHTML = this.showDateFilter
+            ? `
             <!-- Date Filter -->
             <div class="px-5 mb-6">
                 <div class="flex items-center gap-3 mb-2">
@@ -122,7 +140,8 @@ class MedicalSidebar extends HTMLElement {
                     <option value="all">Tudo</option>
                 </select>
             </div>
-        ` : '';
+        `
+            : '';
 
         this.innerHTML = `
             <!-- Modern Vertical Sidebar -->
@@ -190,7 +209,9 @@ class MedicalSidebar extends HTMLElement {
                             <span>Configurações</span>
                         </a>
                         
-                        ${this.activePage === 'admin' ? `
+                        ${
+                            this.activePage === 'admin'
+                                ? `
                         <button id="teamButton" onclick="openTeamModal()" class="sidebar-item hidden">
                             <i class="fas fa-user-cog"></i>
                             <span>Equipe</span>
@@ -205,7 +226,9 @@ class MedicalSidebar extends HTMLElement {
                             <i class="fas fa-sync-alt"></i>
                             <span>Atualizar</span>
                         </button>
-                        ` : ''}
+                        `
+                                : ''
+                        }
                     </nav>
 
                     <!-- Logout -->
@@ -228,7 +251,7 @@ class MedicalSidebar extends HTMLElement {
         const savedState = localStorage.getItem('sidebarExpanded');
         const sidebarExpanded = savedState === null ? true : savedState === 'true';
         const sidebar = this.querySelector('#sidebar');
-        
+
         if (sidebarExpanded) {
             sidebar.classList.add('expanded');
             this.applyMainContentState(true);
@@ -241,7 +264,7 @@ class MedicalSidebar extends HTMLElement {
             sidebar.classList.toggle('expanded');
             const isExpanded = sidebar.classList.contains('expanded');
             this.applyMainContentState(isExpanded);
-            
+
             localStorage.setItem('sidebarExpanded', isExpanded);
         });
 
@@ -250,32 +273,32 @@ class MedicalSidebar extends HTMLElement {
             sidebar.classList.toggle('open');
             this.querySelector('#sidebarOverlay').classList.toggle('show');
         });
-        
+
         // Setup button event listeners (for functions that need to be called)
         const dashboardBtn = this.querySelector('[onclick="openDashboard()"]');
         if (dashboardBtn && typeof window.openDashboard === 'function') {
             dashboardBtn.removeAttribute('onclick');
             dashboardBtn.addEventListener('click', () => window.openDashboard());
         }
-        
+
         const teamBtn = this.querySelector('[onclick="openTeamModal()"]');
         if (teamBtn && typeof window.openTeamModal === 'function') {
             teamBtn.removeAttribute('onclick');
             teamBtn.addEventListener('click', () => window.openTeamModal());
         }
-        
+
         const privacyBtn = this.querySelector('[onclick="togglePrivacyMode()"]');
         if (privacyBtn && typeof window.togglePrivacyMode === 'function') {
             privacyBtn.removeAttribute('onclick');
             privacyBtn.addEventListener('click', () => window.togglePrivacyMode());
         }
-        
+
         const refreshBtn = this.querySelector('[onclick="loadLeads()"]');
         if (refreshBtn && typeof window.loadLeads === 'function') {
             refreshBtn.removeAttribute('onclick');
             refreshBtn.addEventListener('click', () => window.loadLeads());
         }
-        
+
         const logoutBtn = this.querySelector('[onclick="logout()"]');
         if (logoutBtn && typeof window.logout === 'function') {
             logoutBtn.removeAttribute('onclick');
@@ -299,7 +322,10 @@ class MedicalSidebar extends HTMLElement {
 
     loadUserName() {
         // Load username from auth or localStorage
-        const token = sessionStorage.getItem('token') || sessionStorage.getItem('accessToken') || localStorage.getItem('token');
+        const token =
+            sessionStorage.getItem('token') ||
+            sessionStorage.getItem('accessToken') ||
+            localStorage.getItem('token');
         if (token) {
             try {
                 const payload = JSON.parse(atob(token.split('.')[1]));

@@ -12,5 +12,11 @@ router.patch(
     auditLogger,
     CalendarController.updateAppointment
 );
+router.delete(
+    '/appointments/:id',
+    tenantMiddleware,
+    auditLogger,
+    CalendarController.deleteAppointment
+);
 
 export default router;

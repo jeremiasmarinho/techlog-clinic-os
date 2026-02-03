@@ -57,14 +57,28 @@ async function populateInsuranceSelectsFromClinic() {
             }
         }
 
-        // Fetch if no cache
+        // Fetch if no cache - use /api/clinic/info (doesn't require admin)
         if (!settings) {
-            const response = await fetch('/api/clinic/settings', {
+            const response = await fetch('/api/clinic/info', {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             if (response.ok) {
-                settings = await response.json();
+                const data = await response.json();
+                // Map clinic info to settings format
+                settings = {
+                    insurancePlans: data.clinic?.insurance_plans ||
+                        data.insurance_plans || [
+                            'Particular',
+                            'Unimed',
+                            'Bradesco Saúde',
+                            'SulAmérica',
+                            'Amil',
+                        ],
+                    identity: {
+                        name: data.clinic?.name || data.name,
+                    },
+                };
                 localStorage.setItem(
                     'clinicSettings',
                     JSON.stringify({

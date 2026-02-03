@@ -360,13 +360,174 @@ function initDb(): void {
         }
     );
 
-    ensurePatientStatusSchema();
+    // ensurePatientStatusSchema(); // Disabled - causing patients_old error
     ensureUserClinicColumns();
     ensureUserDocumentColumns();
     ensureClinicDocumentColumns();
+    ensureAppointmentsTable();
 }
 
+// Função para garantir que a tabela appointments existe
+function ensureAppointmentsTable(): void {
+    db.run(
+        `
+        CREATE TABLE IF NOT EXISTS appointments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            clinic_id INTEGER NOT NULL REFERENCES clinics(id) ON DELETE CASCADE,
+            patient_id INTEGER REFERENCES patients(id) ON DELETE SET NULL,
+            doctor_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            appointment_date DATETIME NOT NULL,
+            start_time DATETIME,
+            end_time DATETIME,
+            duration_minutes INTEGER DEFAULT 30,
+            status TEXT DEFAULT 'scheduled' CHECK(status IN ('scheduled', 'confirmed', 'cancelled', 'completed', 'no_show')),
+            notes TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `,
+        (err) => {
+            if (err) {
+                console.error('❌ Erro ao criar tabela appointments:', err.message);
+            } else {
+                console.log('✅ Tabela "appointments" pronta');
+
+                ensureAppointmentsColumns(() => {
+                    // Indexes for fast calendar queries
+                    db.run(
+                        'CREATE INDEX IF NOT EXISTS idx_appointments_clinic ON appointments(clinic_id)'
+                    );
+                    db.run(
+                        'CREATE INDEX IF NOT EXISTS idx_appointments_patient ON appointments(patient_id)'
+                    );
+                    db.run(
+                        'CREATE INDEX IF NOT EXISTS idx_appointments_doctor ON appointments(doctor_id)'
+                    );
+                    db.run(
+                        'CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(appointment_date)'
+                    );
+                    db.run(
+                        'CREATE INDEX IF NOT EXISTS idx_appointments_status ON appointments(status)'
+                    );
+                    db.run(
+                        'CREATE INDEX IF NOT EXISTS idx_appointments_range ON appointments(start_time, end_time)'
+                    );
+                    db.run(
+                        'CREATE INDEX IF NOT EXISTS idx_appointments_doctor_range ON appointments(doctor_id, start_time, end_time)'
+                    );
+                    db.run(
+                        'CREATE INDEX IF NOT EXISTS idx_appointments_clinic_range ON appointments(clinic_id, start_time, end_time)'
+                    );
+
+                    // Create trigger for auto-update timestamp
+                    db.run(`
+                        CREATE TRIGGER IF NOT EXISTS update_appointments_timestamp
+                        AFTER UPDATE ON appointments
+                        BEGIN
+                            UPDATE appointments SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+                        END
+                    `);
+                });
+            }
+        }
+    );
+}
+
+function ensureAppointmentsColumns(onReady?: () => void): void {
+    db.serialize(() => {
+        db.all('PRAGMA table_info(appointments)', [], (err, rows: Array<{ name: string }>) => {
+            if (err) {
+                console.warn('⚠️ Não foi possível verificar colunas de appointments:', err.message);
+                onReady?.();
+                return;
+            }
+
+            const columns = rows?.map((row) => row.name) || [];
+
+            if (!columns.includes('clinic_id')) {
+                db.run('ALTER TABLE appointments ADD COLUMN clinic_id INTEGER', (alterErr) => {
+                    if (!alterErr) {
+                        db.run('UPDATE appointments SET clinic_id = 1 WHERE clinic_id IS NULL');
+                    }
+                });
+            }
+
+            if (!columns.includes('patient_id')) {
+                db.run('ALTER TABLE appointments ADD COLUMN patient_id INTEGER');
+            }
+
+            if (!columns.includes('doctor_id')) {
+                db.run('ALTER TABLE appointments ADD COLUMN doctor_id INTEGER');
+            }
+
+            if (!columns.includes('appointment_date')) {
+                db.run('ALTER TABLE appointments ADD COLUMN appointment_date DATETIME');
+            }
+
+            if (!columns.includes('start_time')) {
+                db.run('ALTER TABLE appointments ADD COLUMN start_time DATETIME');
+            }
+
+            if (!columns.includes('end_time')) {
+                db.run('ALTER TABLE appointments ADD COLUMN end_time DATETIME');
+            }
+
+            if (!columns.includes('duration_minutes')) {
+                db.run(
+                    'ALTER TABLE appointments ADD COLUMN duration_minutes INTEGER DEFAULT 30',
+                    (alterErr) => {
+                        if (!alterErr) {
+                            db.run(
+                                'UPDATE appointments SET duration_minutes = 30 WHERE duration_minutes IS NULL'
+                            );
+                        }
+                    }
+                );
+            }
+
+            if (!columns.includes('status')) {
+                db.run("ALTER TABLE appointments ADD COLUMN status TEXT DEFAULT 'scheduled'");
+            }
+
+            if (!columns.includes('notes')) {
+                db.run('ALTER TABLE appointments ADD COLUMN notes TEXT');
+            }
+
+            if (!columns.includes('created_at')) {
+                db.run(
+                    'ALTER TABLE appointments ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP'
+                );
+            }
+
+            if (!columns.includes('updated_at')) {
+                db.run(
+                    'ALTER TABLE appointments ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP'
+                );
+            }
+
+            if (!columns.includes('patient_name')) {
+                db.run('ALTER TABLE appointments ADD COLUMN patient_name TEXT');
+            }
+
+            if (!columns.includes('patient_phone')) {
+                db.run('ALTER TABLE appointments ADD COLUMN patient_phone TEXT');
+            }
+
+            if (!columns.includes('insurance')) {
+                db.run("ALTER TABLE appointments ADD COLUMN insurance TEXT DEFAULT 'Particular'");
+            }
+
+            db.run('SELECT 1', () => onReady?.());
+        });
+    });
+}
+
+// @ts-ignore - Temporarily disabled to avoid migration issues
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function ensurePatientStatusSchema(): void {
+    // Temporarily disabled to avoid migration issues
+    return;
+
     db.get(
         "SELECT sql FROM sqlite_master WHERE type='table' AND name='patients'",
         [],

@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agenda do Dia - Medical CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { corePlugins: { preflight: true } }</script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/fullcalendar@6.1.11/index.global.min.css">
     <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css">
     <link rel="stylesheet" href="/calendar-glass.css">
     <style>
@@ -178,29 +179,50 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- Status Legend -->
+            <div class="flex flex-wrap gap-4 mt-4 pt-4 border-t border-white/10">
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                    <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                    <span>Agendado</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                    <span>Confirmado</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                    <span class="w-3 h-3 rounded-full bg-cyan-500"></span>
+                    <span>Atendido</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span>Cancelado</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-gray-400">
+                    <span class="w-3 h-3 rounded-full bg-slate-500"></span>
+                    <span>Não compareceu</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Calendar -->
-        <div class="glass-card rounded-xl p-4 mb-6">
+        <!-- Calendar (Main View) -->
+        <div class="glass-card rounded-xl p-4">
             <div id="calendar"></div>
         </div>
 
-        <!-- Appointments List -->
-        <div id="appointmentsList" class="space-y-4">
-            <!-- Cards serão inseridos aqui -->
+        <!-- Loading Overlay -->
+        <div id="loading" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center z-40">
+            <div class="bg-slate-800 rounded-xl p-6 flex flex-col items-center">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-500"></div>
+                <p class="text-gray-400 mt-3 text-sm">Carregando...</p>
+            </div>
         </div>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-12">
-            <i class="fas fa-calendar-times text-6xl text-gray-600 mb-4"></i>
-            <p class="text-gray-400 text-lg">Nenhuma consulta agendada para este dia</p>
-        </div>
-
-        <!-- Loading -->
-        <div id="loading" class="hidden text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
-            <p class="text-gray-400 mt-4">Carregando...</p>
-        </div>
+        <!-- Empty State (hidden by default, calendar handles this) -->
+        <div id="emptyState" class="hidden"></div>
+        
+        <!-- Appointments List (hidden - data handled by calendar) -->
+        <div id="appointmentsList" class="hidden"></div>
         </div>
     </main>
 
@@ -300,9 +322,11 @@
                             id="editStatus" 
                             class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
                         >
-                            <option value="agendado">📅 Agendado</option>
-                            <option value="em_atendimento">🩺 Em Atendimento</option>
-                            <option value="finalizado">✅ Finalizado</option>
+                            <option value="scheduled">📅 Agendado</option>
+                            <option value="confirmed">✅ Confirmado</option>
+                            <option value="completed">🩺 Atendido</option>
+                            <option value="cancelled">❌ Cancelado</option>
+                            <option value="no_show">⚠️ Não Compareceu</option>
                         </select>
                     </div>
                 </div>
@@ -523,8 +547,8 @@
     <script src="js/crm/whatsapp-templates.js"></script>
     <script src="js/utils/masks.js"></script>
     <script type="module" src="js/utils/formatters.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales-all.global.min.js"></script>
+    <script src="https://unpkg.com/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="https://unpkg.com/@fullcalendar/core@6.1.11/locales-all.global.min.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="https://unpkg.com/tippy.js@6"></script>
     <script type="module" src="js/crm/calendar.js"></script>

@@ -541,7 +541,60 @@ O Copilot DEVE verificar:
 
 ---
 
-## 🚫 O QUE NUNCA FAZER
+## � DEBUGGING SEGURO (REGRAS CRÍTICAS)
+
+> **ATENÇÃO:** Seguir estas regras para evitar quebrar funcionalidades existentes durante debugging
+
+### Regras de Ouro
+
+1. **NUNCA alterar dados de teste/produção durante debug**
+   - Não mude senhas de usuários existentes
+   - Não delete registros reais
+   - Use dados temporários ou banco separado para testes
+
+2. **SEMPRE restaurar o estado após debug**
+   - Se precisou alterar algo, reverta ao final
+   - Execute `npm run db:seed` se necessário para restaurar estado limpo
+
+3. **Use credenciais documentadas**
+   - Consulte `docs/LOGINS.md` para senhas corretas
+   - Credenciais padrão: `admin` / `Mudar123!`
+   - Nunca assuma senhas - sempre verifique
+
+4. **Teste antes de considerar resolvido**
+   - Teste a funcionalidade original após a correção
+   - Verifique se outras funcionalidades não quebraram
+   - Execute testes E2E: `npx playwright test`
+
+5. **Documente alterações no banco**
+   - Se fez ALTER TABLE, documente em migrations
+   - Se alterou schema, atualize os tipos TypeScript
+
+### Exemplos de Erros a Evitar
+
+```bash
+# ❌ ERRADO: Alterar senha durante debug e esquecer de restaurar
+sqlite3 database.dev.sqlite "UPDATE users SET password='teste123' WHERE username='admin';"
+
+# ✅ CORRETO: Criar usuário temporário para teste
+sqlite3 database.dev.sqlite "INSERT INTO users (username, password, ...) VALUES ('test_temp', '...');"
+# ... fazer debug ...
+sqlite3 database.dev.sqlite "DELETE FROM users WHERE username='test_temp';"
+
+# ✅ CORRETO: Usar seed para restaurar estado
+npm run db:seed
+```
+
+### Checklist Pós-Debug
+
+- [ ] Funcionalidade original está funcionando?
+- [ ] Login ainda funciona com credenciais documentadas?
+- [ ] Testes E2E passam?
+- [ ] Dados de teste estão íntegros?
+
+---
+
+## �🚫 O QUE NUNCA FAZER
 
 1. **NUNCA** adicionar SQL em Controllers
 2. **NUNCA** usar `console.log` para debug em produção

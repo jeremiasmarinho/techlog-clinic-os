@@ -63,8 +63,8 @@ export class Server {
             res.setHeader(
                 'Content-Security-Policy',
                 "default-src 'self'; " +
-                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; " +
-                    "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://fonts.googleapis.com; " +
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; " +
+                    "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; " +
                     "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
                     "img-src 'self' data: https: http:; " +
                     "connect-src 'self' http: https: ws: wss:; " +

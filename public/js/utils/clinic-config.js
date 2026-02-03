@@ -21,38 +21,52 @@ export async function loadClinicConfig(forceRefresh = false) {
                 return cached;
             }
         }
-        
-        // Fetch from API
-        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
-        
+
+        // Fetch from API - use /api/clinic/info (doesn't require admin)
+        const token =
+            sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+
         if (!token) {
             console.warn('⚠️ No auth token found, using default settings');
             return getDefaultSettings();
         }
-        
-        const response = await fetch('/api/clinic/settings', {
+
+        const response = await fetch('/api/clinic/info', {
             headers: {
-                'Authorization': `Bearer ${token}`
-            }
+                Authorization: `Bearer ${token}`,
+            },
         });
-        
+
         if (!response.ok) {
-            if (response.status === 404) {
+            if (response.status === 404 || response.status === 403) {
                 console.log('⚠️ No clinic settings found, using defaults');
                 return getDefaultSettings();
             }
             throw new Error('Failed to load clinic settings');
         }
-        
-        const settings = await response.json();
-        
+
+        const data = await response.json();
+
+        // Map clinic info to settings format
+        const settings = {
+            identity: {
+                name: data.clinic?.name || data.name,
+                logo: data.clinic?.logo_url || data.logo_url,
+                primaryColor: data.clinic?.primary_color || '#0891b2',
+            },
+            insurancePlans: data.clinic?.insurance_plans || [
+                'Particular',
+                'Unimed',
+                'Bradesco Saúde',
+            ],
+        };
+
         // Cache settings
         cacheSettings(settings);
-        
+
         console.log('✅ Clinic settings loaded from API:', settings);
-        
+
         return settings;
-        
     } catch (error) {
         console.error('❌ Error loading clinic config:', error);
         return getDefaultSettings();
@@ -66,19 +80,18 @@ function getCachedSettings() {
     try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (!cached) return null;
-        
+
         const { settings, timestamp } = JSON.parse(cached);
         const now = Date.now();
-        
+
         // Check if cache is still valid
         if (now - timestamp < CACHE_DURATION) {
             return settings;
         }
-        
+
         // Cache expired
         localStorage.removeItem(CACHE_KEY);
         return null;
-        
     } catch (error) {
         console.error('Error reading cache:', error);
         localStorage.removeItem(CACHE_KEY);
@@ -93,7 +106,7 @@ function cacheSettings(settings) {
     try {
         const cacheData = {
             settings,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
         localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     } catch (error) {
@@ -119,21 +132,21 @@ function getDefaultSettings() {
             phone: '',
             address: '',
             primaryColor: '#06b6d4',
-            logo: null
+            logo: null,
         },
         hours: {
             opening: '08:00',
             closing: '18:00',
             lunchStart: '',
             lunchEnd: '',
-            workingDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']
+            workingDays: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'],
         },
         insurancePlans: ['Particular', 'Unimed', 'Bradesco Saúde', 'Amil'],
         chatbot: {
             greeting: '',
             awayMessage: '',
-            instructions: ''
-        }
+            instructions: '',
+        },
     };
 }
 
@@ -144,13 +157,13 @@ export async function applyBranding(settings) {
     if (!settings) {
         settings = await loadClinicConfig();
     }
-    
+
     const identity = settings.identity || {};
-    
+
     // Apply logo to sidebar
     const sidebarLogo = document.getElementById('sidebar-logo');
     const logoIcon = document.getElementById('logo-icon');
-    
+
     if (sidebarLogo && identity.logo) {
         sidebarLogo.src = identity.logo;
         sidebarLogo.classList.remove('hidden');
@@ -159,17 +172,17 @@ export async function applyBranding(settings) {
         }
         console.log('✅ Sidebar logo updated');
     }
-    
+
     // Apply primary color to CSS variables
     if (identity.primaryColor) {
         document.documentElement.style.setProperty('--primary-color', identity.primaryColor);
         console.log('✅ Primary color applied:', identity.primaryColor);
     }
-    
+
     // Apply clinic name to title/header if exists
     if (identity.name) {
         const clinicNameElements = document.querySelectorAll('.clinic-name');
-        clinicNameElements.forEach(el => {
+        clinicNameElements.forEach((el) => {
             el.textContent = identity.name;
         });
     }
@@ -182,32 +195,31 @@ export async function populateInsuranceSelects(selectIds = []) {
     try {
         const settings = await loadClinicConfig();
         const insurancePlans = settings.insurancePlans || getDefaultSettings().insurancePlans;
-        
-        selectIds.forEach(selectId => {
+
+        selectIds.forEach((selectId) => {
             const select = document.getElementById(selectId);
             if (!select) {
                 console.warn(`⚠️ Select not found: ${selectId}`);
                 return;
             }
-            
+
             // Clear existing options (except first placeholder)
             const firstOption = select.querySelector('option:first-child');
             select.innerHTML = '';
             if (firstOption) {
                 select.appendChild(firstOption);
             }
-            
+
             // Add insurance options
-            insurancePlans.forEach(plan => {
+            insurancePlans.forEach((plan) => {
                 const option = document.createElement('option');
                 option.value = plan;
                 option.textContent = plan;
                 select.appendChild(option);
             });
-            
+
             console.log(`✅ Insurance options populated for #${selectId}:`, insurancePlans);
         });
-        
     } catch (error) {
         console.error('❌ Error populating insurance selects:', error);
     }
@@ -219,13 +231,13 @@ export async function populateInsuranceSelects(selectIds = []) {
 export function isClinicOpen(day = null) {
     const settings = getCachedSettings() || getDefaultSettings();
     const hours = settings.hours;
-    
+
     if (!day) {
         const now = new Date();
         const daysMap = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
         day = daysMap[now.getDay()];
     }
-    
+
     return hours.workingDays.includes(day);
 }
 
@@ -234,11 +246,11 @@ export function isClinicOpen(day = null) {
  */
 export async function initClinicConfig() {
     console.log('🏥 Initializing clinic configuration...');
-    
+
     const settings = await loadClinicConfig();
     await applyBranding(settings);
-    
+
     console.log('✅ Clinic configuration initialized');
-    
+
     return settings;
 }

@@ -8,6 +8,7 @@ import { formatTime, formatDateTime } from '../utils/formatters.js';
 
 // Ensure API_URL is available in module scope
 const API_URL = window.API_URL || '/api/leads';
+const APPOINTMENTS_API_URL = '/api/appointments'; // For CRUD operations on appointments
 
 // ============================================
 // Authentication Check
@@ -228,21 +229,17 @@ async function loadDoctors() {
 }
 
 // ============================================
-// LOAD AGENDA
+// LOAD AGENDA (Simplified - Calendar handles display)
 // ============================================
 
 async function loadAgenda() {
     const loading = document.getElementById('loading');
-    const emptyState = document.getElementById('emptyState');
-    const list = document.getElementById('appointmentsList');
 
-    loading.classList.remove('hidden');
-    emptyState.classList.add('hidden');
-    list.innerHTML = '';
+    loading?.classList.remove('hidden');
 
     try {
-        const date = document.getElementById('dateFilter').value;
-        const doctor = document.getElementById('doctorFilter').value;
+        const date = document.getElementById('dateFilter')?.value;
+        const doctor = document.getElementById('doctorFilter')?.value;
 
         let url = `${API_URL}?view=agenda&date=${date}`;
         if (doctor) url += `&doctor=${encodeURIComponent(doctor)}`;
@@ -258,20 +255,16 @@ async function loadAgenda() {
         const appointments = await response.json();
         currentAppointments = appointments;
 
-        console.log(`✅ Loaded ${appointments.length} appointments with advanced features`);
+        console.log(`✅ Loaded ${appointments.length} appointments`);
 
-        if (appointments.length === 0) {
-            emptyState.classList.remove('hidden');
-        } else {
-            appointments.forEach((appointment) => {
-                list.appendChild(createAppointmentCard(appointment));
-            });
+        // Refresh calendar if exists
+        if (window.calendar && typeof window.calendar.refetchEvents === 'function') {
+            window.calendar.refetchEvents();
         }
     } catch (error) {
         console.error('Erro ao carregar agenda:', error);
-        alert('Erro ao carregar agenda. Tente novamente.');
     } finally {
-        loading.classList.add('hidden');
+        loading?.classList.add('hidden');
     }
 }
 
@@ -466,22 +459,22 @@ async function archiveAppointment(appointmentId) {
     if (!confirmed) return;
 
     try {
-        const response = await fetch(`${API_URL}/${appointmentId}/archive`, {
-            method: 'PUT',
+        const response = await fetch(`${APPOINTMENTS_API_URL}/${appointmentId}`, {
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ archive_reason: 'manual_archive' }),
+            body: JSON.stringify({ status: 'cancelled' }),
         });
 
         if (!response.ok) throw new Error('Erro ao arquivar');
 
-        await alert('✅ Agendamento arquivado com sucesso!');
-        loadAgenda();
+        alert('✅ Agendamento arquivado com sucesso!');
+        location.reload();
     } catch (error) {
         console.error('Erro ao arquivar:', error);
-        await alert('❌ Erro ao arquivar agendamento');
+        alert('❌ Erro ao arquivar agendamento');
     }
 }
 
@@ -495,7 +488,7 @@ async function deleteAppointment(appointmentId) {
     if (!confirmed) return;
 
     try {
-        const response = await fetch(`${API_URL}/${appointmentId}`, {
+        const response = await fetch(`${APPOINTMENTS_API_URL}/${appointmentId}`, {
             method: 'DELETE',
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -504,11 +497,11 @@ async function deleteAppointment(appointmentId) {
 
         if (!response.ok) throw new Error('Erro ao excluir');
 
-        await alert('✅ Agendamento excluído com sucesso!');
-        loadAgenda();
+        alert('✅ Agendamento excluído com sucesso!');
+        location.reload();
     } catch (error) {
         console.error('Erro ao excluir:', error);
-        await alert('❌ Erro ao excluir agendamento');
+        alert('❌ Erro ao excluir agendamento');
     }
 }
 
@@ -517,7 +510,7 @@ async function deleteAppointment(appointmentId) {
  */
 async function markAttendance(appointmentId, attendanceStatus) {
     try {
-        const response = await fetch(`${API_URL}/${appointmentId}`, {
+        const response = await fetch(`${APPOINTMENTS_API_URL}/${appointmentId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -582,12 +575,35 @@ function showCheckoutForm() {
 
 /**
  * Open Edit Modal with appointment data
+ * Now fetches from API if not found locally
  */
-function openEditModal(appointmentId) {
-    const appointment = currentAppointments.find((a) => a.id === appointmentId);
+async function openEditModal(appointmentId) {
+    let appointment = currentAppointments.find(
+        (a) => a.id === appointmentId || a.id === Number(appointmentId)
+    );
+
+    // If not found locally, fetch from API
     if (!appointment) {
-        alert('❌ Agendamento não encontrado');
-        return;
+        console.log('📡 Appointment not in local cache, fetching from API...');
+        try {
+            const response = await fetch(`${APPOINTMENTS_API_URL}/${appointmentId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                alert('❌ Agendamento não encontrado');
+                return;
+            }
+
+            appointment = await response.json();
+            // Map API response to expected format
+            appointment.name = appointment.patient_name || '';
+            appointment.phone = appointment.patient_phone || '';
+        } catch (error) {
+            console.error('Erro ao buscar agendamento:', error);
+            alert('❌ Erro ao carregar dados do agendamento');
+            return;
+        }
     }
 
     currentModalAppointment = appointment;
@@ -595,34 +611,43 @@ function openEditModal(appointmentId) {
 
     console.log('📝 Opening edit modal for appointment:', appointment);
 
-    // Populate form fields
-    document.getElementById('editId').value = appointment.id;
-    document.getElementById('editName').value = appointment.name || '';
-    document.getElementById('editPhone').value = appointment.phone || '';
+    // Populate form fields - with null checks
+    const editIdEl = document.getElementById('editId');
+    const editNameEl = document.getElementById('editName');
+    const editPhoneEl = document.getElementById('editPhone');
+    const editDateEl = document.getElementById('editDate');
+
+    if (editIdEl) editIdEl.value = appointment.id;
+    if (editNameEl) editNameEl.value = appointment.name || appointment.patient_name || '';
+    if (editPhoneEl) editPhoneEl.value = appointment.phone || appointment.patient_phone || '';
 
     // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
-    if (appointment.appointment_date) {
-        const date = new Date(appointment.appointment_date);
+    const appointmentDateValue = appointment.appointment_date || appointment.start_time;
+    if (appointmentDateValue && editDateEl) {
+        const date = new Date(appointmentDateValue);
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
-        document.getElementById('editDate').value = formattedDate;
-    } else {
-        document.getElementById('editDate').value = '';
+        editDateEl.value = formattedDate;
+    } else if (editDateEl) {
+        editDateEl.value = '';
     }
 
     // Set doctor (populate doctors select if not done yet)
     populateDoctorsInModal();
-    document.getElementById('editDoctor').value = appointment.doctor || '';
+    const editDoctorEl = document.getElementById('editDoctor');
+    if (editDoctorEl) editDoctorEl.value = appointment.doctor || '';
 
     // Set type
-    document.getElementById('editType').value = appointment.type || '';
+    const editTypeEl = document.getElementById('editType');
+    if (editTypeEl) editTypeEl.value = appointment.type || '';
 
     // Set status
-    document.getElementById('editStatus').value = appointment.status || 'agendado';
+    const editStatusEl = document.getElementById('editStatus');
+    if (editStatusEl) editStatusEl.value = appointment.status || 'agendado';
 
     // Parse financial data from notes
     const { cleanText, financial } = parseDescription(appointment.notes);
@@ -632,26 +657,31 @@ function openEditModal(appointmentId) {
         if (financial.value) {
             // Format value as R$ 250,00
             const valueNumber = parseFloat(financial.value);
-            if (!isNaN(valueNumber)) {
-                document.getElementById('editValue').value =
-                    `R$ ${valueNumber.toFixed(2).replace('.', ',')}`;
+            const editValueEl = document.getElementById('editValue');
+            if (!isNaN(valueNumber) && editValueEl) {
+                editValueEl.value = `R$ ${valueNumber.toFixed(2).replace('.', ',')}`;
             }
         }
         if (financial.paymentType || financial.insuranceName) {
             // Populate insurance select
             populateInsuranceInModal();
-            document.getElementById('editInsurance').value =
-                financial.insuranceName || financial.paymentType || '';
+            const editInsuranceEl = document.getElementById('editInsurance');
+            if (editInsuranceEl) {
+                editInsuranceEl.value = financial.insuranceName || financial.paymentType || '';
+            }
         }
     }
 
     // Set clean notes (without JSON)
-    document.getElementById('editNotes').value = cleanText || '';
+    const editNotesEl = document.getElementById('editNotes');
+    if (editNotesEl) editNotesEl.value = cleanText || '';
 
     // Show modal
     const modal = document.getElementById('editModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 }
 
 /**
@@ -659,13 +689,16 @@ function openEditModal(appointmentId) {
  */
 function closeEditModal() {
     const modal = document.getElementById('editModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 
     currentModalAppointment = null;
 
     // Reset form
-    document.getElementById('editForm').reset();
+    const editForm = document.getElementById('editForm');
+    if (editForm) editForm.reset();
     const checkoutForm = document.getElementById('checkoutForm');
     if (checkoutForm) checkoutForm.reset();
     showEditForm();
@@ -724,7 +757,7 @@ async function openWhatsAppConfirmation() {
     if (!confirmed) return;
 
     try {
-        const response = await fetch(`${API_URL}/${currentModalAppointment.id}`, {
+        const response = await fetch(`${APPOINTMENTS_API_URL}/${currentModalAppointment.id}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -738,12 +771,8 @@ async function openWhatsAppConfirmation() {
             throw new Error(errorData.error || 'Erro ao confirmar agendamento');
         }
 
-        currentModalAppointment.status = 'confirmed';
-        await loadAgenda();
-
-        if (typeof showNotification === 'function') {
-            showNotification('✅ Agendamento confirmado com sucesso!', 'success');
-        }
+        alert('✅ Agendamento confirmado com sucesso!');
+        location.reload();
     } catch (error) {
         console.error('❌ Error confirming appointment:', error);
         alert(`❌ Erro ao confirmar: ${error.message}`);
@@ -804,7 +833,7 @@ async function saveEdit(event) {
     console.log('💾 Saving appointment:', updateData);
 
     try {
-        const response = await fetch(`${API_URL}/${appointmentId}`, {
+        const response = await fetch(`${APPOINTMENTS_API_URL}/${appointmentId}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -823,11 +852,9 @@ async function saveEdit(event) {
         // Close modal
         closeEditModal();
 
-        // Reload agenda
-        await loadAgenda();
-
-        // Show success notification
-        await alert('✅ Agendamento atualizado com sucesso!');
+        // Show success notification and reload page
+        alert('✅ Agendamento atualizado com sucesso!');
+        location.reload();
     } catch (error) {
         console.error('❌ Error updating appointment:', error);
         alert(`❌ Erro ao atualizar: ${error.message}`);
