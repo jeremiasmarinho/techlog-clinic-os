@@ -267,7 +267,8 @@ export class LeadRepository {
             INSERT INTO leads (name, phone, type, clinic_id, status, created_at)
             VALUES (?, ?, ?, ?, 'novo', datetime('now'))
         `;
-        const params = [data.name, data.phone, data.type || 'whatsapp', data.clinic_id || null];
+        // Use clinic_id 1 as default if not provided (public endpoint default)
+        const params = [data.name, data.phone, data.type || 'whatsapp', data.clinic_id || 1];
 
         const result = await dbAsync.run(sql, params);
         return result.lastID;

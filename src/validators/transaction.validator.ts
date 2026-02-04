@@ -79,15 +79,12 @@ export const createTransactionSchema = z.object({
         ),
 
     payment_method: z
-        .enum(PAYMENT_METHODS, {
-            message: `Método de pagamento deve ser: ${PAYMENT_METHODS.join(', ')}`,
-        })
-        .or(
-            z
-                .string()
-                .min(1, 'Método de pagamento é obrigatório')
-                .transform((val) => val.toLowerCase())
-        ),
+        .string()
+        .min(1, 'Método de pagamento é obrigatório')
+        .transform((val) => val.toLowerCase())
+        .refine((val) => PAYMENT_METHODS.includes(val as any), {
+            message: `Forma de pagamento inválida. Valores aceitos: ${PAYMENT_METHODS.join(', ')}`,
+        }),
 
     status: z
         .enum(TRANSACTION_STATUSES, {
@@ -104,14 +101,20 @@ export const createTransactionSchema = z.object({
 
     due_date: z
         .string()
-        .datetime({ message: 'Data de vencimento deve estar no formato ISO 8601' })
+        .refine((val) => !val || /^\d{4}-\d{2}-\d{2}(T|\s)\d{2}:\d{2}:\d{2}/.test(val), {
+            message:
+                'Data de vencimento deve estar no formato válido (YYYY-MM-DD HH:mm:ss ou ISO 8601)',
+        })
         .optional()
         .nullable()
         .or(z.null()),
 
     paid_at: z
         .string()
-        .datetime({ message: 'Data de pagamento deve estar no formato ISO 8601' })
+        .refine((val) => !val || /^\d{4}-\d{2}-\d{2}(T|\s)\d{2}:\d{2}:\d{2}/.test(val), {
+            message:
+                'Data de pagamento deve estar no formato válido (YYYY-MM-DD HH:mm:ss ou ISO 8601)',
+        })
         .optional()
         .nullable()
         .or(z.null()),

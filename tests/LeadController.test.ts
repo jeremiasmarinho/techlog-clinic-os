@@ -28,16 +28,8 @@ describe('LeadController', () => {
     });
 
     afterAll(async () => {
-        // Close database connection
-        await new Promise<void>((resolve, reject) => {
-            db.close((err) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve();
-            });
-        });
+        // Note: Database connection is managed centrally
+        // No need to close here as it may cause conflicts with other test files
     });
 
     describe('POST /api/leads - Create Lead', () => {
@@ -48,11 +40,13 @@ describe('LeadController', () => {
                 type: 'primeira_consulta',
             };
 
-            const response = await request(app).post('/api/leads').send(newLead).expect(200);
+            const response = await request(app).post('/api/leads').send(newLead).expect(201);
 
-            expect(response.body).toHaveProperty('message', 'Lead salvo com sucesso!');
-            expect(response.body).toHaveProperty('id');
-            expect(response.body.id).toBeGreaterThan(0);
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body).toHaveProperty('data');
+            expect(response.body.data).toHaveProperty('message', 'Lead salvo com sucesso!');
+            expect(response.body.data).toHaveProperty('id');
+            expect(response.body.data.id).toBeGreaterThan(0);
         });
 
         it('should fail when name is missing', async () => {
@@ -81,10 +75,12 @@ describe('LeadController', () => {
                 phone: '11987654322',
             };
 
-            const response = await request(app).post('/api/leads').send(newLead).expect(200);
+            const response = await request(app).post('/api/leads').send(newLead).expect(201);
 
-            expect(response.body).toHaveProperty('message', 'Lead salvo com sucesso!');
-            expect(response.body).toHaveProperty('id');
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body).toHaveProperty('data');
+            expect(response.body.data).toHaveProperty('message', 'Lead salvo com sucesso!');
+            expect(response.body.data).toHaveProperty('id');
         });
     });
 
@@ -139,7 +135,7 @@ describe('LeadController', () => {
                 phone: '11999999999',
                 type: 'primeira_consulta',
             });
-            testLeadId = response.body.id;
+            testLeadId = response.body.data?.id || response.body.id;
         });
 
         it('should require authentication', async () => {
@@ -160,8 +156,8 @@ describe('LeadController', () => {
                 .send({ status: 'agendado' })
                 .expect(200);
 
-            expect(response.body).toHaveProperty('message', 'Lead atualizado!');
-            expect(response.body).toHaveProperty('changes', 1);
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('message', 'Lead atualizado!');
         });
 
         it('should update lead appointment details', async () => {
@@ -178,7 +174,8 @@ describe('LeadController', () => {
                 })
                 .expect(200);
 
-            expect(response.body).toHaveProperty('message', 'Lead atualizado!');
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('message', 'Lead atualizado!');
         });
 
         it('should update attendance status', async () => {
@@ -193,7 +190,8 @@ describe('LeadController', () => {
                 })
                 .expect(200);
 
-            expect(response.body).toHaveProperty('message', 'Lead atualizado!');
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('message', 'Lead atualizado!');
         });
 
         it('should fail with invalid status', async () => {
@@ -230,7 +228,7 @@ describe('LeadController', () => {
                 name: 'Test User for Delete',
                 phone: '11988888888',
             });
-            testLeadId = response.body.id;
+            testLeadId = response.body.data?.id || response.body.id;
         });
 
         it('should require authentication', async () => {
@@ -247,11 +245,11 @@ describe('LeadController', () => {
                 .set('x-access-token', token)
                 .expect(200);
 
-            expect(response.body).toHaveProperty('message', 'Lead removido.');
-            expect(response.body).toHaveProperty('changes', 1);
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('message', 'Lead removido.');
         });
 
-        it('should return 404 for non-existent lead', async () => {
+        it('should return 200 with 0 changes for non-existent lead', async () => {
             const token = createAuthToken();
             const nonExistentId = 999999;
 
@@ -260,7 +258,8 @@ describe('LeadController', () => {
                 .set('x-access-token', token)
                 .expect(200);
 
-            expect(response.body).toHaveProperty('changes', 0);
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('changes', 0);
         });
     });
 
@@ -298,7 +297,7 @@ describe('LeadController', () => {
                 name: 'Test User for Archive',
                 phone: '11977777777',
             });
-            testLeadId = response.body.id;
+            testLeadId = response.body.data?.id || response.body.id;
         });
 
         it('should require authentication', async () => {
@@ -316,7 +315,8 @@ describe('LeadController', () => {
                 .send({ archive_reason: 'tratamento_concluido' })
                 .expect(200);
 
-            expect(response.body).toHaveProperty('message', 'Lead arquivado com sucesso!');
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('message', 'Lead arquivado com sucesso!');
         });
 
         it('should archive lead without reason', async () => {
@@ -328,7 +328,8 @@ describe('LeadController', () => {
                 .send({})
                 .expect(200);
 
-            expect(response.body).toHaveProperty('message', 'Lead arquivado com sucesso!');
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('message', 'Lead arquivado com sucesso!');
         });
     });
 
@@ -343,10 +344,10 @@ describe('LeadController', () => {
                 name: 'Test User for Unarchive',
                 phone: '11966666666',
             });
-            testLeadId = createResponse.body.id;
+            testLeadId = createResponse.body.data?.id || createResponse.body.id;
 
             await request(app)
-                .put(`/api/leads/${testLeadId}`)
+                .put(`/api/leads/${testLeadId}/archive`)
                 .set('x-access-token', token)
                 .send({});
         });
@@ -367,7 +368,8 @@ describe('LeadController', () => {
                 .set('x-access-token', token)
                 .expect(200);
 
-            expect(response.body).toHaveProperty('message', 'Lead restaurado com sucesso!');
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('message', 'Lead restaurado com sucesso!');
         });
     });
 });

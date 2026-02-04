@@ -104,14 +104,16 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
                 .post('/api/leads')
                 .send(novoAgendamento)
                 .expect('Content-Type', /json/)
-                .expect(200);
+                .expect(201);
 
-            // Verifica a resposta da API
-            expect(response.body).toHaveProperty('message', 'Lead salvo com sucesso!');
-            expect(response.body).toHaveProperty('id');
-            expect(response.body.id).toBeGreaterThan(0);
+            // Verifica a resposta da API (nova estrutura com data wrapper)
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body).toHaveProperty('data');
+            expect(response.body.data).toHaveProperty('message', 'Lead salvo com sucesso!');
+            expect(response.body.data).toHaveProperty('id');
+            expect(response.body.data.id).toBeGreaterThan(0);
 
-            const leadId = response.body.id;
+            const leadId = response.body.data.id;
             createdLeadIds.push(leadId);
 
             // Verifica se o lead foi realmente salvo no SQLite
@@ -134,12 +136,13 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
             const response = await request(app)
                 .post('/api/leads')
                 .send(novoAgendamento)
-                .expect(200);
+                .expect(201);
 
-            expect(response.body).toHaveProperty('message', 'Lead salvo com sucesso!');
-            expect(response.body).toHaveProperty('id');
+            expect(response.body).toHaveProperty('success', true);
+            expect(response.body.data).toHaveProperty('message', 'Lead salvo com sucesso!');
+            expect(response.body.data).toHaveProperty('id');
 
-            const leadId = response.body.id;
+            const leadId = response.body.data.id;
             createdLeadIds.push(leadId);
 
             // Verifica tipo padrão no banco
@@ -160,13 +163,13 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
                 const response = await request(app)
                     .post('/api/leads')
                     .send(agendamento)
-                    .expect(200);
+                    .expect(201);
 
-                expect(response.body).toHaveProperty('id');
-                createdLeadIds.push(response.body.id);
+                expect(response.body.data).toHaveProperty('id');
+                createdLeadIds.push(response.body.data.id);
 
                 // Verifica persistência individual
-                const leadNoBanco = await verifyLeadInDatabase(response.body.id);
+                const leadNoBanco = await verifyLeadInDatabase(response.body.data.id);
                 expect(leadNoBanco.name).toBe(agendamento.name);
                 expect(leadNoBanco.phone).toBe(agendamento.phone);
             }
@@ -185,9 +188,9 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
             const response = await request(app)
                 .post('/api/leads')
                 .send(novoAgendamento)
-                .expect(200);
+                .expect(201);
 
-            const leadId = response.body.id;
+            const leadId = response.body.data.id;
             createdLeadIds.push(leadId);
 
             const leadNoBanco = await verifyLeadInDatabase(leadId);
@@ -303,11 +306,11 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
             const response = await request(app)
                 .post('/api/leads')
                 .send(novoAgendamento)
-                .expect(200);
+                .expect(201);
 
-            createdLeadIds.push(response.body.id);
+            createdLeadIds.push(response.body.data.id);
 
-            const leadNoBanco = await verifyLeadInDatabase(response.body.id);
+            const leadNoBanco = await verifyLeadInDatabase(response.body.data.id);
             expect(leadNoBanco.phone).toBe('63991234567');
         });
 
@@ -321,11 +324,11 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
             const response = await request(app)
                 .post('/api/leads')
                 .send(novoAgendamento)
-                .expect(200);
+                .expect(201);
 
-            createdLeadIds.push(response.body.id);
+            createdLeadIds.push(response.body.data.id);
 
-            const leadNoBanco = await verifyLeadInDatabase(response.body.id);
+            const leadNoBanco = await verifyLeadInDatabase(response.body.data.id);
             expect(leadNoBanco.name).toBe(novoAgendamento.name);
         });
 
@@ -342,11 +345,11 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
                 const response = await request(app)
                     .post('/api/leads')
                     .send(agendamento)
-                    .expect(200);
+                    .expect(201);
 
-                createdLeadIds.push(response.body.id);
+                createdLeadIds.push(response.body.data.id);
 
-                const leadNoBanco = await verifyLeadInDatabase(response.body.id);
+                const leadNoBanco = await verifyLeadInDatabase(response.body.data.id);
                 expect(leadNoBanco.type).toBe(tipo);
             }
         });
@@ -361,11 +364,11 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
             const response = await request(app)
                 .post('/api/leads')
                 .send(novoAgendamento)
-                .expect(200);
+                .expect(201);
 
-            createdLeadIds.push(response.body.id);
+            createdLeadIds.push(response.body.data.id);
 
-            const leadNoBanco = await verifyLeadInDatabase(response.body.id);
+            const leadNoBanco = await verifyLeadInDatabase(response.body.data.id);
 
             // Verifica que o timestamp foi criado automaticamente
             expect(leadNoBanco.created_at).toBeDefined();
@@ -400,10 +403,10 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
                         phone: `6399000000${i}`,
                         type: 'consulta',
                     })
-                    .expect(200);
+                    .expect(201);
 
-                ids.push(response.body.id);
-                createdLeadIds.push(response.body.id);
+                ids.push(response.body.data.id);
+                createdLeadIds.push(response.body.data.id);
             }
 
             // Verifica unicidade
@@ -425,9 +428,9 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
 
             // Cria todos os agendamentos
             for (const ag of agendamentos) {
-                const response = await request(app).post('/api/leads').send(ag).expect(200);
+                const response = await request(app).post('/api/leads').send(ag).expect(201);
 
-                createdLeadIds.push(response.body.id);
+                createdLeadIds.push(response.body.data.id);
             }
 
             // Verifica integridade de cada um no banco
@@ -457,11 +460,11 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
                     phone: '63991234567',
                     type: 'consulta',
                 })
-                .expect(200);
+                .expect(201);
 
             const tempoDecorrido = Date.now() - inicio;
 
-            createdLeadIds.push(response.body.id);
+            createdLeadIds.push(response.body.data.id);
 
             // Operação deve completar em menos de 1 segundo
             expect(tempoDecorrido).toBeLessThan(1000);
