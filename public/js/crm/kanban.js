@@ -551,6 +551,12 @@ function calculateTimer(lead) {
     // CASE A: Status = 'agendado' → Countdown or Delay monitor
     if (lead.status === 'agendado' && lead.appointment_date) {
         const appointmentDate = new Date(lead.appointment_date);
+
+        // Validate date
+        if (isNaN(appointmentDate.getTime())) {
+            return { text: '', classes: '', tooltip: '' };
+        }
+
         const now = new Date();
         const diff = appointmentDate - now;
         const diffMs = Math.abs(diff);
@@ -575,7 +581,20 @@ function calculateTimer(lead) {
     }
 
     // CASE B: Other statuses → Time in current status (SLA Monitor)
-    const statusDate = new Date(lead.status_updated_at || lead.created_at);
+    const dateStr = lead.status_updated_at || lead.created_at;
+
+    // If no date available, return empty
+    if (!dateStr) {
+        return { text: '', classes: '', tooltip: '' };
+    }
+
+    const statusDate = new Date(dateStr);
+
+    // Validate date
+    if (isNaN(statusDate.getTime())) {
+        return { text: '', classes: '', tooltip: '' };
+    }
+
     const now = new Date();
     const diffMs = now - statusDate;
     const totalMinutes = Math.floor(diffMs / (1000 * 60));
@@ -617,12 +636,28 @@ function calculateTimer(lead) {
 function toggleInsuranceField() {
     const paymentType = document.getElementById('editPaymentType').value;
     const insuranceContainer = document.getElementById('insuranceNameContainer');
+    const insuranceSelect = document.getElementById('editInsuranceName');
 
     if (paymentType === 'plano') {
         insuranceContainer.classList.remove('hidden');
+
+        // Remove "Particular" option when payment type is "Plano de Saúde"
+        if (insuranceSelect) {
+            const particularOption = insuranceSelect.querySelector('option[value="Particular"]');
+            if (particularOption) {
+                particularOption.remove();
+            }
+            // If "Particular" was selected, reset to first option
+            if (insuranceSelect.value === 'Particular' || insuranceSelect.value === '') {
+                insuranceSelect.selectedIndex = 0;
+            }
+        }
     } else {
         insuranceContainer.classList.add('hidden');
-        document.getElementById('editInsuranceName').value = '';
+        insuranceSelect.value = '';
+
+        // Re-populate the select to restore "Particular" option
+        populateInsuranceSelectsFromClinic();
     }
 }
 
@@ -816,13 +851,17 @@ async function loadLeads() {
  */
 function transformAppointmentToLead(apt) {
     // Map appointment status to kanban columns
-    // Note: completed, cancelled, no_show should NOT appear in kanban (archived)
+    // Database allows: scheduled, confirmed, in_progress, completed, cancelled, no_show
+    // Kanban columns: novo, em_atendimento, agendado, finalizado
     const statusMap = {
-        scheduled: 'agendado',
-        confirmed: 'agendado', // Confirmed still in 'agendado' column
-        completed: 'archived', // Completed goes to archive, not kanban
-        cancelled: 'archived',
-        no_show: 'archived',
+        // API/DB statuses -> Kanban columns
+        scheduled: 'novo', // Novos
+        confirmed: 'agendado', // Agendados (confirmados)
+        in_progress: 'em_atendimento', // Em Atendimento
+        completed: 'finalizado', // Finalizados
+        cancelled: 'archived', // Não exibir
+        no_show: 'archived', // Não exibir
+        // Legacy kanban statuses (backwards compatibility)
         agendado: 'agendado',
         novo: 'novo',
         em_atendimento: 'em_atendimento',
@@ -851,14 +890,14 @@ function transformAppointmentToLead(apt) {
 /**
  * Transform kanban status to API status for PATCH requests
  * Kanban uses: novo, em_atendimento, agendado, finalizado
- * API uses: scheduled, confirmed, completed, cancelled
+ * API/DB uses: scheduled, confirmed, in_progress, completed, cancelled, no_show
  */
 function transformKanbanStatusToApi(kanbanStatus) {
     const statusMap = {
-        novo: 'scheduled',
-        em_atendimento: 'scheduled',
-        agendado: 'scheduled',
-        finalizado: 'completed',
+        novo: 'scheduled', // Novos -> scheduled
+        em_atendimento: 'in_progress', // Em Atendimento -> in_progress
+        agendado: 'confirmed', // Agendados -> confirmed
+        finalizado: 'completed', // Finalizados -> completed
         archived: 'cancelled',
     };
     return statusMap[kanbanStatus] || kanbanStatus;
@@ -1078,7 +1117,7 @@ function createLeadCard(lead) {
             <div class="flex items-center flex-wrap gap-1">
                 ${typeBadge}
             </div>
-            <small class="${timeClasses}" title="${timeTooltip}">🕒 ${timeString}</small>
+            ${timeString ? `<small class="${timeClasses}" title="${timeTooltip}">🕒 ${timeString}</small>` : ''}
         </div>
         
         <!-- Consulta Details (if new format) -->
@@ -1209,8 +1248,17 @@ async function drop(e) {
     const leadId = currentDraggedCard.dataset.id;
     const oldStatus = currentDraggedCard.dataset.status;
 
+    console.log('🎯 Drop: leadId=', leadId, 'oldStatus=', oldStatus, 'newStatus=', newStatus);
+
     // If same column, do nothing
     if (newStatus === oldStatus) {
+        console.log('⚠️ Same column, skipping');
+        return;
+    }
+
+    // If no new status detected, abort
+    if (!newStatus) {
+        console.error('❌ No newStatus detected from dropZone');
         return;
     }
 
@@ -1224,6 +1272,8 @@ async function drop(e) {
     // If moving to "Finalizado", ask for attendance status and map to proper API status
     let attendanceStatus = null;
     let apiStatus = transformKanbanStatusToApi(newStatus);
+
+    console.log('📤 API Status mapped:', apiStatus);
 
     if (newStatus === 'Finalizado' || newStatus === 'finalizado') {
         const result = await customPromptOptions('Qual foi o resultado da consulta?', [
@@ -1252,6 +1302,8 @@ async function drop(e) {
             body.attendance_status = attendanceStatus;
         }
 
+        console.log('📡 Sending PATCH to:', `${API_URL}/${leadId}`, 'body:', body);
+
         const response = await fetch(`${API_URL}/${leadId}`, {
             method: 'PATCH',
             headers: {
@@ -1261,15 +1313,18 @@ async function drop(e) {
             body: JSON.stringify(body),
         });
 
+        const responseData = await response.json();
+        console.log('📥 Response:', response.status, responseData);
+
         if (!response.ok) {
-            throw new Error('Erro ao atualizar status');
+            throw new Error(responseData.error || 'Erro ao atualizar status');
         }
 
         loadLeads();
         showNotification('✅ Status atualizado com sucesso!', 'success');
     } catch (error) {
-        console.error('Erro ao atualizar status:', error);
-        showNotification('❌ Erro ao atualizar status', 'error');
+        console.error('❌ Erro ao atualizar status:', error);
+        showNotification('❌ Erro ao atualizar status: ' + error.message, 'error');
         loadLeads();
     }
 }

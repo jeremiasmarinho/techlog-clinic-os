@@ -175,29 +175,29 @@
             transition: filter 0.3s;
         }
         
-        /* Date Filter - Custom Select Styling */
+        /* Date Filter - Custom Select Styling (Header) */
         #dateFilter {
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2306b6d4' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
+            min-width: 140px;
         }
         
         #dateFilter:hover {
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+            color: #22d3ee;
+            border-color: rgba(6, 182, 212, 0.5);
         }
         
         #dateFilter:focus {
+            outline: none;
             border-color: #06b6d4;
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
         }
         
         #dateFilter option {
             background: #1e293b;
+            color: white;
+            padding: 10px;
             color: white;
             padding: 8px;
         }
@@ -375,7 +375,7 @@
 
     <div class="flex flex-1">
     <!-- Sidebar Component -->
-    <medical-sidebar active="admin" show-date-filter="true"></medical-sidebar>
+    <medical-sidebar active="admin"></medical-sidebar>
 
     <!-- Main Content -->
     <main id="mainContent" class="flex-1 transition-all duration-300">
@@ -666,14 +666,14 @@
                             <!-- Insurance Name (conditional) -->
                             <div id="insuranceNameContainer" class="hidden">
                                 <label for="editInsuranceName" class="block text-sm font-semibold text-emerald-200 mb-2">
-                                    <i class="fas fa-hospital mr-2"></i>Nome do Plano
+                                    <i class="fas fa-hospital mr-2"></i>Convênio
                                 </label>
-                                <input 
-                                    type="text" 
+                                <select 
                                     id="editInsuranceName" 
-                                    placeholder="Ex: Unimed, Amil, Bradesco Saúde..."
-                                    class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
+                                    class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200"
                                 >
+                                    <option value="" class="bg-slate-900">Selecione um convênio...</option>
+                                </select>
                             </div>
 
                             <!-- Payment Value -->
@@ -828,6 +828,24 @@
                 
                 <!-- Action Buttons (Right Side) -->
                 <div class="flex items-center gap-2">
+                    <!-- Date Filter (Period) -->
+                    <div class="relative flex items-center">
+                        <i class="fas fa-calendar-alt text-cyan-400 absolute left-3 pointer-events-none"></i>
+                        <select 
+                            id="dateFilter" 
+                            onchange="handleDateFilterChange()"
+                            class="pl-9 pr-8 py-3 bg-slate-800/60 border border-slate-700/50 rounded-xl text-slate-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all duration-200 cursor-pointer text-sm font-medium"
+                            title="Filtrar por período"
+                            style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3E%3Cpath stroke=%27%2306b6d4%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3E%3C/svg%3E'); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.25em 1.25em;"
+                        >
+                            <option value="today">Hoje</option>
+                            <option value="7days" selected>7 Dias</option>
+                            <option value="30days">30 Dias</option>
+                            <option value="thisMonth">Este Mês</option>
+                            <option value="all">Tudo</option>
+                        </select>
+                    </div>
+                    
                     <!-- Privacy Button -->
                     <button 
                         id="togglePrivacy" 

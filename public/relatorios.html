@@ -7,361 +7,706 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%);
             min-height: 100vh;
-            overflow-x: hidden;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        /* Prevent horizontal scroll */
-        main {
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-        
-        /* Ensure canvas and charts don't overflow */
-        canvas {
-            max-width: 100% !important;
-            height: auto !important;
-        }
-        
-        /* Modern Vertical Sidebar Styles */
-        #sidebar {
-            width: 5rem;
-        }
-        
-        #sidebar.expanded {
-            width: 16rem;
-        }
-        
-        #mainContent {
-            margin-left: 5rem;
-            transition: margin-left 0.3s ease;
-        }
-        
-        #mainContent.expanded {
-            margin-left: 16rem;
-        }
-        
-        .sidebar-text {
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: all 0.3s ease;
-        }
-        
-        #sidebar.expanded .sidebar-text {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        
+        /* Sidebar Styles */
+        #sidebar { width: 5rem; }
+        #sidebar.expanded { width: 16rem; }
+        #mainContent { margin-left: 5rem; transition: margin-left 0.3s ease; }
+        #mainContent.expanded { margin-left: 16rem; }
+        .sidebar-text { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; }
+        #sidebar.expanded .sidebar-text { opacity: 1; transform: translateX(0); }
         .sidebar-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            color: #cbd5e1;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            width: 100%;
-            text-align: left;
-            text-decoration: none;
-            white-space: nowrap;
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+            border-radius: 0.75rem; color: #cbd5e1; font-size: 0.875rem; font-weight: 500;
+            transition: all 0.3s ease; cursor: pointer; border: none; background: transparent;
+            width: 100%; text-align: left; text-decoration: none; white-space: nowrap;
         }
-        
-        .sidebar-item:hover {
-            background: rgba(6, 182, 212, 0.15);
-            color: #06b6d4;
-            transform: translateX(2px);
-        }
-        
-        .sidebar-item i {
-            width: 1.25rem;
-            font-size: 1.125rem;
-            text-align: center;
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar-item:hover i {
-            transform: scale(1.1);
-        }
-        
-        .sidebar-item span {
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: all 0.3s ease;
-        }
-        
-        #sidebar.expanded .sidebar-item span {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        
-        #sidebar.expanded #toggleIcon {
-            transform: rotate(180deg);
-        }
-        
-        #toggleIcon {
-            transition: transform 0.3s ease;
-        }
-        
-        #sidebarOverlay {
-            display: none;
-        }
+        .sidebar-item:hover { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+        .sidebar-item i { width: 1.25rem; font-size: 1.125rem; text-align: center; flex-shrink: 0; }
+        .sidebar-item span { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; }
+        #sidebar.expanded .sidebar-item span { opacity: 1; transform: translateX(0); }
         
         @media (max-width: 768px) {
-            #sidebar {
-                transform: translateX(-100%);
-            }
-            
-            #sidebar.open {
-                transform: translateX(0);
-                width: 16rem;
-            }
-            
-            #sidebar.open .sidebar-text,
-            #sidebar.open .sidebar-item span {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            
-            #sidebarOverlay.show {
-                display: block;
-            }
-            
-            #mainContent {
-                margin-left: 0;
-            }
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); width: 16rem; }
+            #mainContent { margin-left: 0; }
         }
+        
+        /* Report Card Hover */
+        .report-card { transition: all 0.3s ease; }
+        .report-card:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        
+        /* Period selector active */
+        .period-btn.active { background: rgba(6, 182, 212, 0.3); border-color: #06b6d4; }
     </style>
     <script src="./js/components/sidebar.js"></script>
-    <script src="./js/components/clinic-header.js"></script>
-    <script src="./js/services/clinic-service.js"></script>
 </head>
 <body class="min-h-screen flex flex-col" data-hide-clinic-header="true">
-
-    <!-- Multi-Tenant Clinic Header (injected automatically) -->
-
     <div class="flex flex-1">
+        <!-- Sidebar -->
+        <medical-sidebar active="relatorios"></medical-sidebar>
 
-    <!-- Sidebar Component -->
-    <medical-sidebar active="relatorios" show-date-filter="false"></medical-sidebar>
-
-    <!-- Main Content -->
-    <main id="mainContent" class="flex-1 transition-all duration-300 max-w-full overflow-x-hidden">
-        <div class="p-6 max-w-full">
-
-        <!-- Page Title -->
-        <div class="mb-6">
-            <div class="flex items-center space-x-3">
-                <i class="fas fa-chart-line text-cyan-400 text-2xl"></i>
-                <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Dashboard de Métricas</h1>
-            </div>
-        </div>
-
-        <!-- Metric Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 w-full max-w-full">
-            <!-- Total de Leads -->
-            <div class="bg-gradient-to-r from-teal-500 to-cyan-600 rounded-lg p-6 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm opacity-90">Total de Leads</p>
-                        <h3 id="totalLeads" class="text-4xl font-bold mt-2">0</h3>
-                    </div>
-                    <i class="fas fa-users text-5xl opacity-30"></i>
-                </div>
-            </div>
-
-            <!-- Potencial de Receita -->
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-6 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm opacity-90">Potencial de Receita</p>
-                        <h3 id="revenueEstimate" class="text-4xl font-bold mt-2">R$ 0</h3>
-                    </div>
-                    <i class="fas fa-dollar-sign text-5xl opacity-30"></i>
-                </div>
-            </div>
-            
-            <!-- Taxa de Presença -->
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-6 text-white">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm opacity-90">Taxa de Presença</p>
-                        <h3 id="attendanceRate" class="text-4xl font-bold mt-2">0%</h3>
-                        <p class="text-xs opacity-75 mt-1" id="attendanceDetail">--</p>
-                    </div>
-                    <i class="fas fa-user-check text-5xl opacity-30"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráficos -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 w-full max-w-full">
-            <div class="glass-card rounded-lg p-4 backdrop-blur-sm">
-                <h3 class="text-base font-bold text-white mb-4 flex items-center">
-                    <i class="fas fa-circle-notch mr-2 text-cyan-400"></i>
-                    Distribuição por Status
-                </h3>
-                <div class="relative w-full" style="height: 250px;">
-                    <canvas id="statusChart"></canvas>
-                </div>
-            </div>
-            
-            <div class="glass-card rounded-lg p-4 backdrop-blur-sm">
-                <h3 class="text-base font-bold text-white mb-4 flex items-center">
-                    <i class="fas fa-chart-bar mr-2 text-purple-400"></i>
-                    Tipos de Atendimento
-                </h3>
-                <div class="relative w-full" style="height: 250px;">
-                    <canvas id="typeChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- History Chart (Full Width) -->
-        <div class="glass-card rounded-lg p-4 mb-6 backdrop-blur-sm w-full max-w-full">
-            <h3 class="text-base font-bold text-white mb-4 flex items-center">
-                <i class="fas fa-chart-line mr-2 text-cyan-400"></i>
-                Evolução dos Últimos 7 Dias
-            </h3>
-            <div class="relative w-full" style="height: 250px; max-width: 100%;">
-                <canvas id="historyChart"></canvas>
-            </div>
-        </div>
-        
-        <!-- Quick Reports Section -->
-        <div class="border-t border-white/10 pt-6 w-full max-w-full">
-            <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
-                <i class="fas fa-file-alt mr-3 text-cyan-400"></i>
-                Relatórios Rápidos
-            </h3>
-            <p class="text-sm text-gray-300 mb-6">Textos prontos para copiar e compartilhar</p>
-            
-            <div class="grid grid-cols-1 gap-4 w-full max-w-full">
-                <!-- Weekly Summary Report -->
-                <div class="bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-400/30 rounded-lg p-5 backdrop-blur-sm">
-                    <div class="flex items-start justify-between mb-3">
-                        <h4 class="text-lg font-bold text-blue-200 flex items-center">
-                            <i class="fas fa-calendar-week mr-2"></i>
-                            Resumo da Semana
-                        </h4>
-                        <button 
-                            onclick="copyReportText('weeklyReportText')"
-                            class="flex items-center px-3 py-1 bg-blue-500/80 text-white text-sm rounded-lg hover:bg-blue-600/80 transition backdrop-blur-sm"
-                        >
-                            <i class="fas fa-copy mr-1"></i> Copiar
-                        </button>
-                    </div>
-                    <p id="weeklyReportText" class="text-gray-200 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
-                        Carregando...
-                    </p>
-                </div>
+        <!-- Main Content -->
+        <main id="mainContent" class="flex-1 transition-all duration-300">
+            <div class="p-6 max-w-7xl mx-auto">
                 
-                <!-- Status Funnel Report -->
-                <div class="bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-400/30 rounded-lg p-5 backdrop-blur-sm">
-                    <div class="flex items-start justify-between mb-3">
-                        <h4 class="text-lg font-bold text-purple-200 flex items-center">
-                            <i class="fas fa-filter mr-2"></i>
-                            Funil por Status
-                        </h4>
-                        <button 
-                            onclick="copyReportText('statusReportText')"
-                            class="flex items-center px-3 py-1 bg-purple-500/80 text-white text-sm rounded-lg hover:bg-purple-600/80 transition backdrop-blur-sm"
-                        >
-                            <i class="fas fa-copy mr-1"></i> Copiar
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white flex items-center gap-3">
+                            <i class="fas fa-chart-pie text-cyan-400"></i>
+                            Relatórios da Clínica
+                        </h1>
+                        <p class="text-slate-400 mt-1">Acompanhe o desempenho do seu consultório</p>
+                    </div>
+                    
+                    <!-- Period Selector -->
+                    <div class="flex items-center gap-2 glass-card rounded-xl p-1">
+                        <button onclick="setPeriod('today')" class="period-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-cyan-500/20 transition" data-period="today">
+                            Hoje
+                        </button>
+                        <button onclick="setPeriod('week')" class="period-btn active px-4 py-2 rounded-lg text-sm font-medium text-cyan-400 border border-cyan-500/30 transition" data-period="week">
+                            7 Dias
+                        </button>
+                        <button onclick="setPeriod('month')" class="period-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-cyan-500/20 transition" data-period="month">
+                            30 Dias
                         </button>
                     </div>
-                    <p id="statusReportText" class="text-gray-200 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
-                        Carregando...
-                    </p>
                 </div>
-                
-                <!-- Service Types Report -->
-                <div class="bg-gradient-to-br from-green-600/20 to-emerald-600/20 border border-green-400/30 rounded-lg p-5 backdrop-blur-sm">
-                    <div class="flex items-start justify-between mb-3">
-                        <h4 class="text-lg font-bold text-green-200 flex items-center">
-                            <i class="fas fa-stethoscope mr-2"></i>
-                            Tipos de Atendimento
-                        </h4>
-                        <button 
-                            onclick="copyReportText('typesReportText')"
-                            class="flex items-center px-3 py-1 bg-green-500/80 text-white text-sm rounded-lg hover:bg-green-600/80 transition backdrop-blur-sm"
-                        >
-                            <i class="fas fa-copy mr-1"></i> Copiar
+
+                <!-- KPI Cards - Métricas Principais -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <!-- Pacientes Atendidos -->
+                    <div class="glass-card rounded-xl p-5 report-card">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                                <i class="fas fa-user-check text-green-400"></i>
+                            </div>
+                            <span class="text-slate-400 text-sm">Atendidos</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <span id="kpiAtendidos" class="text-3xl font-bold text-white">0</span>
+                            <span id="kpiAtendidosTrend" class="text-xs text-green-400">
+                                <i class="fas fa-arrow-up mr-1"></i>--
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Taxa de Comparecimento -->
+                    <div class="glass-card rounded-xl p-5 report-card">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                                <i class="fas fa-percentage text-blue-400"></i>
+                            </div>
+                            <span class="text-slate-400 text-sm">Comparecimento</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <span id="kpiComparecimento" class="text-3xl font-bold text-white">0%</span>
+                            <span id="kpiComparecimentoDetail" class="text-xs text-slate-400">--</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Novos Pacientes -->
+                    <div class="glass-card rounded-xl p-5 report-card">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                                <i class="fas fa-user-plus text-purple-400"></i>
+                            </div>
+                            <span class="text-slate-400 text-sm">Novos Pacientes</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <span id="kpiNovos" class="text-3xl font-bold text-white">0</span>
+                            <span class="text-xs text-purple-400">primeira consulta</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Faturamento -->
+                    <div class="glass-card rounded-xl p-5 report-card">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                                <i class="fas fa-dollar-sign text-emerald-400"></i>
+                            </div>
+                            <span class="text-slate-400 text-sm">Faturamento</span>
+                        </div>
+                        <div class="flex items-end justify-between">
+                            <span id="kpiFaturamento" class="text-3xl font-bold text-white">R$ 0</span>
+                            <span id="kpiTicketMedio" class="text-xs text-slate-400">ticket: --</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    
+                    <!-- Atendimentos por Dia -->
+                    <div class="glass-card rounded-xl p-6 report-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white font-semibold flex items-center gap-2">
+                                <i class="fas fa-chart-line text-cyan-400"></i>
+                                Atendimentos por Dia
+                            </h3>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="chartAtendimentos"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Distribuição por Status -->
+                    <div class="glass-card rounded-xl p-6 report-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white font-semibold flex items-center gap-2">
+                                <i class="fas fa-chart-pie text-purple-400"></i>
+                                Status dos Agendamentos
+                            </h3>
+                        </div>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="chartStatus"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Secondary Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    
+                    <!-- Horários Mais Procurados -->
+                    <div class="glass-card rounded-xl p-6 report-card">
+                        <h3 class="text-white font-semibold flex items-center gap-2 mb-4">
+                            <i class="fas fa-clock text-amber-400"></i>
+                            Horários de Pico
+                        </h3>
+                        <div id="horariosLista" class="space-y-3">
+                            <p class="text-slate-500 text-sm">Carregando...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Convênios Mais Usados -->
+                    <div class="glass-card rounded-xl p-6 report-card">
+                        <h3 class="text-white font-semibold flex items-center gap-2 mb-4">
+                            <i class="fas fa-id-card text-blue-400"></i>
+                            Convênios
+                        </h3>
+                        <div id="conveniosLista" class="space-y-3">
+                            <p class="text-slate-500 text-sm">Carregando...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tipos de Consulta -->
+                    <div class="glass-card rounded-xl p-6 report-card">
+                        <h3 class="text-white font-semibold flex items-center gap-2 mb-4">
+                            <i class="fas fa-stethoscope text-green-400"></i>
+                            Tipos de Consulta
+                        </h3>
+                        <div id="tiposLista" class="space-y-3">
+                            <p class="text-slate-500 text-sm">Carregando...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Insights -->
+                <div class="glass-card rounded-xl p-6 mb-8">
+                    <h3 class="text-white font-semibold flex items-center gap-2 mb-4">
+                        <i class="fas fa-lightbulb text-yellow-400"></i>
+                        Insights Rápidos
+                    </h3>
+                    <div id="insightsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <p class="text-slate-500 text-sm">Carregando...</p>
+                    </div>
+                </div>
+
+                <!-- Export Section -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-white font-semibold flex items-center gap-2 mb-4">
+                        <i class="fas fa-download text-cyan-400"></i>
+                        Exportar Relatório
+                    </h3>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="exportarResumo()" class="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg font-medium transition flex items-center gap-2">
+                            <i class="fas fa-copy"></i>
+                            Copiar Resumo
+                        </button>
+                        <button onclick="compartilharWhatsApp()" class="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg font-medium transition flex items-center gap-2">
+                            <i class="fab fa-whatsapp"></i>
+                            Enviar por WhatsApp
                         </button>
                     </div>
-                    <p id="typesReportText" class="text-gray-200 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
-                        Carregando...
-                    </p>
                 </div>
+
             </div>
-        </div>
+        </main>
+    </div>
 
-        </div>
-    </main>
-
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script src="./js/crm/dialogs.js"></script>
-    <script src="./js/crm/api.js"></script>
-    <!-- Auth.js removed to avoid auto-redirect -->
-    <script src="./js/crm/dashboard.js"></script>
-    
     <script>
-        // Logout function
-        function logout() {
-            if (confirm('Deseja realmente sair do sistema?')) {
-                sessionStorage.clear();
-                localStorage.clear();
-                window.location.href = '/login.html';
-            }
-        }
+        // State
+        let currentPeriod = 'week';
+        let reportData = [];
+        let chartAtendimentos = null;
+        let chartStatus = null;
         
-        // Check authentication and load dashboard
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Verify authentication
-            const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || sessionStorage.getItem('token');
+        const token = sessionStorage.getItem('MEDICAL_CRM_TOKEN') || 
+                      sessionStorage.getItem('token') || 
+                      sessionStorage.getItem('accessToken');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
             if (!token) {
-                console.log('No token found, redirecting to login');
-                window.location.href = 'login.html';
+                window.location.href = '/login.html';
                 return;
             }
-            
-            // Load user name
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                const userNameEl = document.getElementById('userName');
-                if (userNameEl && payload.name) {
-                    userNameEl.textContent = payload.name;
-                }
-            } catch (e) {
-                console.error('Error parsing token:', e);
-            }
-            
-            // Load dashboard data
-            try {
-                await loadDashboardData();
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
-            }
+            loadReportData();
         });
+
+        // Period selector
+        function setPeriod(period) {
+            currentPeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active', 'text-cyan-400', 'border', 'border-cyan-500/30');
+                btn.classList.add('text-slate-300');
+            });
+            const activeBtn = document.querySelector(`[data-period="${period}"]`);
+            activeBtn.classList.add('active', 'text-cyan-400', 'border', 'border-cyan-500/30');
+            activeBtn.classList.remove('text-slate-300');
+            loadReportData();
+        }
+
+        // Load report data
+        async function loadReportData() {
+            const today = new Date();
+            let startDate, endDate;
+            
+            endDate = today.toISOString().split('T')[0];
+            
+            switch(currentPeriod) {
+                case 'today':
+                    startDate = endDate;
+                    break;
+                case 'week':
+                    const weekAgo = new Date(today);
+                    weekAgo.setDate(weekAgo.getDate() - 7);
+                    startDate = weekAgo.toISOString().split('T')[0];
+                    break;
+                case 'month':
+                    const monthAgo = new Date(today);
+                    monthAgo.setDate(monthAgo.getDate() - 30);
+                    startDate = monthAgo.toISOString().split('T')[0];
+                    break;
+            }
+
+            try {
+                const response = await fetch(`/api/appointments?startDate=${startDate}&endDate=${endDate}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao carregar dados');
+                
+                const data = await response.json();
+                reportData = data.appointments || data || [];
+                
+                updateKPIs();
+                updateCharts();
+                updateLists();
+                updateInsights();
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                reportData = [];
+                updateKPIs();
+                updateCharts();
+                updateLists();
+                updateInsights();
+            }
+        }
+
+        // Update KPIs
+        function updateKPIs() {
+            const atendidos = reportData.filter(a => a.status === 'completed').length;
+            const total = reportData.length;
+            const noShow = reportData.filter(a => a.status === 'no_show').length;
+            const novos = reportData.filter(a => a.type === 'primeira_consulta' || a.service_type === 'primeira_consulta').length;
+            
+            // Calcular faturamento
+            let faturamento = 0;
+            reportData.filter(a => a.status === 'completed').forEach(a => {
+                faturamento += parseFloat(a.value || a.price || 150) || 150;
+            });
+            
+            const taxaComparecimento = total > 0 ? Math.round((atendidos / total) * 100) : 0;
+            const ticketMedio = atendidos > 0 ? Math.round(faturamento / atendidos) : 0;
+
+            document.getElementById('kpiAtendidos').textContent = atendidos;
+            document.getElementById('kpiComparecimento').textContent = taxaComparecimento + '%';
+            document.getElementById('kpiComparecimentoDetail').textContent = `${atendidos}/${total}`;
+            document.getElementById('kpiNovos').textContent = novos;
+            document.getElementById('kpiFaturamento').textContent = `R$ ${faturamento.toLocaleString('pt-BR')}`;
+            document.getElementById('kpiTicketMedio').textContent = `ticket: R$ ${ticketMedio}`;
+        }
+
+        // Update Charts
+        function updateCharts() {
+            updateAtendimentosChart();
+            updateStatusChart();
+        }
+
+        function updateAtendimentosChart() {
+            const ctx = document.getElementById('chartAtendimentos').getContext('2d');
+            
+            // Agrupar por dia
+            const byDay = {};
+            const days = currentPeriod === 'today' ? 1 : currentPeriod === 'week' ? 7 : 30;
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const key = d.toISOString().split('T')[0];
+                byDay[key] = { total: 0, atendidos: 0 };
+            }
+            
+            reportData.forEach(apt => {
+                const date = (apt.start_time || apt.appointment_date || apt.date || '').split('T')[0];
+                if (byDay[date]) {
+                    byDay[date].total++;
+                    if (apt.status === 'completed') byDay[date].atendidos++;
+                }
+            });
+            
+            const labels = Object.keys(byDay).map(d => {
+                const date = new Date(d + 'T12:00:00');
+                return date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' });
+            });
+            
+            if (chartAtendimentos) chartAtendimentos.destroy();
+            
+            chartAtendimentos = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Agendados',
+                        data: Object.values(byDay).map(d => d.total),
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Atendidos',
+                        data: Object.values(byDay).map(d => d.atendidos),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'top',
+                            labels: { color: '#94a3b8' }
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b' }
+                        },
+                        y: { 
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#64748b' },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateStatusChart() {
+            const ctx = document.getElementById('chartStatus').getContext('2d');
+            
+            const statusCount = {
+                scheduled: 0,
+                confirmed: 0,
+                in_progress: 0,
+                completed: 0,
+                no_show: 0,
+                cancelled: 0
+            };
+            
+            reportData.forEach(apt => {
+                if (statusCount.hasOwnProperty(apt.status)) {
+                    statusCount[apt.status]++;
+                }
+            });
+            
+            if (chartStatus) chartStatus.destroy();
+            
+            chartStatus = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Agendados', 'Confirmados', 'Em Atend.', 'Atendidos', 'Faltou', 'Cancelados'],
+                    datasets: [{
+                        data: [
+                            statusCount.scheduled,
+                            statusCount.confirmed,
+                            statusCount.in_progress,
+                            statusCount.completed,
+                            statusCount.no_show,
+                            statusCount.cancelled
+                        ],
+                        backgroundColor: [
+                            '#f59e0b', // amber
+                            '#3b82f6', // blue
+                            '#8b5cf6', // purple
+                            '#10b981', // green
+                            '#ef4444', // red
+                            '#6b7280'  // gray
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'right',
+                            labels: { 
+                                color: '#94a3b8',
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Lists
+        function updateLists() {
+            updateHorariosList();
+            updateConveniosList();
+            updateTiposList();
+        }
+
+        function updateHorariosList() {
+            const container = document.getElementById('horariosLista');
+            const byHour = {};
+            
+            reportData.forEach(apt => {
+                const time = apt.start_time || apt.appointment_date || apt.date;
+                if (time) {
+                    const hour = new Date(time).getHours();
+                    if (!isNaN(hour)) {
+                        const key = `${hour}:00`;
+                        byHour[key] = (byHour[key] || 0) + 1;
+                    }
+                }
+            });
+            
+            const sorted = Object.entries(byHour).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const max = sorted[0]?.[1] || 1;
+            
+            container.innerHTML = sorted.length > 0 ? sorted.map(([hour, count]) => `
+                <div class="flex items-center gap-3">
+                    <span class="text-slate-400 text-sm w-12">${hour}</span>
+                    <div class="flex-1 bg-slate-700/50 rounded-full h-2">
+                        <div class="bg-amber-400 h-2 rounded-full" style="width: ${(count/max)*100}%"></div>
+                    </div>
+                    <span class="text-white text-sm font-medium w-8">${count}</span>
+                </div>
+            `).join('') : '<p class="text-slate-500 text-sm">Sem dados no período</p>';
+        }
+
+        function updateConveniosList() {
+            const container = document.getElementById('conveniosLista');
+            const byInsurance = {};
+            
+            reportData.forEach(apt => {
+                const ins = apt.insurance || apt.convenio || 'Particular';
+                byInsurance[ins] = (byInsurance[ins] || 0) + 1;
+            });
+            
+            const sorted = Object.entries(byInsurance).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const max = sorted[0]?.[1] || 1;
+            
+            container.innerHTML = sorted.length > 0 ? sorted.map(([name, count]) => `
+                <div class="flex items-center gap-3">
+                    <span class="text-slate-400 text-sm flex-1 truncate">${name}</span>
+                    <div class="w-24 bg-slate-700/50 rounded-full h-2">
+                        <div class="bg-blue-400 h-2 rounded-full" style="width: ${(count/max)*100}%"></div>
+                    </div>
+                    <span class="text-white text-sm font-medium w-8">${count}</span>
+                </div>
+            `).join('') : '<p class="text-slate-500 text-sm">Sem dados no período</p>';
+        }
+
+        function updateTiposList() {
+            const container = document.getElementById('tiposLista');
+            const byType = {};
+            
+            const typeLabels = {
+                'primeira_consulta': 'Primeira Consulta',
+                'retorno': 'Retorno',
+                'exame': 'Exame',
+                'procedimento': 'Procedimento',
+                'consulta': 'Consulta'
+            };
+            
+            reportData.forEach(apt => {
+                const type = apt.type || apt.service_type || 'consulta';
+                const label = typeLabels[type] || type;
+                byType[label] = (byType[label] || 0) + 1;
+            });
+            
+            const sorted = Object.entries(byType).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const max = sorted[0]?.[1] || 1;
+            
+            container.innerHTML = sorted.length > 0 ? sorted.map(([name, count]) => `
+                <div class="flex items-center gap-3">
+                    <span class="text-slate-400 text-sm flex-1 truncate">${name}</span>
+                    <div class="w-24 bg-slate-700/50 rounded-full h-2">
+                        <div class="bg-green-400 h-2 rounded-full" style="width: ${(count/max)*100}%"></div>
+                    </div>
+                    <span class="text-white text-sm font-medium w-8">${count}</span>
+                </div>
+            `).join('') : '<p class="text-slate-500 text-sm">Sem dados no período</p>';
+        }
+
+        // Update Insights
+        function updateInsights() {
+            const container = document.getElementById('insightsContainer');
+            const insights = [];
+            
+            const total = reportData.length;
+            const completed = reportData.filter(a => a.status === 'completed').length;
+            const noShow = reportData.filter(a => a.status === 'no_show').length;
+            const cancelled = reportData.filter(a => a.status === 'cancelled').length;
+            
+            // Taxa de comparecimento
+            if (total > 0) {
+                const taxa = Math.round((completed / total) * 100);
+                if (taxa >= 80) {
+                    insights.push({
+                        icon: 'fa-trophy',
+                        color: 'green',
+                        title: 'Excelente!',
+                        text: `Taxa de comparecimento de ${taxa}%. Continue assim!`
+                    });
+                } else if (taxa < 60) {
+                    insights.push({
+                        icon: 'fa-exclamation-triangle',
+                        color: 'amber',
+                        title: 'Atenção',
+                        text: `Taxa de ${taxa}% de comparecimento. Considere enviar lembretes.`
+                    });
+                }
+            }
+            
+            // Faltas
+            if (noShow > 2) {
+                insights.push({
+                    icon: 'fa-user-slash',
+                    color: 'red',
+                    title: `${noShow} faltas`,
+                    text: 'Considere ligar para confirmar agendamentos.'
+                });
+            }
+            
+            // Cancelamentos
+            if (cancelled > 3) {
+                insights.push({
+                    icon: 'fa-calendar-times',
+                    color: 'amber',
+                    title: `${cancelled} cancelamentos`,
+                    text: 'Verifique os motivos dos cancelamentos.'
+                });
+            }
+            
+            // Horário de pico
+            const byHour = {};
+            reportData.forEach(apt => {
+                const time = apt.start_time || apt.appointment_date || apt.date;
+                if (time) {
+                    const hour = new Date(time).getHours();
+                    if (!isNaN(hour)) byHour[hour] = (byHour[hour] || 0) + 1;
+                }
+            });
+            const peakHour = Object.entries(byHour).sort((a, b) => b[1] - a[1])[0];
+            if (peakHour) {
+                insights.push({
+                    icon: 'fa-clock',
+                    color: 'blue',
+                    title: `Pico às ${peakHour[0]}h`,
+                    text: `${peakHour[1]} atendimentos neste horário.`
+                });
+            }
+            
+            // Se não há insights
+            if (insights.length === 0) {
+                insights.push({
+                    icon: 'fa-info-circle',
+                    color: 'cyan',
+                    title: 'Tudo certo!',
+                    text: total === 0 ? 'Nenhum agendamento no período selecionado.' : 'Nenhuma observação importante no momento.'
+                });
+            }
+            
+            container.innerHTML = insights.map(i => `
+                <div class="bg-${i.color}-500/10 border border-${i.color}-500/30 rounded-lg p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas ${i.icon} text-${i.color}-400"></i>
+                        <span class="font-medium text-${i.color}-300">${i.title}</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">${i.text}</p>
+                </div>
+            `).join('');
+        }
+
+        // Export functions
+        function exportarResumo() {
+            const atendidos = reportData.filter(a => a.status === 'completed').length;
+            const total = reportData.length;
+            const noShow = reportData.filter(a => a.status === 'no_show').length;
+            const taxa = total > 0 ? Math.round((atendidos / total) * 100) : 0;
+            
+            const periodLabel = {
+                today: 'Hoje',
+                week: 'Últimos 7 dias',
+                month: 'Últimos 30 dias'
+            }[currentPeriod];
+            
+            const texto = `📊 RELATÓRIO DA CLÍNICA
+${periodLabel}
+
+✅ Pacientes atendidos: ${atendidos}
+📅 Total agendamentos: ${total}
+📈 Taxa de comparecimento: ${taxa}%
+❌ Faltas: ${noShow}
+
+Gerado em ${new Date().toLocaleString('pt-BR')}`;
+
+            navigator.clipboard.writeText(texto).then(() => {
+                alert('Resumo copiado para a área de transferência!');
+            });
+        }
+
+        function compartilharWhatsApp() {
+            const atendidos = reportData.filter(a => a.status === 'completed').length;
+            const total = reportData.length;
+            const taxa = total > 0 ? Math.round((atendidos / total) * 100) : 0;
+            
+            const texto = encodeURIComponent(`📊 Relatório da Clínica\n\n✅ Atendidos: ${atendidos}\n📅 Agendamentos: ${total}\n📈 Comparecimento: ${taxa}%`);
+            window.open(`https://wa.me/?text=${texto}`, '_blank');
+        }
     </script>
 </body>
 </html>

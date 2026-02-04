@@ -26,6 +26,7 @@ if (userRole === 'staff') {
 let allUsers = [];
 let filteredUsers = [];
 let insurancePlans = [];
+let specialties = [];
 let currentLogo = null;
 let currentLogoFile = null;
 let currentLogoUrl = null;
@@ -518,10 +519,13 @@ async function loadClinicSettings() {
             document.getElementById('clinicName').value = settings.identity.name || '';
             document.getElementById('clinicPhone').value = settings.identity.phone || '';
             document.getElementById('clinicAddress').value = settings.identity.address || '';
-            document.getElementById('primaryColor').value =
-                settings.identity.primaryColor || '#06b6d4';
-            document.getElementById('primaryColorHex').value =
-                settings.identity.primaryColor || '#06b6d4';
+
+            // Theme mode
+            const themeMode = settings.identity.themeMode || 'dark';
+            const themeRadio = document.querySelector(
+                `input[name="themeMode"][value="${themeMode}"]`
+            );
+            if (themeRadio) themeRadio.checked = true;
 
             if (settings.identity.logo) {
                 currentLogoUrl = settings.identity.logo;
@@ -558,6 +562,72 @@ async function loadClinicSettings() {
             document.getElementById('chatAwayMessage').value = settings.chatbot.awayMessage || '';
             document.getElementById('chatInstructions').value = settings.chatbot.instructions || '';
         }
+
+        // Populate Appointment Settings
+        if (settings.appointments) {
+            const defaultDuration = document.getElementById('defaultDuration');
+            const appointmentInterval = document.getElementById('appointmentInterval');
+            const minAdvance = document.getElementById('minAdvance');
+            const maxAdvance = document.getElementById('maxAdvance');
+
+            if (defaultDuration)
+                defaultDuration.value = settings.appointments.defaultDuration || '30';
+            if (appointmentInterval)
+                appointmentInterval.value = settings.appointments.interval || '10';
+            if (minAdvance) minAdvance.value = settings.appointments.minAdvance || '2';
+            if (maxAdvance) maxAdvance.value = settings.appointments.maxAdvance || '30';
+        }
+
+        // Populate Pricing
+        if (settings.pricing) {
+            const priceFirst = document.getElementById('priceFirstConsult');
+            const priceReturn = document.getElementById('priceReturn');
+            const priceExam = document.getElementById('priceExam');
+            const freeReturn = document.getElementById('freeReturn');
+
+            if (priceFirst) priceFirst.value = settings.pricing.firstConsult || '';
+            if (priceReturn) priceReturn.value = settings.pricing.return || '';
+            if (priceExam) priceExam.value = settings.pricing.exam || '';
+            if (freeReturn) freeReturn.checked = settings.pricing.freeReturn || false;
+        }
+
+        // Populate Notifications
+        if (settings.notifications) {
+            const reminderHours = document.getElementById('reminderHours');
+            const confirmationEnabled = document.getElementById('confirmationEnabled');
+            const reminderMessage = document.getElementById('reminderMessage');
+
+            if (reminderHours) reminderHours.value = settings.notifications.reminderHours || '24';
+            if (confirmationEnabled)
+                confirmationEnabled.checked = settings.notifications.confirmationEnabled !== false;
+            if (reminderMessage)
+                reminderMessage.value = settings.notifications.reminderMessage || '';
+        }
+
+        // Populate Specialties
+        if (settings.specialties && Array.isArray(settings.specialties)) {
+            specialties = settings.specialties;
+            renderSpecialtiesTags();
+        }
+
+        // Populate Documents
+        if (settings.documents) {
+            const documentHeader = document.getElementById('documentHeader');
+            const documentFooter = document.getElementById('documentFooter');
+
+            if (documentHeader) documentHeader.value = settings.documents.header || '';
+            if (documentFooter) documentFooter.value = settings.documents.footer || '';
+        }
+
+        // Populate Security
+        if (settings.security) {
+            const sessionTimeout = document.getElementById('sessionTimeout');
+            const allowMultipleLogins = document.getElementById('allowMultipleLogins');
+
+            if (sessionTimeout) sessionTimeout.value = settings.security.sessionTimeout || '120';
+            if (allowMultipleLogins)
+                allowMultipleLogins.checked = settings.security.allowMultipleLogins !== false;
+        }
     } catch (error) {
         console.error('❌ Erro ao carregar configurações:', error);
         showNotification('Erro ao carregar configurações da clínica', 'error');
@@ -583,13 +653,17 @@ async function saveClinicSettings() {
             }
         });
 
+        // Get theme mode
+        const themeModeRadio = document.querySelector('input[name="themeMode"]:checked');
+        const themeMode = themeModeRadio ? themeModeRadio.value : 'dark';
+
         // Build payload
         const payload = {
             identity: {
                 name: document.getElementById('clinicName').value.trim(),
                 phone: document.getElementById('clinicPhone').value.trim(),
                 address: document.getElementById('clinicAddress').value.trim(),
-                primaryColor: document.getElementById('primaryColor').value,
+                themeMode: themeMode,
                 logo: currentLogoUrl,
             },
             hours: {
@@ -604,6 +678,34 @@ async function saveClinicSettings() {
                 greeting: document.getElementById('chatGreeting').value.trim(),
                 awayMessage: document.getElementById('chatAwayMessage').value.trim(),
                 instructions: document.getElementById('chatInstructions').value.trim(),
+            },
+            appointments: {
+                defaultDuration: document.getElementById('defaultDuration')?.value || '30',
+                interval: document.getElementById('appointmentInterval')?.value || '10',
+                minAdvance: document.getElementById('minAdvance')?.value || '2',
+                maxAdvance: document.getElementById('maxAdvance')?.value || '30',
+            },
+            pricing: {
+                firstConsult: document.getElementById('priceFirstConsult')?.value || '',
+                return: document.getElementById('priceReturn')?.value || '',
+                exam: document.getElementById('priceExam')?.value || '',
+                freeReturn: document.getElementById('freeReturn')?.checked || false,
+            },
+            notifications: {
+                reminderHours: document.getElementById('reminderHours')?.value || '24',
+                confirmationEnabled:
+                    document.getElementById('confirmationEnabled')?.checked !== false,
+                reminderMessage: document.getElementById('reminderMessage')?.value.trim() || '',
+            },
+            specialties: specialties,
+            documents: {
+                header: document.getElementById('documentHeader')?.value.trim() || '',
+                footer: document.getElementById('documentFooter')?.value.trim() || '',
+            },
+            security: {
+                sessionTimeout: document.getElementById('sessionTimeout')?.value || '120',
+                allowMultipleLogins:
+                    document.getElementById('allowMultipleLogins')?.checked !== false,
             },
         };
 
@@ -692,12 +794,13 @@ async function saveClinicIdentity() {
         const formData = new FormData();
         const name = document.getElementById('clinicName').value.trim();
         const address = document.getElementById('clinicAddress').value.trim();
-        const primaryColor = document.getElementById('primaryColor').value;
+        const themeModeRadio = document.querySelector('input[name="themeMode"]:checked');
+        const themeMode = themeModeRadio ? themeModeRadio.value : 'dark';
         const logoInput = document.getElementById('logoInput');
 
         formData.append('name', name);
         formData.append('address', address);
-        formData.append('primaryColor', primaryColor);
+        formData.append('themeMode', themeMode);
 
         if (logoInput?.files?.[0]) {
             formData.append('logo', logoInput.files[0]);
@@ -728,13 +831,7 @@ async function saveClinicIdentity() {
         if (logoUrl) {
             sessionStorage.setItem('clinicLogoUrl', logoUrl);
         }
-        if (data.primary_color || primaryColor) {
-            sessionStorage.setItem('clinicPrimaryColor', data.primary_color || primaryColor);
-            document.documentElement.style.setProperty(
-                '--primary-color',
-                data.primary_color || primaryColor
-            );
-        }
+        sessionStorage.setItem('clinicThemeMode', data.theme_mode || themeMode);
 
         const headerName = document.getElementById('clinicHeaderName');
         if (headerName) {
@@ -829,22 +926,73 @@ function renderInsuranceTags() {
 }
 
 // ============================================
-// Initialize Color Picker Sync
+// Specialties Management
 // ============================================
 
-// Color picker sync setup
-const colorPicker = document.getElementById('primaryColor');
-const colorHex = document.getElementById('primaryColorHex');
+function addSpecialty() {
+    const input = document.getElementById('newSpecialtyInput');
+    const value = input.value.trim();
 
-if (colorPicker && colorHex) {
-    colorPicker.addEventListener('input', (e) => {
-        colorHex.value = e.target.value;
-    });
+    if (!value) {
+        alert('Digite o nome da especialidade');
+        return;
+    }
 
-    colorHex.addEventListener('input', (e) => {
-        const hex = e.target.value;
-        if (/^#[0-9A-F]{6}$/i.test(hex)) {
-            colorPicker.value = hex;
-        }
-    });
+    if (specialties.includes(value)) {
+        alert('Esta especialidade já foi adicionada');
+        return;
+    }
+
+    specialties.push(value);
+    input.value = '';
+    renderSpecialtiesTags();
+
+    console.log('✅ Especialidade adicionada:', value);
 }
+
+function removeSpecialty(index) {
+    const removed = specialties.splice(index, 1);
+    renderSpecialtiesTags();
+    console.log('🗑️ Especialidade removida:', removed[0]);
+}
+
+function renderSpecialtiesTags() {
+    const container = document.getElementById('specialtiesTagsList');
+
+    if (!container) return;
+
+    if (specialties.length === 0) {
+        container.innerHTML = `
+            <div class="text-gray-400 text-sm w-full text-center py-4">
+                <i class="fas fa-user-md text-2xl mb-2 block"></i>
+                Nenhuma especialidade cadastrada
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = specialties
+        .map(
+            (specialty, index) => `
+        <div class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center space-x-2 hover:from-purple-500/30 hover:to-pink-500/30 transition">
+            <i class="fas fa-stethoscope"></i>
+            <span>${specialty}</span>
+            <button 
+                onclick="removeSpecialty(${index})"
+                class="ml-2 hover:text-red-400 transition"
+                title="Remover"
+            >
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `
+        )
+        .join('');
+}
+
+// ============================================
+// Global function exports for HTML onclick
+// ============================================
+window.addSpecialty = addSpecialty;
+window.removeSpecialty = removeSpecialty;
+window.switchTab = switchTab;

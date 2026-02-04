@@ -126,6 +126,7 @@ export class CalendarController {
     static getAppointment(req: Request, res: Response): void {
         const clinicId = req.clinicId;
         const { id } = req.params;
+        const idStr = String(id);
 
         if (!clinicId) {
             res.status(401).json({ error: 'Clínica não identificada' });
@@ -133,8 +134,8 @@ export class CalendarController {
         }
 
         // Check if it's a lead (id starts with 'lead-')
-        if (id.startsWith('lead-')) {
-            const leadId = id.replace('lead-', '');
+        if (idStr.startsWith('lead-')) {
+            const leadId = idStr.replace('lead-', '');
             db.get(
                 `SELECT 
                     l.id,
@@ -624,7 +625,7 @@ export class CalendarController {
                 )
             `;
 
-            db.get(statsQuery, [clinicId, clinicId], (statsErr, statsRow: any) => {
+            db.get(statsQuery, [clinicId, clinicId], (_statsErr, statsRow: any) => {
                 // Get count for current filter
                 const countQuery = `
                     SELECT COUNT(*) as total FROM (
@@ -644,7 +645,7 @@ export class CalendarController {
 
                 const countParams = [...appointmentParams, ...leadParams];
 
-                db.get(countQuery, countParams, (countErr, countRow: any) => {
+                db.get(countQuery, countParams, (_countErr, countRow: any) => {
                     res.json({
                         archived: rows || [],
                         total: countRow?.total || 0,

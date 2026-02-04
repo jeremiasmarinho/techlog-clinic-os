@@ -23,7 +23,7 @@ export class ClinicController {
                         name: '',
                         phone: '',
                         address: '',
-                        primaryColor: '#06b6d4',
+                        themeMode: 'dark',
                         logo: null,
                     },
                     hours: {
@@ -39,17 +39,57 @@ export class ClinicController {
                         awayMessage: '',
                         instructions: '',
                     },
+                    appointments: {
+                        defaultDuration: '30',
+                        interval: '10',
+                        minAdvance: '2',
+                        maxAdvance: '30',
+                    },
+                    pricing: {
+                        firstConsult: '',
+                        return: '',
+                        exam: '',
+                        freeReturn: false,
+                    },
+                    notifications: {
+                        reminderHours: '24',
+                        confirmationEnabled: true,
+                        reminderMessage: '',
+                    },
+                    specialties: [],
+                    documents: {
+                        header: '',
+                        footer: '',
+                    },
+                    security: {
+                        sessionTimeout: '120',
+                        allowMultipleLogins: true,
+                    },
                 });
                 return;
             }
 
             // Parse JSON fields
             try {
+                const identityData = JSON.parse(row.identity || '{}');
+
                 const settings = {
-                    identity: JSON.parse(row.identity),
-                    hours: JSON.parse(row.hours),
-                    insurancePlans: JSON.parse(row.insurance_plans),
-                    chatbot: JSON.parse(row.chatbot),
+                    identity: {
+                        name: identityData.name || '',
+                        phone: identityData.phone || '',
+                        address: identityData.address || '',
+                        themeMode: identityData.themeMode || 'dark',
+                        logo: identityData.logo || null,
+                    },
+                    hours: JSON.parse(row.hours || '{}'),
+                    insurancePlans: JSON.parse(row.insurance_plans || '[]'),
+                    chatbot: JSON.parse(row.chatbot || '{}'),
+                    appointments: identityData.appointments || {},
+                    pricing: identityData.pricing || {},
+                    notifications: identityData.notifications || {},
+                    specialties: identityData.specialties || [],
+                    documents: identityData.documents || {},
+                    security: identityData.security || {},
                 };
 
                 console.log(`✅ Configurações retornadas para clinic_id=${clinicId}`);
@@ -66,8 +106,20 @@ export class ClinicController {
      * Updates or creates settings for the authenticated user's clinic
      */
     static updateSettings(req: Request, res: Response): void {
+        console.log('🔵 updateSettings CALLED - req.body keys:', Object.keys(req.body));
         const clinicId = req.clinicId || 1; // From JWT token
-        const { identity, hours, insurancePlans, chatbot } = req.body;
+        const {
+            identity,
+            hours,
+            insurancePlans,
+            chatbot,
+            appointments,
+            pricing,
+            notifications,
+            specialties,
+            documents,
+            security,
+        } = req.body;
 
         // Validate required fields
         if (!identity || !hours || !insurancePlans || !chatbot) {
@@ -77,8 +129,26 @@ export class ClinicController {
             return;
         }
 
+        console.log(
+            '🟢 Validation passed, appointments:',
+            appointments,
+            'specialties:',
+            specialties
+        );
+
+        // Build extended identity with all new settings
+        const extendedSettings = {
+            ...identity,
+            appointments: appointments || {},
+            pricing: pricing || {},
+            notifications: notifications || {},
+            specialties: specialties || [],
+            documents: documents || {},
+            security: security || {},
+        };
+
         // Convert to JSON strings
-        const identityJson = JSON.stringify(identity);
+        const identityJson = JSON.stringify(extendedSettings);
         const hoursJson = JSON.stringify(hours);
         const insurancePlansJson = JSON.stringify(insurancePlans);
         const chatbotJson = JSON.stringify(chatbot);

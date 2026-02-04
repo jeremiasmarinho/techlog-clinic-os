@@ -50,17 +50,21 @@
         
         /* Sidebar Styles */
         #sidebar {
-            width: 16rem !important; /* Force expanded width */
+            width: 5rem; /* Collapsed by default */
         }
         
-        #sidebar .sidebar-text,
-        #sidebar .sidebar-item span {
-            opacity: 1 !important;
-            transform: translateX(0) !important;
+        #sidebar.expanded {
+            width: 16rem; /* Expanded width */
+        }
+        
+        #sidebar.expanded .sidebar-text,
+        #sidebar.expanded .sidebar-item span {
+            opacity: 1;
+            transform: translateX(0);
         }
         
         #mainContent {
-            margin-left: 16rem;
+            margin-left: 5rem;
             transition: margin-left 0.3s ease;
         }
         
@@ -69,8 +73,8 @@
         }
         
         .sidebar-text {
-            opacity: 1;
-            transform: translateX(0);
+            opacity: 0;
+            transform: translateX(-10px);
             transition: all 0.3s ease;
         }
         
@@ -335,22 +339,21 @@
                     <!-- Primary Color -->
                     <div class="mb-5">
                         <label class="block text-sm font-semibold text-cyan-300 mb-2">
-                            <i class="fas fa-palette mr-2"></i>Cor Primária (Tema)
+                            <i class="fas fa-adjust mr-2"></i>Tema de Cores
                         </label>
-                        <div class="flex items-center space-x-3">
-                            <input 
-                                type="color" 
-                                id="primaryColor" 
-                                class="w-16 h-10 rounded-lg cursor-pointer border-2 border-white/20"
-                                value="#06b6d4"
-                            >
-                            <input 
-                                type="text" 
-                                id="primaryColorHex" 
-                                class="flex-1 px-4 py-2 bg-white/10 border-2 border-white/20 rounded-lg text-white font-mono text-sm focus:border-cyan-400 focus:outline-none transition"
-                                placeholder="#06b6d4"
-                                maxlength="7"
-                            >
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="radio" name="themeMode" id="themeDark" value="dark" checked class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium flex items-center">
+                                    <i class="fas fa-moon text-purple-400 mr-2"></i>Modo Escuro
+                                </span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer border border-white/10 transition">
+                                <input type="radio" name="themeMode" id="themeLight" value="light" class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 focus:ring-cyan-500 focus:ring-2">
+                                <span class="ml-2 text-white text-sm font-medium flex items-center">
+                                    <i class="fas fa-sun text-yellow-400 mr-2"></i>Modo Claro
+                                </span>
+                            </label>
                         </div>
                     </div>
 
@@ -598,6 +601,347 @@
                             placeholder="Ex: Para agendar sua consulta, preciso que informe: especialidade desejada, forma de pagamento (plano ou particular), período de preferência e seus dados de contato."
                         ></textarea>
                         <p class="text-xs text-gray-400 mt-1">Orientações para guiar o paciente no agendamento</p>
+                    </div>
+                </div>
+
+                <!-- CARD 5: Configurações de Agendamento -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-calendar-check text-cyan-400 mr-3"></i>
+                        Configurações de Agendamento
+                    </h3>
+
+                    <!-- Duração Padrão da Consulta -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-hourglass-half mr-2"></i>Duração Padrão da Consulta
+                        </label>
+                        <select 
+                            id="defaultDuration"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        >
+                            <option value="15" class="bg-slate-900">15 minutos</option>
+                            <option value="20" class="bg-slate-900">20 minutos</option>
+                            <option value="30" class="bg-slate-900" selected>30 minutos</option>
+                            <option value="45" class="bg-slate-900">45 minutos</option>
+                            <option value="60" class="bg-slate-900">1 hora</option>
+                            <option value="90" class="bg-slate-900">1h30min</option>
+                        </select>
+                    </div>
+
+                    <!-- Intervalo entre Consultas -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-pause-circle mr-2"></i>Intervalo entre Consultas
+                        </label>
+                        <select 
+                            id="appointmentInterval"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        >
+                            <option value="0" class="bg-slate-900">Sem intervalo</option>
+                            <option value="5" class="bg-slate-900">5 minutos</option>
+                            <option value="10" class="bg-slate-900" selected>10 minutos</option>
+                            <option value="15" class="bg-slate-900">15 minutos</option>
+                            <option value="30" class="bg-slate-900">30 minutos</option>
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">Tempo para limpeza/preparação da sala</p>
+                    </div>
+
+                    <!-- Antecedência Mínima -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-clock mr-2"></i>Antecedência Mínima para Agendar
+                        </label>
+                        <select 
+                            id="minAdvance"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        >
+                            <option value="0" class="bg-slate-900">Sem restrição</option>
+                            <option value="1" class="bg-slate-900">1 hora antes</option>
+                            <option value="2" class="bg-slate-900" selected>2 horas antes</option>
+                            <option value="4" class="bg-slate-900">4 horas antes</option>
+                            <option value="24" class="bg-slate-900">1 dia antes</option>
+                            <option value="48" class="bg-slate-900">2 dias antes</option>
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">Evita agendamentos de última hora</p>
+                    </div>
+
+                    <!-- Antecedência Máxima -->
+                    <div>
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-calendar-alt mr-2"></i>Antecedência Máxima para Agendar
+                        </label>
+                        <select 
+                            id="maxAdvance"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        >
+                            <option value="7" class="bg-slate-900">7 dias</option>
+                            <option value="15" class="bg-slate-900">15 dias</option>
+                            <option value="30" class="bg-slate-900" selected>30 dias</option>
+                            <option value="60" class="bg-slate-900">60 dias</option>
+                            <option value="90" class="bg-slate-900">90 dias</option>
+                            <option value="180" class="bg-slate-900">6 meses</option>
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">Limita agendamentos muito distantes</p>
+                    </div>
+                </div>
+
+                <!-- CARD 6: Tabela de Valores -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-dollar-sign text-green-400 mr-3"></i>
+                        Tabela de Valores (Particular)
+                    </h3>
+
+                    <p class="text-sm text-gray-400 mb-4">
+                        Defina os valores padrão para cada tipo de consulta particular.
+                    </p>
+
+                    <!-- Primeira Consulta -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-star mr-2"></i>Primeira Consulta
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-gray-400">R$</span>
+                            <input 
+                                type="number" 
+                                id="priceFirstConsult"
+                                step="0.01"
+                                class="w-full pl-12 pr-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                                placeholder="200,00"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Retorno -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-redo mr-2"></i>Retorno
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-gray-400">R$</span>
+                            <input 
+                                type="number" 
+                                id="priceReturn"
+                                step="0.01"
+                                class="w-full pl-12 pr-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                                placeholder="150,00"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Exame -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-vial mr-2"></i>Exame / Procedimento
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3.5 text-gray-400">R$</span>
+                            <input 
+                                type="number" 
+                                id="priceExam"
+                                step="0.01"
+                                class="w-full pl-12 pr-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                                placeholder="100,00"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Retorno Gratuito -->
+                    <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                        <label class="flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                id="freeReturn" 
+                                class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2"
+                            >
+                            <span class="ml-3 text-blue-200 text-sm">
+                                <i class="fas fa-gift mr-2"></i>
+                                Retorno gratuito dentro de 7 dias
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- CARD 7: Notificações WhatsApp -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fab fa-whatsapp text-green-400 mr-3"></i>
+                        Notificações por WhatsApp
+                    </h3>
+
+                    <p class="text-sm text-gray-400 mb-4">
+                        Configure lembretes automáticos para os pacientes.
+                    </p>
+
+                    <!-- Lembrete de Consulta -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-bell mr-2"></i>Lembrete Antes da Consulta
+                        </label>
+                        <select 
+                            id="reminderHours"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        >
+                            <option value="0" class="bg-slate-900">Desativado</option>
+                            <option value="1" class="bg-slate-900">1 hora antes</option>
+                            <option value="2" class="bg-slate-900">2 horas antes</option>
+                            <option value="4" class="bg-slate-900">4 horas antes</option>
+                            <option value="24" class="bg-slate-900" selected>1 dia antes</option>
+                            <option value="48" class="bg-slate-900">2 dias antes</option>
+                        </select>
+                    </div>
+
+                    <!-- Confirmação de Consulta -->
+                    <div class="mb-5">
+                        <label class="flex items-center cursor-pointer p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition">
+                            <input 
+                                type="checkbox" 
+                                id="confirmationEnabled" 
+                                checked
+                                class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2"
+                            >
+                            <span class="ml-3 text-white text-sm font-medium">
+                                <i class="fas fa-check-double text-green-400 mr-2"></i>
+                                Pedir confirmação de presença
+                            </span>
+                        </label>
+                        <p class="text-xs text-gray-400 mt-1">Paciente recebe link para confirmar ou cancelar</p>
+                    </div>
+
+                    <!-- Mensagem de Lembrete -->
+                    <div>
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-comment-dots mr-2"></i>Modelo da Mensagem
+                        </label>
+                        <textarea 
+                            id="reminderMessage"
+                            rows="3"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400 resize-none"
+                            placeholder="Olá {nome}! Lembramos que você tem consulta amanhã às {hora} na {clinica}. Confirme sua presença!"
+                        ></textarea>
+                        <p class="text-xs text-gray-400 mt-1">Use: {nome}, {data}, {hora}, {medico}, {clinica}</p>
+                    </div>
+                </div>
+
+                <!-- CARD 8: Especialidades -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-stethoscope text-purple-400 mr-3"></i>
+                        Especialidades da Clínica
+                    </h3>
+
+                    <p class="text-sm text-gray-400 mb-4">
+                        Liste as especialidades médicas oferecidas pela clínica.
+                    </p>
+
+                    <!-- Add Specialty Input -->
+                    <div class="flex space-x-2 mb-4">
+                        <input 
+                            type="text" 
+                            id="newSpecialtyInput" 
+                            class="flex-1 px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400"
+                            placeholder="Ex: Cardiologia, Dermatologia..."
+                            onkeypress="if(event.key==='Enter') addSpecialty()"
+                        >
+                        <button 
+                            onclick="addSpecialty()"
+                            class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold px-6 py-3 rounded-lg transition"
+                        >
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <!-- Specialties Tags List -->
+                    <div class="bg-white/5 border border-white/10 rounded-lg p-4 min-h-[120px]">
+                        <div id="specialtiesTagsList" class="flex flex-wrap gap-2">
+                            <div class="text-gray-400 text-sm w-full text-center py-4">
+                                <i class="fas fa-user-md text-2xl mb-2 block"></i>
+                                Nenhuma especialidade cadastrada
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 9: Documentos / Receituário -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-file-medical text-red-400 mr-3"></i>
+                        Configuração de Receituário
+                    </h3>
+
+                    <p class="text-sm text-gray-400 mb-4">
+                        Personalize o cabeçalho e rodapé das receitas e documentos.
+                    </p>
+
+                    <!-- Cabeçalho -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-heading mr-2"></i>Cabeçalho do Documento
+                        </label>
+                        <textarea 
+                            id="documentHeader"
+                            rows="3"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400 resize-none"
+                            placeholder="Nome da Clínica&#10;Especialidade Médica&#10;CNPJ: 00.000.000/0001-00"
+                        ></textarea>
+                    </div>
+
+                    <!-- Rodapé -->
+                    <div>
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-shoe-prints mr-2"></i>Rodapé do Documento
+                        </label>
+                        <textarea 
+                            id="documentFooter"
+                            rows="2"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white placeholder-gray-400 resize-none"
+                            placeholder="Rua Exemplo, 123 - Centro | Tel: (11) 9999-9999 | email@clinica.com"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- CARD 10: Segurança -->
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                        <i class="fas fa-shield-alt text-amber-400 mr-3"></i>
+                        Segurança
+                    </h3>
+
+                    <!-- Tempo de Sessão -->
+                    <div class="mb-5">
+                        <label class="block text-sm font-semibold text-cyan-300 mb-2">
+                            <i class="fas fa-stopwatch mr-2"></i>Tempo de Sessão
+                        </label>
+                        <select 
+                            id="sessionTimeout"
+                            class="w-full px-4 py-3 bg-white/10 border-2 border-white/20 rounded-lg focus:border-cyan-400 focus:outline-none transition text-white"
+                        >
+                            <option value="30" class="bg-slate-900">30 minutos</option>
+                            <option value="60" class="bg-slate-900">1 hora</option>
+                            <option value="120" class="bg-slate-900" selected>2 horas</option>
+                            <option value="240" class="bg-slate-900">4 horas</option>
+                            <option value="480" class="bg-slate-900">8 horas (dia inteiro)</option>
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">Logout automático após inatividade</p>
+                    </div>
+
+                    <!-- Múltiplos Logins -->
+                    <div>
+                        <label class="flex items-center cursor-pointer p-3 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition">
+                            <input 
+                                type="checkbox" 
+                                id="allowMultipleLogins" 
+                                checked
+                                class="w-4 h-4 text-cyan-500 bg-white/10 border-white/20 rounded focus:ring-cyan-500 focus:ring-2"
+                            >
+                            <span class="ml-3 text-white text-sm font-medium">
+                                <i class="fas fa-laptop text-cyan-400 mr-2"></i>
+                                Permitir login em múltiplos dispositivos
+                            </span>
+                        </label>
+                        <p class="text-xs text-gray-400 mt-1">Desativado: apenas um dispositivo por vez</p>
                     </div>
                 </div>
 

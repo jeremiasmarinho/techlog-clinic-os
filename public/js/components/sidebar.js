@@ -145,12 +145,17 @@ class MedicalSidebar extends HTMLElement {
 
         this.innerHTML = `
             <!-- Modern Vertical Sidebar -->
-            <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen w-20 bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 transition-all duration-300 z-50 overflow-hidden">
+            <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen w-20 bg-slate-900/95 backdrop-blur-xl border-r border-slate-700/50 transition-all duration-300 z-50 overflow-visible">
+                <!-- Toggle Button - Floating on the edge -->
+                <button id="toggleSidebarBtn" class="absolute -right-3 top-20 w-6 h-12 bg-slate-800 hover:bg-cyan-500/20 border border-slate-700/50 hover:border-cyan-500/50 text-cyan-400 rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg z-10" title="Expandir/Recolher">
+                    <i class="fas fa-chevron-right text-xs transition-transform duration-300" id="toggleIcon"></i>
+                </button>
+                
                 <div class="flex flex-col h-full py-6">
-                    <!-- Logo + Toggle Button -->
+                    <!-- Logo -->
                     <div class="px-5 mb-8">
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer hover:scale-105 transition-transform" id="logoContainer" title="Clique para expandir/recolher">
                                 <!-- Dynamic Clinic Logo (loaded from settings) -->
                                 <img id="sidebar-logo" src="" alt="Logo" class="w-full h-full object-cover hidden" />
                                 <!-- Fallback Icon -->
@@ -161,10 +166,6 @@ class MedicalSidebar extends HTMLElement {
                                 <p class="text-cyan-400 text-xs">Gestão</p>
                             </div>
                         </div>
-                        <!-- Toggle Sidebar Button -->
-                        <button id="toggleSidebarBtn" class="w-10 h-10 flex items-center justify-center bg-slate-800 hover:bg-cyan-500/20 text-cyan-400 rounded-lg transition-all" title="Expandir/Recolher">
-                            <i class="fas fa-angles-right" id="toggleIcon"></i>
-                        </button>
                     </div>
 
                     <!-- User Info -->
@@ -238,14 +239,19 @@ class MedicalSidebar extends HTMLElement {
             this.applyMainContentState(false);
         }
 
-        // Toggle button click
-        this.querySelector('#toggleSidebarBtn')?.addEventListener('click', () => {
+        // Toggle function
+        const toggleSidebar = () => {
             sidebar.classList.toggle('expanded');
             const isExpanded = sidebar.classList.contains('expanded');
             this.applyMainContentState(isExpanded);
-
             localStorage.setItem('sidebarExpanded', isExpanded);
-        });
+        };
+
+        // Toggle button click
+        this.querySelector('#toggleSidebarBtn')?.addEventListener('click', toggleSidebar);
+
+        // Logo click also toggles (optional secondary way)
+        this.querySelector('#logoContainer')?.addEventListener('click', toggleSidebar);
 
         // Mobile overlay click
         this.querySelector('#sidebarOverlay')?.addEventListener('click', () => {

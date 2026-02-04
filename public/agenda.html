@@ -7,9 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { corePlugins: { preflight: true } }</script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/fullcalendar@6.1.11/index.global.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css">
-    <link rel="stylesheet" href="/calendar-glass.css">
+    <link rel="stylesheet" href="/css/agenda-slots.css">
     <style>
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%);
@@ -23,214 +21,153 @@
         }
         
         /* Modern Vertical Sidebar Styles */
-        #sidebar {
-            width: 5rem; /* 80px collapsed */
-        }
-        
-        #sidebar.expanded {
-            width: 16rem; /* 256px expanded */
-        }
-        
-        #mainContent {
-            margin-left: 5rem;
-            transition: margin-left 0.3s ease;
-        }
-        
-        #mainContent.expanded {
-            margin-left: 16rem;
-        }
-        
-        .sidebar-text {
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: all 0.3s ease;
-        }
-        
-        #sidebar.expanded .sidebar-text {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        
+        #sidebar { width: 5rem; }
+        #sidebar.expanded { width: 16rem; }
+        #mainContent { margin-left: 5rem; transition: margin-left 0.3s ease; }
+        #mainContent.expanded { margin-left: 16rem; }
+        .sidebar-text { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; }
+        #sidebar.expanded .sidebar-text { opacity: 1; transform: translateX(0); }
         .sidebar-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            color: #cbd5e1;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            width: 100%;
-            text-align: left;
-            text-decoration: none;
-            white-space: nowrap;
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;
+            border-radius: 0.75rem; color: #cbd5e1; font-size: 0.875rem; font-weight: 500;
+            transition: all 0.3s ease; cursor: pointer; border: none; background: transparent;
+            width: 100%; text-align: left; text-decoration: none; white-space: nowrap;
         }
-        
-        .sidebar-item:hover {
-            background: rgba(6, 182, 212, 0.15);
-            color: #06b6d4;
-            transform: translateX(2px);
-        }
-        
-        .sidebar-item i {
-            width: 1.25rem;
-            font-size: 1.125rem;
-            text-align: center;
-            flex-shrink: 0;
-            transition: transform 0.3s ease;
-        }
-        
-        .sidebar-item:hover i {
-            transform: scale(1.1);
-        }
-        
-        .sidebar-item span {
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: all 0.3s ease;
-        }
-        
-        #sidebar.expanded .sidebar-item span {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        
-        #sidebar.expanded #toggleIcon {
-            transform: rotate(180deg);
-        }
-        
-        #toggleIcon {
-            transition: transform 0.3s ease;
-        }
-        
-        #sidebarOverlay {
-            display: none;
-        }
+        .sidebar-item:hover { background: rgba(6, 182, 212, 0.15); color: #06b6d4; transform: translateX(2px); }
+        .sidebar-item i { width: 1.25rem; font-size: 1.125rem; text-align: center; flex-shrink: 0; transition: transform 0.3s ease; }
+        .sidebar-item:hover i { transform: scale(1.1); }
+        .sidebar-item span { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; }
+        #sidebar.expanded .sidebar-item span { opacity: 1; transform: translateX(0); }
+        #sidebar.expanded #toggleIcon { transform: rotate(180deg); }
+        #toggleIcon { transition: transform 0.3s ease; }
+        #sidebarOverlay { display: none; }
         
         @media (max-width: 768px) {
-            #sidebar {
-                transform: translateX(-100%);
-            }
-            
-            #sidebar.open {
-                transform: translateX(0);
-                width: 16rem;
-            }
-            
-            #sidebar.open .sidebar-text,
-            #sidebar.open .sidebar-item span {
-                opacity: 1;
-                transform: translateX(0);
-            }
-            
-            #sidebarOverlay.show {
-                display: block;
-            }
-            
-            #mainContent {
-                margin-left: 0;
-            }
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); width: 16rem; }
+            #sidebar.open .sidebar-text, #sidebar.open .sidebar-item span { opacity: 1; transform: translateX(0); }
+            #sidebarOverlay.show { display: block; }
+            #mainContent { margin-left: 0; }
         }
     </style>
     <script src="./js/components/sidebar.js"></script>
     <script src="./js/components/clinic-header.js"></script>
-    <script src="./js/services/clinic-service.js"></script>
 </head>
 <body class="min-h-screen flex flex-col" data-hide-clinic-header="true">
-
-    <!-- Multi-Tenant Clinic Header (injected automatically) -->
-
     <div class="flex flex-1">
-    <!-- Sidebar Component -->
-    <medical-sidebar active="agenda" show-date-filter="false"></medical-sidebar>
+        <!-- Sidebar Component -->
+        <medical-sidebar active="agenda"></medical-sidebar>
 
-    <!-- Main Content -->
-    <main id="mainContent" class="flex-1 transition-all duration-300">
-        <div class="p-6">
-        <!-- Filters -->
-        <div class="glass-card rounded-xl p-4 mb-6">
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1">
-                    <label class="block text-sm text-gray-300 mb-2">Data</label>
-                    <input 
-                        type="date" 
-                        id="dateFilter" 
-                        class="w-full bg-gray-800/50 text-white border border-gray-700 rounded-lg px-4 py-2"
-                    >
-                </div>
-                <div class="flex-1">
-                    <label class="block text-sm text-gray-300 mb-2">Profissional</label>
-                    <select 
-                        id="doctorFilter" 
-                        class="w-full bg-gray-800/50 text-white border border-gray-700 rounded-lg px-4 py-2"
-                    >
-                        <option value="">Todos</option>
-                    </select>
-                </div>
-                <div class="flex items-end gap-2">
-                    <button 
-                        onclick="loadAgenda()" 
-                        class="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded-lg font-medium transition">
-                        <i class="fas fa-search mr-2"></i>Filtrar
+        <!-- Main Content -->
+        <main id="mainContent" class="flex-1 transition-all duration-300">
+            <div class="p-6 max-w-6xl mx-auto">
+                
+                <!-- Date Navigation -->
+                <div class="date-nav glass-card">
+                    <button id="prevDay" class="date-nav-btn" title="Dia anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <div class="date-nav-center">
+                        <button id="todayBtn" class="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 rounded-lg font-medium transition text-sm">
+                            Hoje
+                        </button>
+                        <div id="currentDateDisplay" class="date-display">
+                            Carregando...
+                        </div>
+                        <span id="todayBadge" class="today-badge hidden">
+                            <i class="fas fa-sun"></i> Hoje
+                        </span>
+                    </div>
+                    
+                    <button id="nextDay" class="date-nav-btn" title="Próximo dia">
+                        <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
-            </div>
-            
-            <!-- Status Legend -->
-            <div class="flex flex-wrap gap-4 mt-4 pt-4 border-t border-white/10">
-                <div class="flex items-center gap-2 text-xs text-gray-400">
-                    <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-                    <span>Agendado</span>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-gray-400">
-                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                    <span>Confirmado</span>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-gray-400">
-                    <span class="w-3 h-3 rounded-full bg-cyan-500"></span>
-                    <span>Atendido</span>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-gray-400">
-                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                    <span>Cancelado</span>
-                </div>
-                <div class="flex items-center gap-2 text-xs text-gray-400">
-                    <span class="w-3 h-3 rounded-full bg-slate-500"></span>
-                    <span>Não compareceu</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- Calendar (Main View) -->
-        <div class="glass-card rounded-xl p-4">
-            <div id="calendar"></div>
-        </div>
+                <!-- Stats Bar -->
+                <div class="stats-bar">
+                    <div class="stat-card">
+                        <div class="stat-icon total">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span id="statTotal" class="stat-value">0</span>
+                            <span class="stat-label">Agendados</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon confirmed">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span id="statConfirmed" class="stat-value">0</span>
+                            <span class="stat-label">Confirmados</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon available">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span id="statAvailable" class="stat-value">0</span>
+                            <span class="stat-label">Horários Livres</span>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Loading Overlay -->
-        <div id="loading" class="hidden fixed inset-0 bg-slate-900/50 flex items-center justify-center z-40">
-            <div class="bg-slate-800 rounded-xl p-6 flex flex-col items-center">
-                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-500"></div>
-                <p class="text-gray-400 mt-3 text-sm">Carregando...</p>
+                <!-- Filter & Legend Bar -->
+                <div class="filter-bar glass-card">
+                    <div class="filter-group">
+                        <i class="fas fa-user-md text-cyan-400"></i>
+                        <label class="filter-label">Profissional:</label>
+                        <select id="doctorFilter" class="filter-select">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    
+                    <div class="legend">
+                        <div class="legend-item">
+                            <span class="legend-dot bg-amber-500"></span>
+                            <span>Agendado</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot bg-green-500"></span>
+                            <span>Confirmado</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot bg-cyan-500"></span>
+                            <span>Atendido</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot bg-red-500"></span>
+                            <span>Cancelado</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-dot bg-slate-500"></span>
+                            <span>Faltou</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slots List -->
+                <div class="slots-list glass-card">
+                    <div id="slotsContainer">
+                        <!-- Slots serão renderizados aqui pelo JavaScript -->
+                        <div class="p-8 text-center text-slate-400">
+                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>Carregando agenda...</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
-
-        <!-- Empty State (hidden by default, calendar handles this) -->
-        <div id="emptyState" class="hidden"></div>
-        
-        <!-- Appointments List (hidden - data handled by calendar) -->
-        <div id="appointmentsList" class="hidden"></div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <!-- VIEW MODAL - Read-only appointment details -->
     <div id="viewModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50">
         <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg mx-4 shadow-2xl">
-            
-            <!-- Header -->
             <div class="flex justify-between items-center p-5 border-b border-slate-700">
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-calendar-check text-cyan-400"></i>
@@ -240,61 +177,41 @@
                     <i class="fa-solid fa-times text-xl"></i>
                 </button>
             </div>
-            
-            <!-- Content -->
             <div class="p-5 space-y-4">
-                <!-- Patient Info -->
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-xl font-bold" id="viewPatientInitial">
-                        J
-                    </div>
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-xl font-bold" id="viewPatientInitial">?</div>
                     <div>
-                        <h4 id="viewPatientName" class="text-xl font-semibold text-white">João Silva</h4>
-                        <p id="viewPatientPhone" class="text-slate-400 flex items-center gap-2">
-                            <i class="fas fa-phone text-cyan-400"></i>
-                            (11) 99999-1111
-                        </p>
+                        <h4 id="viewPatientName" class="text-xl font-semibold text-white">-</h4>
+                        <p id="viewPatientPhone" class="text-slate-400 flex items-center gap-2">-</p>
                     </div>
                 </div>
-
-                <!-- Details Grid -->
                 <div class="grid grid-cols-2 gap-4 mt-4">
                     <div class="bg-slate-900/50 rounded-lg p-3">
                         <span class="text-slate-500 text-xs uppercase tracking-wide">Data/Hora</span>
-                        <p id="viewDateTime" class="text-white font-medium mt-1">
-                            <i class="fas fa-clock text-cyan-400 mr-2"></i>03/02/2026 às 08:19
-                        </p>
+                        <p id="viewDateTime" class="text-white font-medium mt-1">-</p>
                     </div>
                     <div class="bg-slate-900/50 rounded-lg p-3">
                         <span class="text-slate-500 text-xs uppercase tracking-wide">Status</span>
-                        <p id="viewStatus" class="mt-1">
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300">Agendado</span>
-                        </p>
+                        <p id="viewStatus" class="mt-1">-</p>
                     </div>
                     <div class="bg-slate-900/50 rounded-lg p-3">
                         <span class="text-slate-500 text-xs uppercase tracking-wide">Tipo</span>
-                        <p id="viewType" class="text-white font-medium mt-1">Consulta</p>
+                        <p id="viewType" class="text-white font-medium mt-1">-</p>
                     </div>
                     <div class="bg-slate-900/50 rounded-lg p-3">
                         <span class="text-slate-500 text-xs uppercase tracking-wide">Profissional</span>
                         <p id="viewDoctor" class="text-white font-medium mt-1">-</p>
                     </div>
                 </div>
-
-                <!-- Financial -->
                 <div class="bg-slate-900/50 rounded-lg p-3">
                     <span class="text-slate-500 text-xs uppercase tracking-wide">Valor / Pagamento</span>
-                    <p id="viewFinancial" class="text-emerald-400 font-semibold text-lg mt-1">R$ 0,00 - Particular</p>
+                    <p id="viewFinancial" class="text-emerald-400 font-semibold text-lg mt-1">-</p>
                 </div>
-
-                <!-- Notes -->
-                <div id="viewNotesSection" class="bg-slate-900/50 rounded-lg p-3">
+                <div class="bg-slate-900/50 rounded-lg p-3">
                     <span class="text-slate-500 text-xs uppercase tracking-wide">Observações</span>
                     <p id="viewNotes" class="text-slate-300 mt-1 text-sm">-</p>
                 </div>
             </div>
-            
-            <!-- Actions -->
             <div class="p-5 border-t border-slate-700 flex flex-wrap gap-2">
                 <button onclick="confirmAppointmentFromView()" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
                     <i class="fas fa-check"></i> Confirmar
@@ -302,24 +219,19 @@
                 <button onclick="editAppointmentFromView()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
                     <i class="fas fa-edit"></i> Editar
                 </button>
-                <button onclick="openWhatsAppFromView()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                <button onclick="openWhatsAppFromView()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-lg font-medium transition">
                     <i class="fab fa-whatsapp"></i>
                 </button>
-                <button onclick="archiveAppointmentFromView()" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
-                    <i class="fas fa-archive"></i>
-                </button>
-                <button onclick="deleteAppointmentFromView()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-medium transition flex items-center justify-center gap-2">
+                <button onclick="deleteAppointmentFromView()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-medium transition">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- EDIT MODAL - Single Step (Simplified) -->
-    <div id="editModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-2xl mx-4 p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
-            
-            <!-- Header -->
+    <!-- EDIT MODAL -->
+    <div id="editModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-2xl mx-4 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
                 <h3 class="text-xl font-bold text-white">
                     <i class="fa-solid fa-pen-to-square mr-2 text-blue-400"></i>
@@ -329,221 +241,72 @@
                     <i class="fa-solid fa-times text-xl"></i>
                 </button>
             </div>
-
-            <!-- Form -->
             <form id="editForm" onsubmit="saveEdit(event)" class="space-y-4">
                 <input type="hidden" id="editId">
-                
-                <!-- Patient Info -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-slate-400 text-sm mb-2">
-                            <i class="fa-solid fa-user mr-1"></i>Nome do Paciente
-                        </label>
-                        <input 
-                            type="text" 
-                            id="editName" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition" 
-                            required
-                        >
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-user mr-1"></i>Nome</label>
+                        <input type="text" id="editName" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition" required>
                     </div>
                     <div>
-                        <label class="block text-slate-400 text-sm mb-2">
-                            <i class="fa-solid fa-phone mr-1"></i>Telefone
-                        </label>
-                        <input 
-                            type="text" 
-                            id="editPhone" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition mask-phone"
-                            required
-                        >
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-phone mr-1"></i>Telefone</label>
+                        <input type="text" id="editPhone" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition">
                     </div>
                 </div>
-
-                <!-- Date & Doctor -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-slate-400 text-sm mb-2">
-                            <i class="fa-solid fa-calendar-check mr-1"></i>Data e Hora
-                        </label>
-                        <input 
-                            type="datetime-local" 
-                            id="editDate" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition" 
-                            required
-                        >
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-calendar mr-1"></i>Data e Hora</label>
+                        <input type="datetime-local" id="editDate" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition" required>
                     </div>
                     <div>
-                        <label class="block text-slate-400 text-sm mb-2">
-                            <i class="fa-solid fa-user-doctor mr-1"></i>Médico Responsável
-                        </label>
-                        <select 
-                            id="editDoctor" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
-                        >
-                            <option value="">Selecione um médico</option>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-user-doctor mr-1"></i>Profissional</label>
+                        <select id="editDoctor" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition">
+                            <option value="">Selecione...</option>
                         </select>
                     </div>
                 </div>
-
-                <!-- Type & Status -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-slate-400 text-sm mb-2">
-                            <i class="fa-solid fa-stethoscope mr-1"></i>Tipo de Atendimento
-                        </label>
-                        <select 
-                            id="editType" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
-                        >
-                            <option value="">Selecione o tipo</option>
-                            <option value="primeira_consulta">⭐ Primeira Consulta</option>
-                            <option value="retorno">🔄 Retorno</option>
-                            <option value="exame">🔬 Exame</option>
-                            <option value="procedimento">🏥 Procedimento</option>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-stethoscope mr-1"></i>Tipo</label>
+                        <select id="editType" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition">
+                            <option value="">Selecione...</option>
+                            <option value="primeira_consulta">Primeira Consulta</option>
+                            <option value="retorno">Retorno</option>
+                            <option value="exame">Exame</option>
+                            <option value="procedimento">Procedimento</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-slate-400 text-sm mb-2">
-                            <i class="fa-solid fa-flag mr-1"></i>Status
-                        </label>
-                        <select 
-                            id="editStatus" 
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition"
-                        >
-                            <option value="scheduled">📅 Agendado</option>
-                            <option value="confirmed">✅ Confirmado</option>
-                            <option value="completed">🩺 Atendido</option>
-                            <option value="cancelled">❌ Cancelado</option>
-                            <option value="no_show">⚠️ Não Compareceu</option>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-flag mr-1"></i>Status</label>
+                        <select id="editStatus" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition">
+                            <option value="scheduled">Agendado</option>
+                            <option value="confirmed">Confirmado</option>
+                            <option value="completed">Atendido</option>
+                            <option value="cancelled">Cancelado</option>
+                            <option value="no_show">Não Compareceu</option>
                         </select>
                     </div>
                 </div>
-
-                <!-- Financial Section -->
-                <div class="p-4 bg-slate-900/50 rounded-lg border border-slate-700/50">
-                    <h4 class="text-sm font-semibold text-emerald-400 mb-3">
-                        <i class="fa-solid fa-coins mr-1"></i> Informações Financeiras
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-slate-400 text-xs mb-2">Valor da Consulta (R$)</label>
-                            <input 
-                                type="text" 
-                                id="editValue" 
-                                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition mask-money"
-                                placeholder="R$ 0,00"
-                            >
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 text-xs mb-2">Forma de Pagamento</label>
-                            <select 
-                                id="editInsurance" 
-                                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition"
-                            >
-                                <option value="">Selecione...</option>
-                            </select>
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-coins mr-1"></i>Valor</label>
+                        <input type="text" id="editValue" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition" placeholder="R$ 0,00">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-id-card mr-1"></i>Convênio</label>
+                        <select id="editInsurance" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition">
+                            <option value="Particular">Particular</option>
+                        </select>
                     </div>
                 </div>
-
-                <!-- Notes -->
                 <div>
-                    <label class="block text-slate-400 text-sm mb-2">
-                        <i class="fa-solid fa-notes-medical mr-1"></i>Observações / Sintomas
-                    </label>
-                    <textarea 
-                        id="editNotes" 
-                        rows="3"
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition resize-none"
-                        placeholder="Digite observações relevantes sobre o atendimento..."
-                    ></textarea>
+                    <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-notes-medical mr-1"></i>Observações</label>
+                    <textarea id="editNotes" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-blue-500 outline-none transition resize-none"></textarea>
                 </div>
-
-                <!-- Action Buttons -->
-                <div class="flex flex-wrap justify-between gap-3 pt-4 border-t border-slate-700">
-                    <button
-                        type="button"
-                        onclick="openPaymentCheckout()"
-                        class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors shadow-lg hover:shadow-emerald-500/40"
-                    >
-                        <i class="fa-solid fa-cash-register mr-1"></i>
-                        Receber Pagamento
-                    </button>
-
-                    <button
-                        type="button"
-                        onclick="openWhatsAppConfirmation()"
-                        class="px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg font-medium transition-colors shadow-lg hover:shadow-green-500/40"
-                    >
-                        <i class="fab fa-whatsapp mr-1"></i>
-                        WhatsApp
-                    </button>
-
-                    <div class="flex gap-3">
-                    <button 
-                        type="button" 
-                        onclick="closeEditModal()" 
-                        class="px-5 py-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors font-medium"
-                    >
-                        <i class="fa-solid fa-times mr-1"></i>
-                        Cancelar
-                    </button>
-                    <button 
-                        type="submit" 
-                        class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors shadow-lg hover:shadow-blue-500/50"
-                    >
-                        <i class="fa-solid fa-save mr-1"></i>
-                        Salvar Alterações
-                    </button>
-                    </div>
-                </div>
-            </form>
-
-            <!-- QUICK CHECKOUT (Payment) -->
-            <form id="checkoutForm" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-slate-400 text-sm mb-2">
-                        <i class="fa-solid fa-coins mr-1"></i>Valor
-                    </label>
-                    <input
-                        type="text"
-                        id="checkoutAmount"
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition mask-money"
-                        placeholder="R$ 0,00"
-                        required
-                    >
-                </div>
-
-                <div>
-                    <label class="block text-slate-400 text-sm mb-2">
-                        <i class="fa-solid fa-credit-card mr-1"></i>Forma de Pagamento
-                    </label>
-                    <select
-                        id="checkoutPaymentMethod"
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition"
-                        required
-                    >
-                        <option value="pix">PIX</option>
-                        <option value="credit">Cartão</option>
-                        <option value="cash">Dinheiro</option>
-                    </select>
-                </div>
-
                 <div class="flex justify-end gap-3 pt-4 border-t border-slate-700">
-                    <button
-                        type="button"
-                        onclick="showEditForm()"
-                        class="px-5 py-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors font-medium"
-                    >
-                        Voltar
-                    </button>
-                    <button
-                        type="submit"
-                        class="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors shadow-lg hover:shadow-emerald-500/40"
-                    >
-                        <i class="fa-solid fa-check mr-1"></i>
-                        Confirmar Pagamento
+                    <button type="button" onclick="closeEditModal()" class="px-5 py-2 text-slate-300 hover:bg-slate-700 rounded-lg transition">Cancelar</button>
+                    <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition">
+                        <i class="fa-solid fa-save mr-1"></i>Salvar
                     </button>
                 </div>
             </form>
@@ -551,99 +314,86 @@
     </div>
 
     <!-- QUICK SCHEDULE MODAL -->
-    <div id="quickScheduleModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
-        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-xl mx-4 p-6 relative shadow-2xl">
+    <div id="quickScheduleModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-2xl mx-4 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
                 <h3 class="text-xl font-bold text-white">
                     <i class="fa-solid fa-calendar-plus mr-2 text-cyan-400"></i>
-                    Agendamento Rápido
+                    Novo Agendamento
                 </h3>
-                <button type="button" onclick="window.closeQuickScheduleModal?.()" class="text-slate-400 hover:text-white transition-colors">
+                <button onclick="closeQuickScheduleModal()" class="text-slate-400 hover:text-white transition-colors">
                     <i class="fa-solid fa-times text-xl"></i>
                 </button>
             </div>
-
             <form id="quickScheduleForm" class="space-y-4">
-                <div>
-                    <label class="block text-slate-400 text-sm mb-2">
-                        <i class="fa-solid fa-user mr-1"></i>Nome do Paciente
-                    </label>
-                    <input
-                        type="text"
-                        id="quickPatientName"
-                        list="quickPatientList"
-                        autocomplete="on"
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition"
-                        placeholder="Digite o nome do paciente"
-                        required
-                    >
-                    <datalist id="quickPatientList"></datalist>
-                </div>
-
-                <div>
-                    <label class="block text-slate-400 text-sm mb-2">
-                        <i class="fa-solid fa-calendar-day mr-1"></i>Data e Hora
-                    </label>
-                    <input
-                        type="datetime-local"
-                        id="quickDateTime"
-                        class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition"
-                        required
-                    >
-                </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-slate-400 text-sm mb-2">
-                            <i class="fa-solid fa-phone mr-1"></i>Telefone
-                        </label>
-                        <input
-                            type="text"
-                            id="quickPatientPhone"
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition mask-phone"
-                            placeholder="(00) 00000-0000"
-                        >
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-user mr-1"></i>Nome do Paciente</label>
+                        <input type="text" id="quickPatientName" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition" placeholder="Digite o nome" required>
                     </div>
                     <div>
-                        <label class="block text-slate-400 text-sm mb-2">
-                            <i class="fa-solid fa-id-card mr-1"></i>Convênio
-                        </label>
-                        <input
-                            type="text"
-                            id="quickInsurance"
-                            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 outline-none transition"
-                            placeholder="Particular / Plano"
-                        >
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-phone mr-1"></i>Telefone</label>
+                        <input type="text" id="quickPatientPhone" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition" placeholder="(00) 00000-0000">
                     </div>
                 </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-calendar mr-1"></i>Data e Hora</label>
+                        <input type="datetime-local" id="quickDateTime" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-user-doctor mr-1"></i>Profissional</label>
+                        <select id="quickDoctor" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-stethoscope mr-1"></i>Tipo</label>
+                        <select id="quickType" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition">
+                            <option value="">Selecione...</option>
+                            <option value="primeira_consulta">Primeira Consulta</option>
+                            <option value="retorno">Retorno</option>
+                            <option value="exame">Exame</option>
+                            <option value="procedimento">Procedimento</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-flag mr-1"></i>Status</label>
+                        <select id="quickStatus" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition">
+                            <option value="scheduled">Agendado</option>
+                            <option value="confirmed">Confirmado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-coins mr-1"></i>Valor</label>
+                        <input type="text" id="quickValue" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition" placeholder="R$ 0,00">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-id-card mr-1"></i>Convênio</label>
+                        <select id="quickInsurance" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition">
+                            <option value="Particular">Particular</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-slate-400 text-sm mb-2"><i class="fa-solid fa-notes-medical mr-1"></i>Observações</label>
+                    <textarea id="quickNotes" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none transition resize-none" placeholder="Observações sobre o agendamento..."></textarea>
+                </div>
                 <div class="flex justify-end gap-3 pt-4 border-t border-slate-700">
-                    <button type="button" onclick="window.closeQuickScheduleModal?.()" class="px-5 py-2 text-slate-300 hover:text-white hover:bg-slate-700 rounded-lg transition-colors font-medium">
-                        Cancelar
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-medium transition-colors shadow-lg hover:shadow-cyan-500/40">
-                        <i class="fa-solid fa-check mr-1"></i>
-                        Salvar
+                    <button type="button" onclick="closeQuickScheduleModal()" class="px-5 py-2 text-slate-300 hover:bg-slate-700 rounded-lg transition">Cancelar</button>
+                    <button type="submit" class="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-medium transition">
+                        <i class="fa-solid fa-check mr-1"></i>Salvar
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="js/crm/dialogs.js"></script>
-    <script src="js/crm/api.js"></script>
     <script src="js/crm/auth.js"></script>
-    <script src="js/crm/whatsapp-templates.js"></script>
-    <script src="js/utils/masks.js"></script>
-    <script type="module" src="js/utils/formatters.js"></script>
-    <!-- Centralized Appointments Service -->
-    <script src="js/services/appointments-service.js"></script>
-    <script src="https://unpkg.com/fullcalendar@6.1.11/index.global.min.js"></script>
-    <script src="https://unpkg.com/@fullcalendar/core@6.1.11/locales-all.global.min.js"></script>
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
-    <script src="https://unpkg.com/tippy.js@6"></script>
-    <script type="module" src="js/crm/calendar.js"></script>
-    <script type="module" src="js/crm/agenda.js"></script>
-    </div> <!-- Close flex container -->
+    <script src="js/crm/agenda-slots.js"></script>
 </body>
 </html>
