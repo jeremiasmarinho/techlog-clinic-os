@@ -194,11 +194,6 @@ class MedicalSidebar extends HTMLElement {
                             <span>Agenda</span>
                         </a>
                         
-                        <a href="patients.html" class="sidebar-item ${this.activePage === 'patients' ? 'bg-cyan-500/20' : ''}">
-                            <i class="fas fa-users"></i>
-                            <span>Pacientes</span>
-                        </a>
-                        
                         <a href="arquivo.html" class="sidebar-item ${this.activePage === 'arquivo' ? 'bg-cyan-500/20' : ''}">
                             <i class="fas fa-box-archive"></i>
                             <span>Arquivo</span>

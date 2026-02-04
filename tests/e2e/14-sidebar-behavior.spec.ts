@@ -13,7 +13,7 @@ import { loginAsAdmin } from './helpers';
 const CRM_PAGES = [
     { name: 'Kanban', url: 'http://localhost:3001/admin.html', activePage: 'admin' },
     { name: 'Agenda', url: 'http://localhost:3001/agenda.html', activePage: 'agenda' },
-    { name: 'Pacientes', url: 'http://localhost:3001/patients.html', activePage: 'patients' },
+    { name: 'Arquivo', url: 'http://localhost:3001/arquivo.html', activePage: 'arquivo' },
     { name: 'Relatórios', url: 'http://localhost:3001/relatorios.html', activePage: 'relatorios' },
 ];
 

@@ -204,12 +204,12 @@ test.describe('📝 Formulários e Validações', () => {
     });
 
     test('2.2 - Validar campo de email', async ({ page }) => {
-        // Navegar para pacientes que pode ter formulário
-        await page.goto(`${BASE_URL}/patients.html`);
+        // Navegar para agenda que pode ter formulário de agendamento
+        await page.goto(`${BASE_URL}/agenda.html`);
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(2000);
 
-        // Procurar botão de novo paciente
+        // Procurar botão de novo agendamento
         const novoBtn = page
             .locator('button:has-text("Novo"), button:has-text("Adicionar"), button:has-text("+")')
             .first();
@@ -237,8 +237,8 @@ test.describe('📝 Formulários e Validações', () => {
     });
 
     test('2.3 - Validar campos obrigatórios', async ({ page }) => {
-        // Navegar para página de pacientes
-        await page.goto(`${BASE_URL}/patients.html`);
+        // Navegar para página de arquivo
+        await page.goto(`${BASE_URL}/arquivo.html`);
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(2000);
 
@@ -341,74 +341,60 @@ test.describe('📅 Funcionalidades da Agenda', () => {
 });
 
 // ========================================
-// 4. PÁGINA DE PACIENTES
+// 4. PÁGINA DE ARQUIVO
 // ========================================
-test.describe('👥 Funcionalidades de Pacientes', () => {
+test.describe('📦 Funcionalidades de Arquivo', () => {
     test.beforeEach(async ({ page }) => {
         await login(page);
-        await page.goto(`${BASE_URL}/patients.html`);
+        await page.goto(`${BASE_URL}/arquivo.html`);
         await page.waitForLoadState('networkidle');
         await page.waitForTimeout(2000);
     });
 
-    test('4.1 - Lista de pacientes carrega', async ({ page }) => {
-        const patientsContainer = page.locator(
-            '#patients-container, #patientsTable, .patients-list, table'
+    test('4.1 - Lista de arquivados carrega', async ({ page }) => {
+        const archiveContainer = page.locator(
+            '#arquivoList, .archive-list, table, .lista-arquivados'
         );
-        await expect(patientsContainer).toBeVisible({ timeout: 10000 });
+        await expect(archiveContainer).toBeVisible({ timeout: 10000 });
 
-        console.log('✅ Container de pacientes visível');
+        console.log('✅ Container de arquivados visível');
     });
 
-    test('4.2 - Buscar paciente', async ({ page }) => {
+    test('4.2 - Buscar atendimento arquivado', async ({ page }) => {
         const searchInput = page
-            .locator('#searchPatients, input[placeholder*="Buscar"], input[type="search"]')
+            .locator('#searchArchive, input[placeholder*="Buscar"], input[type="search"]')
             .first();
 
         if (await searchInput.isVisible()) {
             await searchInput.fill('Maria');
             await page.waitForTimeout(500);
 
-            console.log('✅ Campo de busca de pacientes funcional');
+            console.log('✅ Campo de busca de arquivados funcional');
         }
     });
 
-    test('4.3 - Paginação de pacientes', async ({ page }) => {
-        // Verificar se há paginação
-        const pagination = page.locator(
-            '.pagination, [data-pagination], button:has-text("Próximo"), .page-item'
+    test('4.3 - Filtros de status', async ({ page }) => {
+        // Verificar se há filtros de status
+        const filters = page.locator(
+            '[data-filter], button:has-text("Finalizados"), button:has-text("Cancelados")'
         );
-        const count = await pagination.count();
+        const count = await filters.count();
 
         if (count > 0) {
-            console.log(`✅ Paginação presente com ${count} elementos`);
+            console.log(`✅ Filtros de status presentes: ${count}`);
         } else {
-            console.log('⚠️ Sem paginação visível (pode ter poucos registros)');
+            console.log('⚠️ Sem filtros de status visíveis');
         }
     });
 
-    test('4.4 - Ver detalhes de paciente', async ({ page }) => {
-        // Clicar em um paciente da lista
-        const patientRow = page.locator('tr[data-id], .patient-item, [data-patient-id]').first();
+    test('4.4 - Restaurar atendimento', async ({ page }) => {
+        // Procurar botão de restaurar
+        const restoreBtn = page.locator('button:has-text("Restaurar"), [data-restore]').first();
 
-        if (await patientRow.isVisible()) {
-            await patientRow.click();
-            await page.waitForTimeout(500);
-
-            // Verificar se modal ou página de detalhes abriu
-            const modal = page
-                .locator('[id*="Modal"]:not(.hidden), .modal.show, [role="dialog"]')
-                .first();
-            const detailPage = page.locator('#patient-details, .patient-profile');
-
-            const hasModal = await modal.isVisible().catch(() => false);
-            const hasDetail = await detailPage.isVisible().catch(() => false);
-
-            if (hasModal || hasDetail) {
-                console.log('✅ Detalhes do paciente abertos');
-            } else {
-                console.log('⚠️ Clique não abriu detalhes (verificar evento)');
-            }
+        if (await restoreBtn.isVisible()) {
+            console.log('✅ Botão de restaurar presente');
+        } else {
+            console.log('⚠️ Botão de restaurar não visível (pode não ter itens)');
         }
     });
 });
@@ -631,7 +617,7 @@ test.describe('🔍 Verificações de Consistência', () => {
         });
 
         // Navegar por várias páginas
-        const pages = ['admin.html', 'agenda.html', 'patients.html', 'settings.html'];
+        const pages = ['admin.html', 'agenda.html', 'arquivo.html', 'settings.html'];
 
         for (const p of pages) {
             await page.goto(`${BASE_URL}/${p}`);

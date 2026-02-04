@@ -118,7 +118,7 @@ test.describe('📊 2. Kanban Board (admin.html)', () => {
         await expect(sidebar).toBeVisible();
 
         // Verificar links de navegação
-        const navLinks = ['admin.html', 'agenda.html', 'patients.html'];
+        const navLinks = ['admin.html', 'agenda.html', 'arquivo.html'];
         for (const link of navLinks) {
             await expect(page.locator(`medical-sidebar a[href="${link}"]`)).toBeVisible();
         }
@@ -245,29 +245,29 @@ test.describe('📅 3. Agenda (agenda.html)', () => {
     });
 });
 
-test.describe('👥 4. Pacientes (patients.html)', () => {
+test.describe('� 4. Arquivo (arquivo.html)', () => {
     test.beforeEach(async ({ page }) => {
         await login(page);
-        await page.goto(`${BASE_URL}/patients.html`);
+        await page.goto(`${BASE_URL}/arquivo.html`);
         await page.waitForLoadState('networkidle');
     });
 
-    test('4.1 - Página de pacientes carrega', async ({ page }) => {
+    test('4.1 - Página de arquivo carrega', async ({ page }) => {
         await page.waitForSelector('medical-sidebar', { state: 'attached', timeout: 10000 });
 
-        console.log('✅ Página de pacientes carregou');
+        console.log('✅ Página de arquivo carregou');
     });
 
-    test('4.2 - Lista/tabela de pacientes presente', async ({ page }) => {
+    test('4.2 - Lista de atendimentos arquivados presente', async ({ page }) => {
         await page.waitForTimeout(2000);
 
-        // Procurar por tabela ou lista de pacientes
-        const patientsContainer = page
-            .locator('#patientsList, table, .patients-list, [class*="patient"]')
+        // Procurar por lista de arquivados
+        const archiveContainer = page
+            .locator('#arquivoList, .archive-list, [class*="archive"]')
             .first();
-        await expect(patientsContainer).toBeAttached();
+        await expect(archiveContainer).toBeAttached();
 
-        console.log('✅ Container de pacientes presente');
+        console.log('✅ Container de arquivados presente');
     });
 });
 
@@ -315,15 +315,15 @@ test.describe('🔄 7. Navegação entre páginas', () => {
         console.log('✅ Navegação Kanban → Agenda OK');
     });
 
-    test('7.2 - Navegar de Kanban para Pacientes via sidebar', async ({ page }) => {
+    test('7.2 - Navegar de Kanban para Arquivo via sidebar', async ({ page }) => {
         await page.waitForSelector('medical-sidebar', { state: 'attached', timeout: 10000 });
         await page.waitForTimeout(1000);
 
-        const patientsLink = page.locator('medical-sidebar a[href="patients.html"]');
-        await patientsLink.click();
+        const arquivoLink = page.locator('medical-sidebar a[href="arquivo.html"]');
+        await arquivoLink.click();
 
-        await page.waitForURL(/patients\.html/);
-        console.log('✅ Navegação Kanban → Pacientes OK');
+        await page.waitForURL(/arquivo\.html/);
+        console.log('✅ Navegação Kanban → Arquivo OK');
     });
 });
 

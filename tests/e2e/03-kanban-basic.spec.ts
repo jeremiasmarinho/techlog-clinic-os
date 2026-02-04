@@ -77,7 +77,7 @@ test.describe('Kanban Board - Basic Features', () => {
 
     test('should show navigation buttons', async ({ page }) => {
         // Verify navigation elements exist
-        await expect(page.locator('a[href="patients.html"]').first()).toBeVisible();
+        await expect(page.locator('a[href="arquivo.html"]').first()).toBeVisible();
         await expect(page.locator('a[href="agenda.html"]').first()).toBeVisible();
         await expect(page.locator('button[onclick="logout()"]').first()).toBeVisible();
     });

@@ -155,43 +155,6 @@ export async function getUserSession(page: Page): Promise<{
 }
 
 // ============================================================================
-// PATIENT HELPERS
-// ============================================================================
-
-export async function createPatient(page: Page, name: string) {
-    // Navega para aba pacientes se não estiver nela
-    if (!page.url().includes('patients.html') && !page.url().includes('kanban.html')) {
-        await page.goto('/patients.html');
-    }
-
-    // Abre modal
-    const btnNew = page
-        .locator('button:has-text("Novo Paciente"), button:has-text("Adicionar")')
-        .first();
-    if (await btnNew.isVisible()) {
-        await btnNew.click();
-    } else {
-        // Fallback para botão flutuante ou diferente
-        await page.goto('/patients.html');
-        await page.getByText('Novo Paciente').click();
-    }
-
-    // Preenche formulário
-    await page.fill('input[name="name"]', name);
-    await page.fill('input[name="phone"]', '11999999999');
-
-    // CPF Generator simples para passar na validação
-    const cpf = generateCPF();
-    await page.fill('input[name="cpf"]', cpf);
-
-    // Salva
-    await page.click('button[type="submit"]');
-
-    // Espera o modal fechar ou o toast aparecer
-    await page.waitForTimeout(1000);
-}
-
-// ============================================================================
 // MODAL HELPERS
 // ============================================================================
 
