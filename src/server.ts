@@ -6,6 +6,8 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression';
+import helmet from 'helmet';
 import leadRoutes from './routes/lead.routes'; // Importação sem chaves {} (Default)
 import userRoutes from './routes/user.routes'; // Rotas de autenticação e usuários
 import authRoutes from './routes/auth.routes'; // Rotas de autenticação JWT
@@ -30,21 +32,68 @@ export class Server {
     }
 
     private config(): void {
-        // Rate Limiting for auth endpoints (production only)
+        // ====================================================================
+        // SECURITY MIDDLEWARE (Helmet) - Production only for full config
+        // ====================================================================
         if (process.env.NODE_ENV === 'production') {
-            const authLimiter = rateLimit({
-                windowMs: 15 * 60 * 1000, // 15 minutos
-                max: 5, // Máximo 5 tentativas
-                message: { error: 'Muitas tentativas de login. Tente novamente em 15 minutos.' },
-                standardHeaders: true,
-                legacyHeaders: false,
-            });
-
-            // Apply rate limiting to auth routes
-            this.app.use('/api/auth/login', authLimiter);
+            this.app.use(
+                helmet({
+                    contentSecurityPolicy: false, // We configure CSP manually below
+                    crossOriginEmbedderPolicy: false, // Allow loading external resources
+                })
+            );
         }
 
+        // ====================================================================
+        // COMPRESSION MIDDLEWARE - Compress responses for better performance
+        // ====================================================================
+        this.app.use(
+            compression({
+                filter: (req, res) => {
+                    // Don't compress if client doesn't accept gzip
+                    if (req.headers['x-no-compression']) {
+                        return false;
+                    }
+                    // Use compression's default filter
+                    return compression.filter(req, res);
+                },
+                level: 6, // Compression level (1-9, 6 is good balance)
+                threshold: 1024, // Only compress responses larger than 1KB
+            })
+        );
+
+        // ====================================================================
+        // RATE LIMITING - Protect against abuse
+        // ====================================================================
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        // Strict rate limit for authentication endpoints
+        const authLimiter = rateLimit({
+            windowMs: 15 * 60 * 1000, // 15 minutos
+            max: isProduction ? 5 : 100, // Strict in production, relaxed in dev
+            message: { error: 'Muitas tentativas de login. Tente novamente em 15 minutos.' },
+            standardHeaders: true,
+            legacyHeaders: false,
+            skip: () => process.env.NODE_ENV === 'test', // Skip in tests
+        });
+
+        // General rate limit for all API endpoints
+        const apiLimiter = rateLimit({
+            windowMs: 1 * 60 * 1000, // 1 minuto
+            max: isProduction ? 100 : 1000, // 100 requests/min in prod, 1000 in dev
+            message: { error: 'Muitas requisições. Tente novamente em 1 minuto.' },
+            standardHeaders: true,
+            legacyHeaders: false,
+            skip: () => process.env.NODE_ENV === 'test', // Skip in tests
+        });
+
+        // Apply rate limiting
+        this.app.use('/api/auth/login', authLimiter);
+        this.app.use('/api', apiLimiter);
+
+        // ====================================================================
         // CORS Configuration - Restricted in production
+        // ====================================================================
         const allowedOrigins = process.env.ALLOWED_ORIGINS
             ? process.env.ALLOWED_ORIGINS.split(',')
             : ['http://localhost:3001'];
@@ -58,7 +107,9 @@ export class Server {
             })
         );
 
+        // ====================================================================
         // CSP Configuration - Permissive for MVP/Development
+        // ====================================================================
         this.app.use((_req, res, next) => {
             res.setHeader(
                 'Content-Security-Policy',
@@ -73,7 +124,11 @@ export class Server {
             next();
         });
 
-        this.app.use(express.json());
+        // ====================================================================
+        // BODY PARSING & STATIC FILES
+        // ====================================================================
+        this.app.use(express.json({ limit: '10mb' })); // Limit JSON body size
+        this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
         this.app.use(express.static(path.join(__dirname, '../public')));
         this.app.use('/shared', express.static(path.join(__dirname, '../shared')));
         this.app.use('/uploads', express.static(path.join(__dirname, '../uploads')));

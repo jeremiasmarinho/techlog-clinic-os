@@ -6,6 +6,11 @@
  * Wrapper assíncrono para o SQLite.
  * Fornece interface Promise-based para queries.
  *
+ * Performance Optimizations:
+ * - WAL mode for better concurrent reads
+ * - busy_timeout to handle lock contention
+ * - Synchronous NORMAL for balance of safety/speed
+ *
  * @usage
  * import { dbAsync } from '../config/database.config';
  * const user = await dbAsync.get<User>('SELECT * FROM users WHERE id = ?', [1]);
@@ -53,10 +58,11 @@ function getDatabasePath(): string {
 }
 
 // ============================================================================
-// DATABASE CONNECTION
+// DATABASE CONNECTION WITH PERFORMANCE OPTIMIZATIONS
 // ============================================================================
 
 const DB_PATH = getDatabasePath();
+const isTestEnv = process.env.NODE_ENV === 'test';
 
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) {
@@ -64,8 +70,74 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
         process.exit(1);
     } else {
         console.log(`✅ Conectado ao banco SQLite com sucesso!`);
+
+        // Apply performance optimizations
+        configureDatabasePragmas();
     }
 });
+
+/**
+ * Configure SQLite PRAGMAs for optimal performance and concurrency
+ */
+function configureDatabasePragmas(): void {
+    // 1. WAL Mode - Better concurrent read/write performance
+    // Skip WAL in test environment to avoid lock issues
+    if (!isTestEnv) {
+        db.run('PRAGMA journal_mode = WAL', (err) => {
+            if (err) {
+                console.warn('⚠️ Could not enable WAL mode:', err.message);
+            } else {
+                console.log('✅ WAL mode enabled (better concurrency)');
+            }
+        });
+    } else {
+        // For tests, use DELETE mode to avoid lock issues
+        db.run('PRAGMA journal_mode = DELETE');
+    }
+
+    // 2. Busy Timeout - Wait up to 5 seconds before failing on lock
+    db.run('PRAGMA busy_timeout = 5000', (err) => {
+        if (err) {
+            console.warn('⚠️ Could not set busy_timeout:', err.message);
+        } else {
+            console.log('✅ Busy timeout set to 5000ms');
+        }
+    });
+
+    // 3. Synchronous NORMAL - Good balance of safety and speed
+    db.run('PRAGMA synchronous = NORMAL', (err) => {
+        if (err) {
+            console.warn('⚠️ Could not set synchronous mode:', err.message);
+        } else {
+            console.log('✅ Synchronous mode set to NORMAL');
+        }
+    });
+
+    // 4. Cache size - Increase to 64MB for better performance
+    db.run('PRAGMA cache_size = -64000', (err) => {
+        if (err) {
+            console.warn('⚠️ Could not set cache_size:', err.message);
+        } else {
+            console.log('✅ Cache size set to 64MB');
+        }
+    });
+
+    // 5. Foreign keys - Enable for data integrity
+    db.run('PRAGMA foreign_keys = ON', (err) => {
+        if (err) {
+            console.warn('⚠️ Could not enable foreign_keys:', err.message);
+        } else {
+            console.log('✅ Foreign keys enabled');
+        }
+    });
+
+    // 6. Temp store in memory - Faster temp operations
+    db.run('PRAGMA temp_store = MEMORY', (err) => {
+        if (err) {
+            console.warn('⚠️ Could not set temp_store:', err.message);
+        }
+    });
+}
 
 // ============================================================================
 // ASYNC WRAPPER
