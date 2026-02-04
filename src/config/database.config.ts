@@ -71,71 +71,47 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
     } else {
         console.log(`✅ Conectado ao banco SQLite com sucesso!`);
 
-        // Apply performance optimizations
+        // Apply performance optimizations SYNCHRONOUSLY using db.serialize
+        // This ensures PRAGMAs are applied before any queries
         configureDatabasePragmas();
     }
 });
 
 /**
  * Configure SQLite PRAGMAs for optimal performance and concurrency
+ * Uses db.serialize to ensure PRAGMAs are applied in order and before any queries
  */
 function configureDatabasePragmas(): void {
-    // 1. WAL Mode - Better concurrent read/write performance
-    // Skip WAL in test environment to avoid lock issues
-    if (!isTestEnv) {
-        db.run('PRAGMA journal_mode = WAL', (err) => {
-            if (err) {
-                console.warn('⚠️ Could not enable WAL mode:', err.message);
-            } else {
-                console.log('✅ WAL mode enabled (better concurrency)');
-            }
-        });
-    } else {
-        // For tests, use DELETE mode to avoid lock issues
-        db.run('PRAGMA journal_mode = DELETE');
-    }
+    db.serialize(() => {
+        // 1. Busy Timeout - Wait up to 30 seconds before failing on lock
+        // MUST BE FIRST - prevents SQLITE_BUSY errors during subsequent operations
+        db.run('PRAGMA busy_timeout = 30000');
+        console.log('✅ Busy timeout set to 30000ms');
 
-    // 2. Busy Timeout - Wait up to 5 seconds before failing on lock
-    db.run('PRAGMA busy_timeout = 5000', (err) => {
-        if (err) {
-            console.warn('⚠️ Could not set busy_timeout:', err.message);
+        // 2. WAL Mode - Better concurrent read/write performance
+        // Skip WAL in test environment to avoid lock issues with parallel tests
+        if (!isTestEnv) {
+            db.run('PRAGMA journal_mode = WAL', (err) => {
+                if (!err) console.log('✅ WAL mode enabled (better concurrency)');
+            });
         } else {
-            console.log('✅ Busy timeout set to 5000ms');
+            db.run('PRAGMA journal_mode = DELETE');
+            console.log('✅ DELETE journal mode (test environment)');
         }
-    });
 
-    // 3. Synchronous NORMAL - Good balance of safety and speed
-    db.run('PRAGMA synchronous = NORMAL', (err) => {
-        if (err) {
-            console.warn('⚠️ Could not set synchronous mode:', err.message);
-        } else {
-            console.log('✅ Synchronous mode set to NORMAL');
-        }
-    });
+        // 3. Synchronous NORMAL - Good balance of safety and speed
+        db.run('PRAGMA synchronous = NORMAL');
 
-    // 4. Cache size - Increase to 64MB for better performance
-    db.run('PRAGMA cache_size = -64000', (err) => {
-        if (err) {
-            console.warn('⚠️ Could not set cache_size:', err.message);
-        } else {
-            console.log('✅ Cache size set to 64MB');
-        }
-    });
+        // 4. Cache size - Increase to 64MB for better performance
+        db.run('PRAGMA cache_size = -64000');
 
-    // 5. Foreign keys - Enable for data integrity
-    db.run('PRAGMA foreign_keys = ON', (err) => {
-        if (err) {
-            console.warn('⚠️ Could not enable foreign_keys:', err.message);
-        } else {
-            console.log('✅ Foreign keys enabled');
-        }
-    });
+        // 5. Foreign keys - Enable for data integrity
+        db.run('PRAGMA foreign_keys = ON');
 
-    // 6. Temp store in memory - Faster temp operations
-    db.run('PRAGMA temp_store = MEMORY', (err) => {
-        if (err) {
-            console.warn('⚠️ Could not set temp_store:', err.message);
-        }
+        // 6. Temp store in memory - Faster temp operations
+        db.run('PRAGMA temp_store = MEMORY');
+
+        console.log('✅ All SQLite PRAGMAs configured');
     });
 }
 

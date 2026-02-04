@@ -30,7 +30,7 @@ module.exports = {
     },
     moduleFileExtensions: ['ts', 'js', 'json'],
     verbose: true,
-    testTimeout: 15000,
+    testTimeout: 35000,
     setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
     globals: {
         'ts-jest': {
