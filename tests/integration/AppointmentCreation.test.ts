@@ -40,7 +40,8 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
     });
 
     /**
-     * Teardown: Limpa o banco de dados e fecha a conexão
+     * Teardown: Limpa os dados de teste
+     * Note: Database connection is managed centrally - no db.close() needed
      */
     afterAll(async () => {
         // Remove todos os leads criados durante os testes
@@ -58,19 +59,6 @@ describe('Integration Test - POST /api/leads (Criação de Agendamento)', () => 
                 });
             });
         }
-
-        // Fecha a conexão com o banco de dados
-        await new Promise<void>((resolve, reject) => {
-            db.close((err) => {
-                if (err) {
-                    console.error('❌ Erro ao fechar conexão com banco:', err.message);
-                    reject(err);
-                    return;
-                }
-                console.log('✅ Conexão com banco de dados fechada');
-                resolve();
-            });
-        });
     });
 
     /**

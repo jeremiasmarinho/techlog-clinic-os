@@ -59,7 +59,8 @@ describe('Integration Test - Financial Module', () => {
     });
 
     /**
-     * Teardown: Clean up test data and close database
+     * Teardown: Clean up test data
+     * Note: Database connection is managed centrally - no db.close() needed
      */
     afterAll(async () => {
         // Remove all transactions created during tests
@@ -83,19 +84,6 @@ describe('Integration Test - Financial Module', () => {
                 );
             });
         }
-
-        // Close database connection
-        await new Promise<void>((resolve, reject) => {
-            db.close((err) => {
-                if (err) {
-                    console.error('❌ Erro ao fechar conexão com banco:', err.message);
-                    reject(err);
-                    return;
-                }
-                console.log('✅ Conexão com banco de dados fechada');
-                resolve();
-            });
-        });
     });
 
     describe('POST /api/financial/transactions - Create Transactions', () => {
