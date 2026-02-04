@@ -67,7 +67,7 @@ describe('ClinicController', () => {
             expect(response.body).toHaveProperty('chatbot');
 
             // Check default values
-            expect(response.body.identity.primaryColor).toBe('#06b6d4');
+            expect(response.body.identity.themeMode).toBe('dark');
             expect(response.body.hours.opening).toBe('08:00');
             expect(response.body.hours.closing).toBe('18:00');
             expect(response.body.insurancePlans).toEqual([]);
@@ -80,7 +80,7 @@ describe('ClinicController', () => {
                     name: 'Test Clinic',
                     phone: '11999999999',
                     address: 'Rua Test, 123',
-                    primaryColor: '#ff0000',
+                    themeMode: 'light',
                     logo: null,
                 },
                 hours: {
@@ -116,7 +116,7 @@ describe('ClinicController', () => {
             const response = await request(app).get('/api/clinic/settings').expect(200);
 
             expect(response.body.identity.name).toBe('Test Clinic');
-            expect(response.body.identity.primaryColor).toBe('#ff0000');
+            expect(response.body.identity.themeMode).toBe('light');
             expect(response.body.hours.opening).toBe('09:00');
             expect(response.body.hours.closing).toBe('20:00');
             expect(response.body.insurancePlans).toContain('Unimed');
@@ -130,7 +130,7 @@ describe('ClinicController', () => {
                 name: 'Nova Clínica',
                 phone: '11888888888',
                 address: 'Av. Nova, 456',
-                primaryColor: '#00ff00',
+                themeMode: 'dark',
                 logo: null,
             },
             hours: {
@@ -268,7 +268,7 @@ describe('ClinicController', () => {
 
         it('should handle empty arrays', async () => {
             const settingsWithEmptyArrays = {
-                identity: { name: '', phone: '', address: '', primaryColor: '#06b6d4', logo: null },
+                identity: { name: '', phone: '', address: '', themeMode: 'dark', logo: null },
                 hours: { opening: '', closing: '', lunchStart: '', lunchEnd: '', workingDays: [] },
                 insurancePlans: [],
                 chatbot: { greeting: '', awayMessage: '', instructions: '' },
@@ -295,7 +295,7 @@ describe('ClinicController', () => {
             expect(response.body).toHaveProperty('name', 'Updated Clinic Name');
         });
 
-        it('should update primary color', async () => {
+        it('should update theme mode', async () => {
             const response = await request(app)
                 .patch('/api/clinic/settings')
                 .send({ primaryColor: '#ff5500' });
@@ -351,7 +351,7 @@ describe('ClinicController', () => {
                     name: 'Clinic A Settings',
                     phone: '111',
                     address: 'A',
-                    primaryColor: '#aaaaaa',
+                    themeMode: 'light',
                     logo: null,
                 },
                 hours: {
@@ -373,7 +373,7 @@ describe('ClinicController', () => {
                     name: 'Clinic B Settings',
                     phone: '222',
                     address: 'B',
-                    primaryColor: '#bbbbbb',
+                    themeMode: 'dark',
                     logo: null,
                 },
                 hours: {
@@ -393,13 +393,13 @@ describe('ClinicController', () => {
             const responseA = await request(app).get('/api/clinic/settings').expect(200);
 
             expect(responseA.body.identity.name).toBe('Clinic A Settings');
-            expect(responseA.body.identity.primaryColor).toBe('#aaaaaa');
+            expect(responseA.body.identity.themeMode).toBe('light');
 
             // Verify Clinic B sees only its settings
             const responseB = await request(appB).get('/api/clinic/settings').expect(200);
 
             expect(responseB.body.identity.name).toBe('Clinic B Settings');
-            expect(responseB.body.identity.primaryColor).toBe('#bbbbbb');
+            expect(responseB.body.identity.themeMode).toBe('dark');
         });
 
         it('should not allow Clinic A to modify Clinic B settings', async () => {
@@ -409,7 +409,7 @@ describe('ClinicController', () => {
                     name: 'Clinic B Original',
                     phone: '',
                     address: '',
-                    primaryColor: '#000000',
+                    themeMode: 'dark',
                     logo: null,
                 },
                 hours: { opening: '', closing: '', lunchStart: '', lunchEnd: '', workingDays: [] },
@@ -425,7 +425,7 @@ describe('ClinicController', () => {
                     name: 'Clinic A Trying',
                     phone: '',
                     address: '',
-                    primaryColor: '#ffffff',
+                    themeMode: 'dark',
                     logo: null,
                 },
                 hours: { opening: '', closing: '', lunchStart: '', lunchEnd: '', workingDays: [] },
@@ -439,7 +439,7 @@ describe('ClinicController', () => {
             const responseB = await request(appB).get('/api/clinic/settings').expect(200);
 
             expect(responseB.body.identity.name).toBe('Clinic B Original');
-            expect(responseB.body.identity.primaryColor).toBe('#000000');
+            expect(responseB.body.identity.themeMode).toBe('dark');
         });
     });
 
@@ -450,7 +450,7 @@ describe('ClinicController', () => {
                     name: 'Clínica São José & Filhos',
                     phone: '+55 (11) 99999-9999',
                     address: 'Rua "Teste" #123',
-                    primaryColor: '#06b6d4',
+                    themeMode: 'dark',
                     logo: null,
                 },
                 hours: {
@@ -486,7 +486,7 @@ describe('ClinicController', () => {
                     name: longText,
                     phone: '',
                     address: longText,
-                    primaryColor: '#06b6d4',
+                    themeMode: 'dark',
                     logo: null,
                 },
                 hours: { opening: '', closing: '', lunchStart: '', lunchEnd: '', workingDays: [] },
