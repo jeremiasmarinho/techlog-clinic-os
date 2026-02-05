@@ -938,6 +938,18 @@ function renderLeads(leads) {
 
 // Create lead card
 function createLeadCard(lead) {
+    // Validate lead has required ID and name
+    if (!lead.id || lead.id === 'undefined' || lead.id === 'null') {
+        console.error('❌ Lead without valid ID:', lead);
+        return null;
+    }
+
+    // Skip leads without proper patient name (likely incomplete data)
+    if (!lead.name || lead.name === 'Paciente') {
+        console.warn('⚠️ Lead without patient name, skipping:', lead.id);
+        return null;
+    }
+
     const card = document.createElement('div');
     card.className = 'lead-card rounded-lg shadow p-4 border border-gray-200 relative';
     card.draggable = true;
@@ -963,7 +975,7 @@ function createLeadCard(lead) {
         const days = parts[4] || '';
 
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-400 text-white border border-teal-500"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-600 text-white border border-teal-700 shadow-sm"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
 
         consultaDetails = `
             <div class="bg-gray-800/50 rounded-lg p-2 mb-2 space-y-1 text-xs">
@@ -977,35 +989,35 @@ function createLeadCard(lead) {
     // Formatos antigos e outros tipos
     else if (normalizedType === 'primeira_consulta' || normalizedType === 'primeira consulta') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-400 text-gray-900 border border-yellow-500"><i class="fas fa-star mr-1"></i>Primeira Consulta</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-400 text-gray-900 border border-yellow-500 whitespace-nowrap shadow-sm"><i class="fas fa-star mr-1"></i>1ª Consulta</span>';
     } else if (normalizedType === 'retorno') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400"><i class="fas fa-undo mr-1"></i>Retorno</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400 shadow-sm"><i class="fas fa-undo mr-1"></i>Retorno</span>';
     } else if (
         normalizedType === 'recorrente' ||
         normalizedType === 'sessão' ||
         normalizedType === 'sessao'
     ) {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-400 text-white border border-indigo-500"><i class="fas fa-sync-alt mr-1"></i>Sessão/Recorrente</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-500 text-white border border-indigo-600 shadow-sm whitespace-nowrap"><i class="fas fa-sync-alt mr-1"></i>Recorrente</span>';
     } else if (normalizedType === 'atendimento humano') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-pink-400 text-white border border-pink-500"><i class="fas fa-user-headset mr-1"></i>Atend. Humano</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-pink-500 text-white border border-pink-600 shadow-sm"><i class="fas fa-user-headset mr-1"></i>Atend. Humano</span>';
     } else if (normalizedType === 'consulta') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-400 text-white border border-teal-500"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-600 text-white border border-teal-700 shadow-sm"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
     } else if (normalizedType === 'avaliação' || normalizedType === 'avaliacao') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-400 text-white border border-blue-500"><i class="fas fa-clipboard-check mr-1"></i>Avaliação</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-500 text-white border border-blue-600 shadow-sm"><i class="fas fa-clipboard-check mr-1"></i>Avaliação</span>';
     } else if (normalizedType === 'procedimento') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-400 text-white border border-purple-500"><i class="fas fa-syringe mr-1"></i>Procedimento</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-500 text-white border border-purple-600 shadow-sm"><i class="fas fa-syringe mr-1"></i>Procedimento</span>';
     } else if (normalizedType === 'exame') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-cyan-400 text-white border border-cyan-500"><i class="fas fa-vial mr-1"></i>Exame</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-cyan-600 text-white border border-cyan-700 shadow-sm"><i class="fas fa-vial mr-1"></i>Exame</span>';
     } else if (normalizedType === 'urgência' || normalizedType === 'urgencia') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500 text-white border border-red-600"><i class="fas fa-ambulance mr-1"></i>Urgência</span>';
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-600 text-white border border-red-700 shadow-sm"><i class="fas fa-ambulance mr-1"></i>Urgência</span>';
     } else if (!lead.type || normalizedType === '' || normalizedType === 'geral') {
         // Sem tipo definido - não mostrar badge
         typeBadge = '';
@@ -1015,7 +1027,7 @@ function createLeadCard(lead) {
             .replace(/[_-]/g, ' ')
             .replace(/\b\w/g, (c) => c.toUpperCase());
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-400 text-white border border-slate-500"><i class="fas fa-tag mr-1"></i>' +
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-500 text-white border border-slate-600 shadow-sm"><i class="fas fa-tag mr-1"></i>' +
             formattedType +
             '</span>';
     }
@@ -1040,10 +1052,13 @@ function createLeadCard(lead) {
             minute: '2-digit',
         });
         const timeOnly = formatTime(appointmentDate);
-        const doctorBadge = lead.doctor ? ` 👨‍⚕️ ${lead.doctor}` : '';
+        const doctorLine = lead.doctor
+            ? `<div class="text-xs font-semibold text-blue-600 mt-1">👨‍⚕️ ${lead.doctor}</div>`
+            : '';
         appointmentBadge = `
-            <div class="text-center bg-blue-50 rounded-full px-3 py-1 mb-2">
-                <span class="text-xs font-semibold text-blue-700">📅 ${formattedDate}${doctorBadge}</span>
+            <div class="text-center bg-blue-50 rounded-lg px-3 py-2 mb-2">
+                <span class="text-xs font-semibold text-blue-700">📅 ${formattedDate}</span>
+                ${doctorLine}
             </div>
         `;
 
@@ -1051,8 +1066,14 @@ function createLeadCard(lead) {
         const diffMsToAppointment = appointmentDate - now;
         const hoursUntilAppointment = diffMsToAppointment / (1000 * 60 * 60);
 
-        // Show reminder button if appointment is within next 4 hours
-        if (hoursUntilAppointment > 0 && hoursUntilAppointment <= 4) {
+        // Show reminder button ONLY if:
+        // 1. Lead is in 'agendado' status (scheduled column)
+        // 2. Appointment is within next 4 hours
+        const leadStatus = (lead.status || '').toLowerCase().trim();
+        const isInScheduledColumn =
+            leadStatus === 'agendado' || leadStatus === 'scheduled' || leadStatus === 'confirmed';
+
+        if (isInScheduledColumn && hoursUntilAppointment > 0 && hoursUntilAppointment <= 4) {
             const reminderMessage = `Olá *${lead.name}*, passando para lembrar do seu agendamento hoje às *${timeOnly}* na Sua Clínica Aqui. Tudo confirmado?`;
             reminderButton = `
                 <a href="https://wa.me/55${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(reminderMessage)}" 
@@ -1138,12 +1159,38 @@ function createLeadCard(lead) {
     card.innerHTML = `
         ${notesIndicator}
         
-        <!-- SMART TAGS & WAIT TIME TRACKER -->
-        <div class="flex justify-between items-start mb-2">
+        <!-- Header: Type Badge + Edit/Delete Buttons -->
+        <div class="flex items-start justify-between mb-2">
             <div class="flex items-center flex-wrap gap-1">
                 ${typeBadge}
             </div>
-            ${timeString ? `<small class="${timeClasses}" title="${timeTooltip}">🕒 ${timeString}</small>` : ''}
+            <div class="flex items-center space-x-1">
+                <button 
+                    class="md:hidden text-gray-400 hover:text-purple-400 transition p-1 lead-move-btn" 
+                    title="Mover"
+                    data-lead-id="${lead.id}"
+                    data-lead-status="${lead.status || 'novo'}"
+                    data-lead-name="${lead.name || ''}">
+                    <i class="fas fa-arrows-alt text-xs"></i>
+                </button>
+                <button 
+                    class="text-gray-400 hover:text-blue-400 transition p-1 lead-edit-btn" 
+                    title="Editar"
+                    data-lead-id="${lead.id}"
+                    data-lead-name="${lead.name || ''}"
+                    data-lead-date="${lead.appointment_date || ''}"
+                    data-lead-doctor="${lead.doctor || ''}"
+                    data-lead-notes="${(lead.notes || '').replace(/"/g, '&quot;')}"
+                    data-lead-type="${lead.type || ''}">
+                    <i class="fas fa-pen text-xs"></i>
+                </button>
+                <button 
+                    class="text-gray-400 hover:text-red-400 transition p-1 lead-delete-btn" 
+                    title="Excluir"
+                    data-lead-id="${lead.id}">
+                    <i class="fas fa-trash text-xs"></i>
+                </button>
+            </div>
         </div>
         
         <!-- Consulta Details (if new format) -->
@@ -1155,37 +1202,11 @@ function createLeadCard(lead) {
         <!-- Attendance Status Badge (if exists) -->
         ${attendanceBadge ? `<div class="mb-2">${attendanceBadge}</div>` : ''}
         
-        <!-- Edit/Delete/Move buttons -->
-        <div class="flex items-center justify-end space-x-2 mb-2">
-            <button 
-                class="md:hidden text-gray-300 hover:text-purple-400 transition lead-move-btn" 
-                title="Mover"
-                data-lead-id="${lead.id}"
-                data-lead-status="${lead.status || 'novo'}"
-                data-lead-name="${lead.name || ''}">
-                <i class="fas fa-arrows-alt text-xs"></i>
-            </button>
-            <button 
-                class="text-gray-300 hover:text-blue-400 transition lead-edit-btn" 
-                title="Editar"
-                data-lead-id="${lead.id}"
-                data-lead-name="${lead.name || ''}"
-                data-lead-date="${lead.appointment_date || ''}"
-                data-lead-doctor="${lead.doctor || ''}"
-                data-lead-notes="${(lead.notes || '').replace(/"/g, '&quot;')}"
-                data-lead-type="${lead.type || ''}">
-                <i class="fas fa-pen text-xs"></i>
-            </button>
-            <button 
-                class="text-gray-300 hover:text-red-400 transition lead-delete-btn" 
-                title="Excluir"
-                data-lead-id="${lead.id}">
-                <i class="fas fa-trash text-xs"></i>
-            </button>
-        </div>
-        
         <!-- Patient Name -->
-        <h3 class="font-semibold text-white mb-2 lead-name">${lead.name}</h3>
+        <h3 class="font-semibold text-white mb-1 lead-name">${lead.name}</h3>
+        
+        <!-- Wait Time Tracker (below name) -->
+        ${timeString ? `<div class="mb-2"><small class="${timeClasses}" title="${timeTooltip}">🕒 ${timeString}</small></div>` : ''}
         
         <!-- Appointment Badge -->
         ${appointmentBadge}
@@ -1799,25 +1820,159 @@ function parseDateFromInput(inputValue) {
 // EDIT MODAL FUNCTIONS
 // ============================================
 
+// Flatpickr instances (global for access)
+let datePicker = null;
+let timePicker = null;
+
+/**
+ * Initialize Flatpickr Date/Time Pickers
+ */
+function initializeDateTimePickers() {
+    const dateInput = document.getElementById('editAppointmentDatePicker');
+    const timeInput = document.getElementById('editAppointmentTimePicker');
+    const hiddenInput = document.getElementById('editAppointmentDate');
+
+    if (!dateInput || !timeInput) {
+        console.log('⚠️ Date/Time picker inputs not found, skipping Flatpickr init');
+        return;
+    }
+
+    // Function to update hidden datetime-local field
+    function updateHiddenDateTime() {
+        const dateVal = datePicker?.selectedDates[0];
+        const timeVal = timePicker?.selectedDates[0];
+
+        if (dateVal && timeVal) {
+            const year = dateVal.getFullYear();
+            const month = String(dateVal.getMonth() + 1).padStart(2, '0');
+            const day = String(dateVal.getDate()).padStart(2, '0');
+            const hours = String(timeVal.getHours()).padStart(2, '0');
+            const minutes = String(timeVal.getMinutes()).padStart(2, '0');
+
+            hiddenInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            console.log('📅 DateTime updated:', hiddenInput.value);
+        }
+    }
+
+    // Initialize Date Picker
+    datePicker = flatpickr(dateInput, {
+        locale: 'pt',
+        dateFormat: 'd/m/Y',
+        altInput: true,
+        altFormat: 'j \\de F',
+        disableMobile: true,
+        animate: true,
+        minDate: 'today',
+        defaultDate: new Date(),
+        onChange: function (selectedDates) {
+            updateHiddenDateTime();
+            // Highlight selected date visually
+            dateInput.classList.add('ring-2', 'ring-cyan-400');
+            setTimeout(() => dateInput.classList.remove('ring-2', 'ring-cyan-400'), 300);
+        },
+    });
+
+    // Initialize Time Picker
+    timePicker = flatpickr(timeInput, {
+        locale: 'pt',
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: 'H:i',
+        time_24hr: true,
+        minuteIncrement: 15,
+        defaultHour: 8,
+        defaultMinute: 0,
+        onChange: function (selectedDates) {
+            updateHiddenDateTime();
+            // Highlight selected time visually
+            timeInput.classList.add('ring-2', 'ring-cyan-400');
+            setTimeout(() => timeInput.classList.remove('ring-2', 'ring-cyan-400'), 300);
+        },
+    });
+
+    // Quick Time Slots handlers
+    document.querySelectorAll('.quick-time-btn').forEach((btn) => {
+        btn.addEventListener('click', function () {
+            const time = this.dataset.time;
+            const [hours, minutes] = time.split(':');
+
+            // Set time picker
+            timePicker.setDate(`${hours}:${minutes}`, true);
+
+            // Visual feedback
+            document.querySelectorAll('.quick-time-btn').forEach((b) => {
+                b.classList.remove('bg-cyan-600', 'border-cyan-400', 'text-white');
+                b.classList.add('bg-slate-800', 'border-slate-600', 'text-slate-300');
+            });
+            this.classList.remove('bg-slate-800', 'border-slate-600', 'text-slate-300');
+            this.classList.add('bg-cyan-600', 'border-cyan-400', 'text-white');
+
+            updateHiddenDateTime();
+        });
+    });
+
+    console.log('✅ Flatpickr Date/Time pickers initialized');
+}
+
 // Edit Modal Functions
 function openEditModal(leadId, leadName, appointmentDate, doctor, notes, type) {
+    // Validate leadId - can be number or "lead-123" format
+    if (!leadId || leadId === 'undefined' || leadId === 'null') {
+        console.error('❌ Invalid leadId:', leadId);
+        showNotification('❌ Erro: ID do lead inválido', 'error');
+        return;
+    }
+
     document.getElementById('editLeadId').value = leadId;
     document.getElementById('editLeadName').value = leadName;
 
     // ============================================
-    // FIX: DATE FORMATTING FOR datetime-local INPUT
+    // FIX: DATE FORMATTING FOR FLATPICKR INPUTS
     // ============================================
 
-    // The datetime-local input requires format: "YYYY-MM-DDTHH:mm"
-    // Use helper function to format date correctly
-    const formattedDate = formatDateForInput(appointmentDate);
-    document.getElementById('editAppointmentDate').value = formattedDate;
+    if (appointmentDate) {
+        try {
+            const date = new Date(appointmentDate);
+            if (!isNaN(date.getTime())) {
+                // Set date picker
+                if (datePicker) {
+                    datePicker.setDate(date, true);
+                }
+                // Set time picker
+                if (timePicker) {
+                    timePicker.setDate(date, true);
+                }
+                // Set hidden field
+                const formattedDate = formatDateForInput(appointmentDate);
+                document.getElementById('editAppointmentDate').value = formattedDate;
 
-    if (appointmentDate && formattedDate) {
-        console.log('✅ Date formatted for input:', {
-            original: appointmentDate,
-            formatted: formattedDate,
-        });
+                // Highlight matching quick time button
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const timeStr = `${hours}:${minutes}`;
+
+                document.querySelectorAll('.quick-time-btn').forEach((btn) => {
+                    btn.classList.remove('bg-cyan-600', 'border-cyan-400', 'text-white');
+                    btn.classList.add('bg-slate-800', 'border-slate-600', 'text-slate-300');
+                    if (btn.dataset.time === timeStr) {
+                        btn.classList.remove('bg-slate-800', 'border-slate-600', 'text-slate-300');
+                        btn.classList.add('bg-cyan-600', 'border-cyan-400', 'text-white');
+                    }
+                });
+
+                console.log('✅ Date formatted for Flatpickr:', {
+                    original: appointmentDate,
+                    formatted: formattedDate,
+                });
+            }
+        } catch (e) {
+            console.error('❌ Error setting date:', e);
+        }
+    } else {
+        // Clear pickers if no date
+        if (datePicker) datePicker.clear();
+        if (timePicker) timePicker.setDate('08:00', true);
+        document.getElementById('editAppointmentDate').value = '';
     }
 
     document.getElementById('editDoctor').value = doctor || '';
@@ -1919,6 +2074,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (dateFilterSelect) {
         dateFilterSelect.value = currentDateFilter;
     }
+
+    // ============================================
+    // INITIALIZE FLATPICKR DATE/TIME PICKERS
+    // ============================================
+    initializeDateTimePickers();
 
     // ============================================
     // POPULATE INSURANCE SELECTS WITH CLINIC DATA
@@ -2043,7 +2203,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (editBtn) {
             e.preventDefault();
             e.stopPropagation();
-            const leadId = parseInt(editBtn.dataset.leadId);
+            const leadId = editBtn.dataset.leadId;
+
+            // Validate: ID can be number or "lead-123" format
+            if (!leadId || leadId === 'undefined' || leadId === 'null') {
+                console.error('❌ Invalid lead ID from button:', leadId);
+                showNotification('❌ Erro: ID do lead não encontrado', 'error');
+                return;
+            }
+
             const leadName = editBtn.dataset.leadName || '';
             const leadDate = editBtn.dataset.leadDate || '';
             const leadDoctor = editBtn.dataset.leadDoctor || '';
@@ -2065,7 +2233,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (deleteBtn) {
             e.preventDefault();
             e.stopPropagation();
-            const leadId = parseInt(deleteBtn.dataset.leadId);
+            const leadId = deleteBtn.dataset.leadId;
+            if (!leadId || leadId === 'undefined') {
+                console.error('❌ Invalid lead ID for delete:', leadId);
+                return;
+            }
             console.log('Delete button clicked:', leadId);
             deleteLead(leadId);
             return;
@@ -2076,7 +2248,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (moveBtn) {
             e.preventDefault();
             e.stopPropagation();
-            const leadId = parseInt(moveBtn.dataset.leadId);
+            const leadId = moveBtn.dataset.leadId;
             const leadStatus = moveBtn.dataset.leadStatus || 'novo';
             const leadName = moveBtn.dataset.leadName || '';
             console.log('Move button clicked:', { leadId, leadStatus, leadName });
@@ -2188,6 +2360,7 @@ window.drop = drop;
 window.openEditModal = openEditModal;
 window.closeEditModal = closeEditModal;
 window.toggleInsuranceField = toggleInsuranceField;
+window.initializeDateTimePickers = initializeDateTimePickers;
 
 // Expose lead actions
 window.deleteLead = deleteLead;

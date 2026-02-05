@@ -72,39 +72,61 @@ export class ClinicInfoController {
                         };
                     }
 
-                    res.json({
-                        success: true,
-                        clinic: {
-                            id: clinic.id,
-                            name: clinic.name,
-                            slug: clinic.slug,
-                            status: clinic.status,
-                            plan_tier: clinic.plan_tier,
-                            owner_id: clinic.owner_id,
-                            owner_name: clinic.owner_name,
-                            owner_email: clinic.owner_email,
-                            max_users: clinic.max_users,
-                            max_patients: clinic.max_patients,
-                            total_users: clinic.total_users,
-                            total_leads: clinic.total_leads,
-                            total_patients: clinic.total_patients,
-                            user_progress: Math.round(userProgress),
-                            patient_progress: Math.round(patientProgress),
-                            near_user_limit: nearUserLimit,
-                            near_patient_limit: nearPatientLimit,
-                            trial: trialInfo,
-                            subscription_started_at: clinic.subscription_started_at,
-                            subscription_ends_at: clinic.subscription_ends_at,
-                            created_at: clinic.created_at,
-                            updated_at: clinic.updated_at,
-                        },
-                        user: {
-                            id: user.userId,
-                            name: user.name,
-                            role: user.role,
-                            is_owner: user.isOwner,
-                        },
-                    });
+                    // Buscar logo das configurações
+                    db.get(
+                        `SELECT identity FROM clinic_settings WHERE clinic_id = ?`,
+                        [clinicId],
+                        (settingsErr, settingsRow: any) => {
+                            let logoUrl = clinic.logo_url || null;
+                            let primaryColor = clinic.primary_color || '#0891b2';
+
+                            if (!settingsErr && settingsRow && settingsRow.identity) {
+                                try {
+                                    const identity = JSON.parse(settingsRow.identity);
+                                    logoUrl = identity.logo || logoUrl;
+                                    primaryColor = identity.primaryColor || primaryColor;
+                                } catch (e) {
+                                    // ignore parse error
+                                }
+                            }
+
+                            res.json({
+                                success: true,
+                                clinic: {
+                                    id: clinic.id,
+                                    name: clinic.name,
+                                    slug: clinic.slug,
+                                    status: clinic.status,
+                                    plan_tier: clinic.plan_tier,
+                                    logo_url: logoUrl,
+                                    primary_color: primaryColor,
+                                    owner_id: clinic.owner_id,
+                                    owner_name: clinic.owner_name,
+                                    owner_email: clinic.owner_email,
+                                    max_users: clinic.max_users,
+                                    max_patients: clinic.max_patients,
+                                    total_users: clinic.total_users,
+                                    total_leads: clinic.total_leads,
+                                    total_patients: clinic.total_patients,
+                                    user_progress: Math.round(userProgress),
+                                    patient_progress: Math.round(patientProgress),
+                                    near_user_limit: nearUserLimit,
+                                    near_patient_limit: nearPatientLimit,
+                                    trial: trialInfo,
+                                    subscription_started_at: clinic.subscription_started_at,
+                                    subscription_ends_at: clinic.subscription_ends_at,
+                                    created_at: clinic.created_at,
+                                    updated_at: clinic.updated_at,
+                                },
+                                user: {
+                                    id: user.userId,
+                                    name: user.name,
+                                    role: user.role,
+                                    is_owner: user.isOwner,
+                                },
+                            });
+                        }
+                    );
                 }
             );
         } catch (error: any) {

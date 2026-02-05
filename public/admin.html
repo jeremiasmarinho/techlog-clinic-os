@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/themes.css">
+    <!-- themes.css será incluído no final do head para ter precedência -->
     <style>
         * {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -487,7 +487,149 @@
         [data-theme="light"] #editModal input[type="datetime-local"]::-webkit-calendar-picker-indicator {
             filter: none;
         }
+        
+        /* Flatpickr Custom Theme - Dark Medical */
+        .flatpickr-calendar {
+            background: #0f172a !important;
+            border: 1px solid rgba(6, 182, 212, 0.3) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5) !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        .flatpickr-months {
+            background: linear-gradient(135deg, #0891b2, #0d9488) !important;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 8px !important;
+        }
+        .flatpickr-months .flatpickr-month {
+            color: white !important;
+            fill: white !important;
+        }
+        .flatpickr-current-month {
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+        }
+        .flatpickr-current-month .flatpickr-monthDropdown-months {
+            background: transparent !important;
+            color: white !important;
+            font-weight: 600 !important;
+        }
+        .flatpickr-current-month input.cur-year {
+            color: white !important;
+            font-weight: 600 !important;
+        }
+        .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-months .flatpickr-next-month {
+            color: white !important;
+            fill: white !important;
+        }
+        .flatpickr-months .flatpickr-prev-month:hover,
+        .flatpickr-months .flatpickr-next-month:hover {
+            color: #fef08a !important;
+            fill: #fef08a !important;
+        }
+        .flatpickr-weekdays {
+            background: #1e293b !important;
+        }
+        .flatpickr-weekday {
+            color: #06b6d4 !important;
+            font-weight: 600 !important;
+            font-size: 0.8rem !important;
+        }
+        .flatpickr-days {
+            background: #0f172a !important;
+        }
+        .flatpickr-day {
+            color: #e2e8f0 !important;
+            border-radius: 8px !important;
+            font-weight: 500 !important;
+        }
+        .flatpickr-day:hover {
+            background: #0891b2 !important;
+            border-color: #0891b2 !important;
+            color: white !important;
+        }
+        .flatpickr-day.selected,
+        .flatpickr-day.selected:hover {
+            background: linear-gradient(135deg, #0891b2, #0d9488) !important;
+            border-color: #06b6d4 !important;
+            color: white !important;
+            font-weight: 700 !important;
+        }
+        .flatpickr-day.today {
+            border-color: #fbbf24 !important;
+            color: #fbbf24 !important;
+        }
+        .flatpickr-day.today:hover {
+            background: #fbbf24 !important;
+            color: #0f172a !important;
+        }
+        .flatpickr-day.prevMonthDay,
+        .flatpickr-day.nextMonthDay {
+            color: #475569 !important;
+        }
+        .flatpickr-time {
+            background: #1e293b !important;
+            border-top: 1px solid rgba(6, 182, 212, 0.2) !important;
+            border-radius: 0 0 12px 12px !important;
+        }
+        .flatpickr-time input {
+            color: white !important;
+            font-size: 1.5rem !important;
+            font-weight: 600 !important;
+        }
+        .flatpickr-time .flatpickr-time-separator {
+            color: #06b6d4 !important;
+            font-weight: 700 !important;
+        }
+        .flatpickr-time .flatpickr-am-pm {
+            color: white !important;
+            background: #0891b2 !important;
+            border-radius: 6px !important;
+        }
+        .numInputWrapper:hover {
+            background: rgba(6, 182, 212, 0.1) !important;
+        }
+        .numInputWrapper span {
+            border-color: #475569 !important;
+        }
+        .numInputWrapper span:hover {
+            background: #0891b2 !important;
+        }
+        .numInputWrapper span svg path {
+            fill: #94a3b8 !important;
+        }
+        .numInputWrapper span:hover svg path {
+            fill: white !important;
+        }
+        
+        /* Light mode Flatpickr adjustments */
+        [data-theme="light"] .flatpickr-calendar {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        [data-theme="light"] .flatpickr-weekdays {
+            background: #f8fafc !important;
+        }
+        [data-theme="light"] .flatpickr-days {
+            background: #ffffff !important;
+        }
+        [data-theme="light"] .flatpickr-day {
+            color: #1e293b !important;
+        }
+        [data-theme="light"] .flatpickr-day.prevMonthDay,
+        [data-theme="light"] .flatpickr-day.nextMonthDay {
+            color: #94a3b8 !important;
+        }
+        [data-theme="light"] .flatpickr-time {
+            background: #f8fafc !important;
+        }
+        [data-theme="light"] .flatpickr-time input {
+            color: #0f172a !important;
+        }
     </style>
+    <!-- themes.css DEVE vir por último para sobrescrever estilos inline -->
+    <link rel="stylesheet" href="/css/themes.css">
     <script>
         tailwind.config = {
             theme: {
@@ -499,6 +641,11 @@
             }
         }
     </script>
+    <!-- Flatpickr - Modern Date/Time Picker -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+    
     <script src="./js/theme-manager.js"></script>
     <script src="./js/components/sidebar.js"></script>
     <script src="./js/components/clinic-header.js"></script>
@@ -716,28 +863,67 @@
                         >
                     </div>
 
-                    <!-- Appointment Date & Time -->
+                    <!-- Appointment Date & Time - Modern Picker -->
                     <div class="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 border-2 border-cyan-600/30 rounded-xl p-5 shadow-lg">
-                        <label for="editAppointmentDate" class="block text-base font-bold text-cyan-300 mb-3">
+                        <label class="block text-base font-bold text-cyan-300 mb-4">
                             <i class="fas fa-calendar-alt mr-2"></i>Data e Horário do Agendamento
                         </label>
-                        <div class="relative">
-                            <input 
-                                type="datetime-local" 
-                                id="editAppointmentDate" 
-                                class="w-full px-4 py-4 bg-slate-900 border-2 border-cyan-700 rounded-lg text-white text-lg font-medium focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/30 transition-all duration-200 cursor-pointer hover:bg-slate-800"
-                                placeholder="DD/MM/AAAA - HH:MM"
-                            >
+                        
+                        <!-- Date and Time in separate fields -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Date Field -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">
+                                    <i class="fas fa-calendar mr-1"></i> Data
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        id="editAppointmentDatePicker" 
+                                        class="w-full px-4 py-4 bg-slate-900 border-2 border-cyan-700/50 rounded-xl text-white text-lg font-semibold focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/30 transition-all duration-200 cursor-pointer hover:bg-slate-800 hover:border-cyan-600 text-center"
+                                        placeholder="Selecionar data"
+                                        readonly
+                                    >
+                                    <i class="fas fa-calendar-day absolute right-4 top-1/2 -translate-y-1/2 text-cyan-400 text-lg pointer-events-none"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Time Field -->
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">
+                                    <i class="fas fa-clock mr-1"></i> Horário
+                                </label>
+                                <div class="relative">
+                                    <input 
+                                        type="text" 
+                                        id="editAppointmentTimePicker" 
+                                        class="w-full px-4 py-4 bg-slate-900 border-2 border-cyan-700/50 rounded-xl text-white text-lg font-semibold focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/30 transition-all duration-200 cursor-pointer hover:bg-slate-800 hover:border-cyan-600 text-center"
+                                        placeholder="Selecionar hora"
+                                        readonly
+                                    >
+                                    <i class="fas fa-clock absolute right-4 top-1/2 -translate-y-1/2 text-cyan-400 text-lg pointer-events-none"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mt-3 bg-cyan-950/40 border border-cyan-700/40 rounded-lg p-3">
-                            <p class="text-sm text-cyan-200 font-medium mb-2">
-                                <i class="fas fa-info-circle mr-2"></i>
-                                <span class="font-bold">Clique no campo acima para editar:</span>
-                            </p>
-                            <ul class="ml-6 space-y-1 text-sm text-slate-300">
-                                <li><strong class="text-cyan-300">Data:</strong> Escolha o dia no calendário</li>
-                                <li><strong class="text-cyan-300">Horário:</strong> Defina hora e minutos</li>
-                            </ul>
+                        
+                        <!-- Hidden field for form submission (keeps datetime-local format) -->
+                        <input type="hidden" id="editAppointmentDate">
+                        
+                        <!-- Quick Time Slots -->
+                        <div class="mt-4">
+                            <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wide">
+                                <i class="fas fa-bolt mr-1"></i> Horários Rápidos
+                            </label>
+                            <div class="grid grid-cols-4 gap-2" id="quickTimeSlots">
+                                <button type="button" class="quick-time-btn px-3 py-2 bg-slate-800 hover:bg-cyan-700 border border-slate-600 hover:border-cyan-500 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-all" data-time="08:00">08:00</button>
+                                <button type="button" class="quick-time-btn px-3 py-2 bg-slate-800 hover:bg-cyan-700 border border-slate-600 hover:border-cyan-500 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-all" data-time="09:00">09:00</button>
+                                <button type="button" class="quick-time-btn px-3 py-2 bg-slate-800 hover:bg-cyan-700 border border-slate-600 hover:border-cyan-500 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-all" data-time="10:00">10:00</button>
+                                <button type="button" class="quick-time-btn px-3 py-2 bg-slate-800 hover:bg-cyan-700 border border-slate-600 hover:border-cyan-500 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-all" data-time="11:00">11:00</button>
+                                <button type="button" class="quick-time-btn px-3 py-2 bg-slate-800 hover:bg-cyan-700 border border-slate-600 hover:border-cyan-500 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-all" data-time="14:00">14:00</button>
+                                <button type="button" class="quick-time-btn px-3 py-2 bg-slate-800 hover:bg-cyan-700 border border-slate-600 hover:border-cyan-500 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-all" data-time="15:00">15:00</button>
+                                <button type="button" class="quick-time-btn px-3 py-2 bg-slate-800 hover:bg-cyan-700 border border-slate-600 hover:border-cyan-500 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-all" data-time="16:00">16:00</button>
+                                <button type="button" class="quick-time-btn px-3 py-2 bg-slate-800 hover:bg-cyan-700 border border-slate-600 hover:border-cyan-500 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition-all" data-time="17:00">17:00</button>
+                            </div>
                         </div>
                     </div>
 

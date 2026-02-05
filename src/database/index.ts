@@ -689,6 +689,15 @@ function ensureUserClinicColumns(): void {
                 }
             });
         }
+        if (!columns.includes('preferences')) {
+            db.run("ALTER TABLE users ADD COLUMN preferences TEXT DEFAULT '{}'", (prefErr) => {
+                if (prefErr) {
+                    console.warn('⚠️ Falha ao adicionar preferences em users:', prefErr.message);
+                } else {
+                    console.log('✅ Coluna preferences adicionada em users');
+                }
+            });
+        }
 
         db.run('CREATE INDEX IF NOT EXISTS idx_users_clinic ON users(clinic_id)');
         db.run('CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)');

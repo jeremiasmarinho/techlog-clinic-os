@@ -410,6 +410,42 @@
         let searchTimeout = null;
 
         // ============================================
+        // FORMAT TYPE - Convert snake_case to human readable
+        // ============================================
+        function formatType(type) {
+            if (!type) return '-';
+            
+            const typeMap = {
+                'primeira_consulta': '1ª Consulta',
+                'retorno': 'Retorno',
+                'consulta': 'Consulta',
+                'exame': 'Exame',
+                'procedimento': 'Procedimento',
+                'avaliacao': 'Avaliação',
+                'avaliação': 'Avaliação',
+                'recorrente': 'Sessão/Recorrente',
+                'sessao': 'Sessão',
+                'sessão': 'Sessão',
+                'urgencia': 'Urgência',
+                'urgência': 'Urgência',
+                'checkup': 'Check-up',
+                'rotina': 'Rotina',
+                'emergencia': 'Emergência',
+                'geral': 'Geral'
+            };
+            
+            const normalized = type.toLowerCase().trim();
+            if (typeMap[normalized]) {
+                return typeMap[normalized];
+            }
+            
+            // Fallback: convert snake_case to Title Case
+            return type
+                .replace(/[_-]/g, ' ')
+                .replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        // ============================================
         // AUTH
         // ============================================
         function getToken() {
@@ -672,7 +708,7 @@
                                 <span class="px-2 py-0.5 rounded text-xs ${statusBadge}">
                                     ${statusIcon}${statusLabel}
                                 </span>
-                                ${item.type ? `<span class="text-slate-500 text-xs"><i class="fa-solid fa-tag mr-1"></i>${item.type}</span>` : ''}
+                                ${item.type ? `<span class="text-slate-500 text-xs"><i class="fa-solid fa-tag mr-1"></i>${formatType(item.type)}</span>` : ''}
                             </div>
                         </div>
                         
@@ -846,7 +882,7 @@
                         </div>
                         <div>
                             <p class="text-slate-500 text-sm">Tipo</p>
-                            <p class="text-white">${item.type || '-'}</p>
+                            <p class="text-white">${formatType(item.type)}</p>
                         </div>
                         <div>
                             <p class="text-slate-500 text-sm">Origem</p>

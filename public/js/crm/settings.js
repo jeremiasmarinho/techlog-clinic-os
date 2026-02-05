@@ -339,13 +339,32 @@ function closeNewUserModal() {
 async function handleCreateUser(event) {
     event.preventDefault();
 
-    const name = document.getElementById('userName').value.trim();
-    const email = document.getElementById('userEmail').value.trim();
-    const password = document.getElementById('userPassword').value;
-    const passwordConfirm = document.getElementById('userPasswordConfirm').value;
-    const isAdmin = document.getElementById('userIsAdmin').checked;
+    // Get form elements - using unique IDs to avoid conflict with sidebar
+    const nameEl = document.getElementById('newUserName');
+    const emailEl = document.getElementById('newUserEmail');
+    const passwordEl = document.getElementById('newUserPassword');
+    const passwordConfirmEl = document.getElementById('newUserPasswordConfirm');
+    const isAdminEl = document.getElementById('newUserIsAdmin');
+
+    // Validate elements exist
+    if (!nameEl || !emailEl || !passwordEl || !passwordConfirmEl) {
+        showFormError('Erro interno: elementos do formulário não encontrados');
+        return;
+    }
+
+    // Safe value extraction
+    const name = (nameEl.value || '').trim();
+    const email = (emailEl.value || '').trim();
+    const password = passwordEl.value || '';
+    const passwordConfirm = passwordConfirmEl.value || '';
+    const isAdmin = isAdminEl ? isAdminEl.checked : false;
 
     // Validation
+    if (!name || !email || !password) {
+        showFormError('Preencha todos os campos obrigatórios');
+        return;
+    }
+
     if (password !== passwordConfirm) {
         showFormError('As senhas não coincidem');
         return;
@@ -357,9 +376,11 @@ async function handleCreateUser(event) {
     }
 
     const submitBtn = document.getElementById('submitBtn');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Criando...';
+    const originalText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Criando...';
+    }
 
     try {
         const response = await fetch('/api/users', {
@@ -392,8 +413,10 @@ async function handleCreateUser(event) {
         console.error('❌ Erro ao criar usuário:', error);
         showFormError(error.message);
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }
     }
 }
 
@@ -520,13 +543,6 @@ async function loadClinicSettings() {
             document.getElementById('clinicPhone').value = settings.identity.phone || '';
             document.getElementById('clinicAddress').value = settings.identity.address || '';
 
-            // Theme mode
-            const themeMode = settings.identity.themeMode || 'dark';
-            const themeRadio = document.querySelector(
-                `input[name="themeMode"][value="${themeMode}"]`
-            );
-            if (themeRadio) themeRadio.checked = true;
-
             if (settings.identity.logo) {
                 currentLogoUrl = settings.identity.logo;
                 displayLogo(settings.identity.logo);
@@ -644,6 +660,32 @@ async function saveClinicSettings() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Salvando...';
 
+        // If there's a new logo file, upload it first via PATCH
+        if (currentLogoFile) {
+            console.log('📤 Uploading new logo file...');
+            const formData = new FormData();
+            formData.append('logo', currentLogoFile);
+            formData.append('name', document.getElementById('clinicName').value.trim());
+            formData.append('address', document.getElementById('clinicAddress').value.trim());
+
+            const uploadResponse = await fetch('/api/clinic/settings', {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
+
+            if (uploadResponse.ok) {
+                const uploadData = await uploadResponse.json();
+                currentLogoUrl = uploadData.logo_url || currentLogoUrl;
+                currentLogoFile = null; // Clear the file reference
+                console.log('✅ Logo uploaded:', currentLogoUrl);
+            } else {
+                console.error('❌ Failed to upload logo');
+            }
+        }
+
         // Gather working days
         const workingDays = [];
         ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'].forEach((day) => {
@@ -653,17 +695,12 @@ async function saveClinicSettings() {
             }
         });
 
-        // Get theme mode
-        const themeModeRadio = document.querySelector('input[name="themeMode"]:checked');
-        const themeMode = themeModeRadio ? themeModeRadio.value : 'dark';
-
-        // Build payload
+        // Build payload - use the uploaded logo URL
         const payload = {
             identity: {
                 name: document.getElementById('clinicName').value.trim(),
                 phone: document.getElementById('clinicPhone').value.trim(),
                 address: document.getElementById('clinicAddress').value.trim(),
-                themeMode: themeMode,
                 logo: currentLogoUrl,
             },
             hours: {
@@ -733,12 +770,18 @@ async function saveClinicSettings() {
         // ============================================
         try {
             localStorage.removeItem('clinicSettings');
+            sessionStorage.removeItem('clinicLogoUrl');
             console.log('🗑️ Cache de configurações limpo');
         } catch (e) {
             console.error('Erro ao limpar cache:', e);
         }
 
-        showNotification('✅ Configurações salvas com sucesso!', 'success');
+        showNotification('✅ Configurações salvas! Recarregando...', 'success');
+
+        // Recarregar página após 1 segundo para aplicar alterações
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     } catch (error) {
         console.error('❌ Erro ao salvar configurações:', error);
         showNotification(`❌ ${error.message}`, 'error');
@@ -754,39 +797,73 @@ async function saveClinicSettings() {
 // ============================================
 
 function handleLogoUpload(event) {
+    console.log('🖼️ handleLogoUpload chamado', event);
     const file = event.target.files[0];
+    console.log('📁 Arquivo selecionado:', file);
 
-    if (!file) return;
+    if (!file) {
+        console.log('❌ Nenhum arquivo selecionado');
+        return;
+    }
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
+        console.log('❌ Tipo inválido:', file.type);
         alert('Por favor, selecione uma imagem válida (PNG, JPG)');
         return;
     }
 
     // Validate file size (2MB)
     if (file.size > 2 * 1024 * 1024) {
+        console.log('❌ Arquivo muito grande:', file.size);
         alert('A imagem deve ter no máximo 2MB');
         return;
     }
 
+    console.log('✅ Arquivo válido, convertendo para base64...');
     currentLogoFile = file;
-    const previewUrl = URL.createObjectURL(file);
-    currentLogo = previewUrl;
-    displayLogo(previewUrl);
+
+    // Convert to base64 for preview and storage
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const base64 = e.target.result;
+        console.log('✅ Base64 gerado, tamanho:', base64.length);
+        currentLogo = base64;
+        currentLogoUrl = base64; // Store base64 for saving
+        displayLogo(base64);
+        console.log('✅ Logo exibida');
+    };
+    reader.onerror = function (e) {
+        console.error('❌ Erro ao ler arquivo:', e);
+    };
+    reader.readAsDataURL(file);
 }
 
-function displayLogo(base64) {
+function displayLogo(src) {
     const logoImage = document.getElementById('logoImage');
     const logoIcon = document.getElementById('logoIcon');
 
-    logoImage.src = base64;
+    console.log('🖼️ displayLogo chamado, src length:', src?.length);
+    console.log('🖼️ logoImage:', logoImage);
+    console.log('🖼️ logoIcon:', logoIcon);
+
+    if (!logoImage || !logoIcon) {
+        console.error('❌ Elementos de logo não encontrados!');
+        return;
+    }
+
+    // Force image update
+    logoImage.src = '';
+    logoImage.src = src;
     logoImage.classList.remove('hidden');
     logoIcon.classList.add('hidden');
+
+    console.log('🖼️ Logo src atualizado:', logoImage.src.substring(0, 50));
+    console.log('🖼️ Logo classes:', logoImage.className);
 }
 
 // ============================================
-// Identity Visual (Multipart)
+// Identity Visual (Multipart) - Mantido para compatibilidade
 // ============================================
 
 async function saveClinicIdentity() {
@@ -794,13 +871,10 @@ async function saveClinicIdentity() {
         const formData = new FormData();
         const name = document.getElementById('clinicName').value.trim();
         const address = document.getElementById('clinicAddress').value.trim();
-        const themeModeRadio = document.querySelector('input[name="themeMode"]:checked');
-        const themeMode = themeModeRadio ? themeModeRadio.value : 'dark';
         const logoInput = document.getElementById('logoInput');
 
         formData.append('name', name);
         formData.append('address', address);
-        formData.append('themeMode', themeMode);
 
         if (logoInput?.files?.[0]) {
             formData.append('logo', logoInput.files[0]);
@@ -831,7 +905,6 @@ async function saveClinicIdentity() {
         if (logoUrl) {
             sessionStorage.setItem('clinicLogoUrl', logoUrl);
         }
-        sessionStorage.setItem('clinicThemeMode', data.theme_mode || themeMode);
 
         const headerName = document.getElementById('clinicHeaderName');
         if (headerName) {
@@ -996,3 +1069,15 @@ function renderSpecialtiesTags() {
 window.addSpecialty = addSpecialty;
 window.removeSpecialty = removeSpecialty;
 window.switchTab = switchTab;
+window.handleLogoUpload = handleLogoUpload;
+window.displayLogo = displayLogo;
+window.openNewUserModal = openNewUserModal;
+window.closeNewUserModal = closeNewUserModal;
+window.handleCreateUser = handleCreateUser;
+window.deleteUser = deleteUser;
+window.filterUsers = filterUsers;
+window.addInsurance = addInsurance;
+window.removeInsurance = removeInsurance;
+window.saveClinicSettings = saveClinicSettings;
+window.requestUpgrade = requestUpgrade;
+window.logout = logout;

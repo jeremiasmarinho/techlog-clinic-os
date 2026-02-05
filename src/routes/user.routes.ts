@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/UserController';
+import { UserPreferencesController } from '../controllers/UserPreferencesController';
 import { tenantMiddleware, ensureClinicAdmin } from '../middleware/tenant.middleware';
 import { auditLogger } from '../middleware/audit.middleware';
 
@@ -21,5 +22,9 @@ router.delete(
 
 // Perfil do usuário logado
 router.patch('/users/profile', tenantMiddleware, auditLogger, UserController.updateProfile);
+
+// Preferências do usuário logado (tema, etc.)
+router.get('/user/preferences', tenantMiddleware, UserPreferencesController.getPreferences);
+router.patch('/user/preferences', tenantMiddleware, UserPreferencesController.updatePreferences);
 
 export default router;

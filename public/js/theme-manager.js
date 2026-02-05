@@ -21,15 +21,24 @@ const ThemeManager = {
     /**
      * Inicializa o tema baseado na preferência salva ou do sistema
      */
-    init() {
-        const savedTheme = localStorage.getItem(this.STORAGE_KEY);
+    async init() {
+        // Primeiro tenta carregar do backend (preferência do usuário)
+        const backendTheme = await this.loadFromBackend();
 
-        if (savedTheme) {
-            this.setTheme(savedTheme);
+        if (backendTheme) {
+            this.setTheme(backendTheme);
+            localStorage.setItem(this.STORAGE_KEY, backendTheme);
         } else {
-            // Detecta preferência do sistema
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            this.setTheme(prefersDark ? this.THEMES.DARK : this.THEMES.DARK); // Default dark
+            // Fallback para localStorage
+            const savedTheme = localStorage.getItem(this.STORAGE_KEY);
+
+            if (savedTheme) {
+                this.setTheme(savedTheme);
+            } else {
+                // Detecta preferência do sistema
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                this.setTheme(prefersDark ? this.THEMES.DARK : this.THEMES.DARK); // Default dark
+            }
         }
 
         // Escuta mudanças na preferência do sistema
@@ -77,8 +86,57 @@ const ThemeManager = {
         const newTheme = current === this.THEMES.DARK ? this.THEMES.LIGHT : this.THEMES.DARK;
         this.setTheme(newTheme);
 
+        // Salvar preferência no backend
+        this.saveToBackend(newTheme);
+
         // Feedback visual
         this.showToast(newTheme === this.THEMES.LIGHT ? '☀️ Modo Claro' : '🌙 Modo Escuro');
+    },
+
+    /**
+     * Salva preferência de tema no backend (para o usuário logado)
+     */
+    async saveToBackend(theme) {
+        try {
+            const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+            if (!token) return; // Não logado
+
+            await fetch('/api/user/preferences', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ theme }),
+            });
+            console.log('✅ Preferência de tema salva no servidor');
+        } catch (error) {
+            console.error('Erro ao salvar preferência de tema:', error);
+        }
+    },
+
+    /**
+     * Carrega preferência do backend
+     */
+    async loadFromBackend() {
+        try {
+            const token = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
+            if (!token) return null;
+
+            const response = await fetch('/api/user/preferences', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                return data.theme || null;
+            }
+        } catch (error) {
+            console.error('Erro ao carregar preferência de tema:', error);
+        }
+        return null;
     },
 
     /**

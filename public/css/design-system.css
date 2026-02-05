@@ -177,122 +177,128 @@
 }
 
 /* ============================================
-   TEMA LIGHT
+   TEMA LIGHT - Design Moderno Healthcare
+   Inspirado em: Aetna CRM, Oscar Health, Medical SaaS
    ============================================ */
 [data-theme="light"] {
-  /* ---- Cores de fundo ---- */
-  --bg-primary: #f8fafc;
+  /* ---- Cores de fundo - Tons suaves e acolhedores ---- */
+  --bg-primary: #f0f4f8;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f5f9;
-  --bg-card: rgba(255, 255, 255, 0.95);
+  --bg-tertiary: #e8eef4;
+  --bg-card: rgba(255, 255, 255, 0.98);
   --bg-card-solid: #ffffff;
-  --bg-hover: rgba(241, 245, 249, 0.8);
+  --bg-hover: rgba(8, 145, 178, 0.06);
   --bg-input: #ffffff;
 
   /* ---- Cores de texto ---- */
-  --text-primary: #0f172a;
-  --text-secondary: #1e293b;
-  --text-muted: #64748b;
-  --text-placeholder: #94a3b8;
-  --text-inverse: #f8fafc;
+  --text-primary: #1a2b3d;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-placeholder: #9ca3af;
+  --text-inverse: #ffffff;
 
   /* ---- Bordas ---- */
-  --border-default: rgba(203, 213, 225, 0.8);
-  --border-subtle: rgba(203, 213, 225, 0.5);
-  --border-strong: #cbd5e1;
+  --border-default: rgba(203, 213, 225, 0.6);
+  --border-subtle: rgba(203, 213, 225, 0.4);
+  --border-strong: #d1d5db;
   --border-focus: #0891b2;
 
-  /* ---- Cor principal (Cyan) - mais escura para contraste ---- */
+  /* ---- Cor principal - Teal/Cyan médico moderno ---- */
   --primary: #0891b2;
   --primary-hover: #0e7490;
   --primary-active: #155e75;
-  --primary-light: rgba(8, 145, 178, 0.12);
-  --primary-glow: rgba(8, 145, 178, 0.3);
+  --primary-light: rgba(8, 145, 178, 0.10);
+  --primary-glow: rgba(8, 145, 178, 0.25);
 
   /* ---- Cores secundárias ---- */
-  --secondary: #64748b;
-  --secondary-hover: #475569;
-  --secondary-active: #334155;
-  --secondary-light: rgba(100, 116, 139, 0.12);
+  --secondary: #6b7280;
+  --secondary-hover: #4b5563;
+  --secondary-active: #374151;
+  --secondary-light: rgba(107, 114, 128, 0.10);
 
-  /* ---- Cores de status - ajustadas para light ---- */
-  --success: #16a34a;
-  --success-hover: #15803d;
-  --success-active: #166534;
-  --success-light: rgba(22, 163, 74, 0.12);
-  --success-glow: rgba(22, 163, 74, 0.3);
+  /* ---- Cores de status - Modernas e vibrantes ---- */
+  --success: #059669;
+  --success-hover: #047857;
+  --success-active: #065f46;
+  --success-light: rgba(5, 150, 105, 0.10);
+  --success-glow: rgba(5, 150, 105, 0.25);
 
   --warning: #d97706;
   --warning-hover: #b45309;
   --warning-active: #92400e;
-  --warning-light: rgba(217, 119, 6, 0.12);
-  --warning-glow: rgba(217, 119, 6, 0.3);
+  --warning-light: rgba(217, 119, 6, 0.10);
+  --warning-glow: rgba(217, 119, 6, 0.25);
 
   --danger: #dc2626;
   --danger-hover: #b91c1c;
   --danger-active: #991b1b;
-  --danger-light: rgba(220, 38, 38, 0.12);
-  --danger-glow: rgba(220, 38, 38, 0.3);
+  --danger-light: rgba(220, 38, 38, 0.10);
+  --danger-glow: rgba(220, 38, 38, 0.25);
 
   --info: #2563eb;
   --info-hover: #1d4ed8;
   --info-active: #1e40af;
-  --info-light: rgba(37, 99, 235, 0.12);
-  --info-glow: rgba(37, 99, 235, 0.3);
+  --info-light: rgba(37, 99, 235, 0.10);
+  --info-glow: rgba(37, 99, 235, 0.25);
 
   --orange: #ea580c;
   --orange-hover: #c2410c;
   --orange-active: #9a3412;
-  --orange-light: rgba(234, 88, 12, 0.12);
+  --orange-light: rgba(234, 88, 12, 0.10);
 
-  --purple: #9333ea;
-  --purple-hover: #7c3aed;
-  --purple-active: #6d28d9;
-  --purple-light: rgba(147, 51, 234, 0.12);
+  --purple: #7c3aed;
+  --purple-hover: #6d28d9;
+  --purple-active: #5b21b6;
+  --purple-light: rgba(124, 58, 237, 0.10);
 
   --teal: #0d9488;
   --teal-hover: #0f766e;
   --teal-active: #115e59;
-  --teal-light: rgba(13, 148, 136, 0.12);
+  --teal-light: rgba(13, 148, 136, 0.10);
 
   --pink: #db2777;
   --pink-hover: #be185d;
   --pink-active: #9d174d;
-  --pink-light: rgba(219, 39, 119, 0.12);
+  --pink-light: rgba(219, 39, 119, 0.10);
 
-  /* ---- Glass Effect ---- */
-  --glass-bg: rgba(255, 255, 255, 0.9);
-  --glass-border: rgba(203, 213, 225, 0.6);
+  /* ---- Glass Effect - Mais sutil no light ---- */
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(203, 213, 225, 0.5);
+  --glass-blur: blur(12px);
 
-  /* ---- Sombras - mais suaves ---- */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12);
+  /* ---- Sombras - Profissionais e modernas ---- */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 6px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.10), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 20px var(--primary-glow), 0 4px 12px rgba(8, 145, 178, 0.15);
 
-  /* ---- Sidebar ---- */
+  /* ---- Sidebar - Clean e moderno ---- */
   --sidebar-bg: #ffffff;
-  --sidebar-border: rgba(203, 213, 225, 0.5);
+  --sidebar-border: rgba(203, 213, 225, 0.4);
   --sidebar-item-hover: rgba(8, 145, 178, 0.08);
-  --sidebar-item-active: rgba(8, 145, 178, 0.15);
+  --sidebar-item-active: rgba(8, 145, 178, 0.12);
 
   /* ---- Modal ---- */
-  --modal-overlay: rgba(0, 0, 0, 0.4);
+  --modal-overlay: rgba(26, 43, 61, 0.4);
   --modal-bg: #ffffff;
 
   /* ---- Scrollbar ---- */
-  --scrollbar-bg: #f1f5f9;
+  --scrollbar-bg: #f0f4f8;
   --scrollbar-thumb: #cbd5e1;
   --scrollbar-thumb-hover: #94a3b8;
 
   /* ---- Tabela ---- */
-  --table-header-bg: #f1f5f9;
-  --table-row-hover: rgba(241, 245, 249, 0.8);
-  --table-row-alt: rgba(248, 250, 252, 0.8);
+  --table-header-bg: #f8fafc;
+  --table-row-hover: rgba(8, 145, 178, 0.04);
+  --table-row-alt: #fafbfc;
 
-  /* ---- Gradientes ---- */
-  --gradient-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  /* ---- Gradientes - Sutis e modernos ---- */
+  --gradient-bg: linear-gradient(145deg, #f0f4f8 0%, #e8eef4 50%, #f0f4f8 100%);
+  --gradient-primary: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  --gradient-success: linear-gradient(135deg, #059669 0%, #047857 100%);
+  --gradient-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
 
