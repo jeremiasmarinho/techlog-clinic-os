@@ -951,6 +951,9 @@ function createLeadCard(lead) {
     let typeBadge = '';
     let consultaDetails = '';
 
+    // Normaliza o tipo para comparação (lowercase)
+    const normalizedType = (lead.type || '').toLowerCase().trim();
+
     // Novo formato: "Consulta - Especialidade - Plano/Particular - Período - Dias"
     if (lead.type && lead.type.startsWith('Consulta - ')) {
         const parts = lead.type.split(' - ');
@@ -972,25 +975,48 @@ function createLeadCard(lead) {
         `;
     }
     // Formatos antigos e outros tipos
-    else if (lead.type === 'primeira_consulta') {
+    else if (normalizedType === 'primeira_consulta' || normalizedType === 'primeira consulta') {
         typeBadge =
             '<span class="px-2 py-0.5 rounded text-xs font-bold bg-yellow-400 text-gray-900 border border-yellow-500"><i class="fas fa-star mr-1"></i>Primeira Consulta</span>';
-    } else if (lead.type === 'retorno') {
+    } else if (normalizedType === 'retorno') {
         typeBadge =
             '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400"><i class="fas fa-undo mr-1"></i>Retorno</span>';
-    } else if (lead.type === 'recorrente') {
+    } else if (
+        normalizedType === 'recorrente' ||
+        normalizedType === 'sessão' ||
+        normalizedType === 'sessao'
+    ) {
         typeBadge =
             '<span class="px-2 py-0.5 rounded text-xs font-bold bg-indigo-400 text-white border border-indigo-500"><i class="fas fa-sync-alt mr-1"></i>Sessão/Recorrente</span>';
-    } else if (lead.type === 'Atendimento Humano') {
+    } else if (normalizedType === 'atendimento humano') {
         typeBadge =
             '<span class="px-2 py-0.5 rounded text-xs font-bold bg-pink-400 text-white border border-pink-500"><i class="fas fa-user-headset mr-1"></i>Atend. Humano</span>';
-    } else if (lead.type === 'Consulta') {
+    } else if (normalizedType === 'consulta') {
         typeBadge =
             '<span class="px-2 py-0.5 rounded text-xs font-bold bg-teal-400 text-white border border-teal-500"><i class="fas fa-stethoscope mr-1"></i>Consulta</span>';
-    } else {
+    } else if (normalizedType === 'avaliação' || normalizedType === 'avaliacao') {
         typeBadge =
-            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-gray-300 text-gray-900 border border-gray-400"><i class="fas fa-question mr-1"></i>' +
-            (lead.type || 'Geral') +
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-400 text-white border border-blue-500"><i class="fas fa-clipboard-check mr-1"></i>Avaliação</span>';
+    } else if (normalizedType === 'procedimento') {
+        typeBadge =
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-400 text-white border border-purple-500"><i class="fas fa-syringe mr-1"></i>Procedimento</span>';
+    } else if (normalizedType === 'exame') {
+        typeBadge =
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-cyan-400 text-white border border-cyan-500"><i class="fas fa-vial mr-1"></i>Exame</span>';
+    } else if (normalizedType === 'urgência' || normalizedType === 'urgencia') {
+        typeBadge =
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500 text-white border border-red-600"><i class="fas fa-ambulance mr-1"></i>Urgência</span>';
+    } else if (!lead.type || normalizedType === '' || normalizedType === 'geral') {
+        // Sem tipo definido - não mostrar badge
+        typeBadge = '';
+    } else {
+        // Tipo desconhecido - formatar e exibir
+        const formattedType = lead.type
+            .replace(/[_-]/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+        typeBadge =
+            '<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-400 text-white border border-slate-500"><i class="fas fa-tag mr-1"></i>' +
+            formattedType +
             '</span>';
     }
 

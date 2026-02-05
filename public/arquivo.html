@@ -1,19 +1,114 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arquivo - TechLog Clinic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/themes.css">
     <style>
-        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(71, 85, 105, 0.5); }
+        /* Dark mode background */
+        [data-theme="dark"] body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        
+        /* Light mode background */
+        [data-theme="light"] body { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+        
+        body { min-height: 100vh; }
+        
+        /* Dark glass card */
+        [data-theme="dark"] .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(71, 85, 105, 0.5); }
+        
+        /* Light glass card */
+        [data-theme="light"] .glass-card { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
         .status-badge { @apply px-2 py-1 rounded-full text-xs font-medium; }
-        .filter-btn { @apply px-4 py-2 rounded-lg font-medium transition-all duration-200; }
-        .filter-btn.active { @apply bg-cyan-500 text-white shadow-lg shadow-cyan-500/30; }
-        .filter-btn:not(.active) { @apply bg-slate-700 text-slate-300 hover:bg-slate-600; }
+        
+        /* Filter Buttons - Estilo de Pills/Chips */
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            cursor: pointer;
+        }
+        
+        /* Dark mode filter buttons */
+        [data-theme="dark"] .filter-btn {
+            background: rgba(51, 65, 85, 0.5);
+            color: #94a3b8;
+        }
+        [data-theme="dark"] .filter-btn:hover:not(.active) {
+            background: rgba(71, 85, 105, 0.7);
+            color: #e2e8f0;
+        }
+        
+        /* Light mode filter buttons */
+        [data-theme="light"] .filter-btn {
+            background: rgba(241, 245, 249, 0.8);
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        [data-theme="light"] .filter-btn:hover:not(.active) {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        
+        .filter-btn.active {
+            background: #06b6d4;
+            color: white;
+            border-color: #06b6d4;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+        }
+        .filter-btn.active i {
+            color: white !important;
+        }
+        
+        /* Variantes de cor para filtros específicos */
+        .filter-btn[data-filter="completed"].active {
+            background: #22c55e;
+            border-color: #22c55e;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        }
+        .filter-btn[data-filter="cancelled"].active {
+            background: #ef4444;
+            border-color: #ef4444;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+        .filter-btn[data-filter="no_show"].active {
+            background: #f97316;
+            border-color: #f97316;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+        }
+        
         .archive-card:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        
+        /* Light mode text overrides */
+        [data-theme="light"] .text-white { color: #0f172a !important; }
+        [data-theme="light"] .text-slate-200 { color: #334155 !important; }
+        [data-theme="light"] .text-slate-300 { color: #475569 !important; }
+        [data-theme="light"] .text-slate-400 { color: #64748b !important; }
+        [data-theme="light"] .text-cyan-400 { color: #0891b2 !important; }
+        [data-theme="light"] .bg-slate-700 { background: #e2e8f0 !important; }
+        [data-theme="light"] .bg-slate-800 { background: #f1f5f9 !important; }
+        [data-theme="light"] .border-slate-600 { border-color: #cbd5e1 !important; }
+        [data-theme="light"] .border-slate-700 { border-color: #e2e8f0 !important; }
+        
+        /* Archive cards light mode */
+        [data-theme="light"] .archive-card {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid rgba(148, 163, 184, 0.3) !important;
+        }
         
         /* Sidebar Styles */
         #sidebar {
@@ -100,6 +195,7 @@
             transition: transform 0.3s ease;
         }
     </style>
+    <script src="./js/theme-manager.js"></script>
     <script src="./js/components/sidebar.js"></script>
     <script src="./js/components/clinic-header.js"></script>
 </head>
@@ -132,18 +228,22 @@
             <!-- Row 1: Status Filters -->
             <div class="flex flex-wrap items-center gap-4 mb-4 pb-4 border-b border-slate-700">
                 <span class="text-slate-400 text-sm font-medium">Status:</span>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <button onclick="setFilter('all')" data-filter="all" class="filter-btn active">
-                        <i class="fa-solid fa-list mr-1"></i> Todos
+                        <i class="fa-solid fa-list-ul"></i>
+                        <span>Todos</span>
                     </button>
                     <button onclick="setFilter('completed')" data-filter="completed" class="filter-btn">
-                        <i class="fa-solid fa-check-circle mr-1 text-green-400"></i> Finalizados
+                        <i class="fa-solid fa-circle-check text-green-400"></i>
+                        <span>Finalizados</span>
                     </button>
                     <button onclick="setFilter('cancelled')" data-filter="cancelled" class="filter-btn">
-                        <i class="fa-solid fa-ban mr-1 text-red-400"></i> Cancelados
+                        <i class="fa-solid fa-circle-xmark text-red-400"></i>
+                        <span>Cancelados</span>
                     </button>
                     <button onclick="setFilter('no_show')" data-filter="no_show" class="filter-btn">
-                        <i class="fa-solid fa-user-slash mr-1 text-orange-400"></i> Não Veio
+                        <i class="fa-solid fa-user-xmark text-orange-400"></i>
+                        <span>Não Veio</span>
                     </button>
                 </div>
             </div>

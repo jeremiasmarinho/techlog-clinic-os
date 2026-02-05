@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,18 +7,48 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { corePlugins: { preflight: true } }</script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/themes.css">
     <link rel="stylesheet" href="/css/agenda-slots.css">
     <style>
-        body {
+        /* Dark Mode Background */
+        [data-theme="dark"] body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%);
+        }
+        
+        /* Light Mode Background */
+        [data-theme="light"] body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #ccfbf1 100%);
+        }
+        
+        body {
             min-height: 100vh;
         }
-        .glass-card {
+        
+        /* Dark glass card */
+        [data-theme="dark"] .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
+        /* Light glass card */
+        [data-theme="light"] .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Light mode text overrides for agenda */
+        [data-theme="light"] .text-white { color: #0f172a !important; }
+        [data-theme="light"] .text-slate-200 { color: #334155 !important; }
+        [data-theme="light"] .text-slate-300 { color: #475569 !important; }
+        [data-theme="light"] .text-slate-400 { color: #64748b !important; }
+        [data-theme="light"] .text-cyan-400 { color: #0891b2 !important; }
+        [data-theme="light"] .bg-slate-800\/50 { background: rgba(241, 245, 249, 0.8) !important; }
+        [data-theme="light"] .border-slate-700 { border-color: #e2e8f0 !important; }
         
         /* Modern Vertical Sidebar Styles */
         #sidebar { width: 5rem; }
@@ -50,6 +80,7 @@
             #mainContent { margin-left: 0; }
         }
     </style>
+    <script src="./js/theme-manager.js"></script>
     <script src="./js/components/sidebar.js"></script>
     <script src="./js/components/clinic-header.js"></script>
 </head>

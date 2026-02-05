@@ -211,8 +211,15 @@ class MedicalSidebar extends HTMLElement {
                         </a>
                     </nav>
 
-                    <!-- Logout -->
-                    <div class="px-3 pt-6 border-t border-slate-700/50">
+                    <!-- Theme Toggle & Logout -->
+                    <div class="px-3 pt-6 border-t border-slate-700/50 space-y-2">
+                        <!-- Theme Toggle Button -->
+                        <button onclick="ThemeManager.toggle()" class="sidebar-item hover:bg-cyan-500/20" title="Alternar tema claro/escuro">
+                            <i class="fas fa-sun" id="theme-icon-sun"></i>
+                            <i class="fas fa-moon hidden" id="theme-icon-moon"></i>
+                            <span>Tema</span>
+                        </button>
+                        
                         <button onclick="logout()" class="sidebar-item bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-600 hover:to-red-700">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Sair</span>
@@ -288,6 +295,22 @@ class MedicalSidebar extends HTMLElement {
         if (logoutBtn && typeof window.logout === 'function') {
             logoutBtn.removeAttribute('onclick');
             logoutBtn.addEventListener('click', () => window.logout());
+        }
+
+        // Initialize theme icons
+        this.updateThemeIcons();
+
+        // Listen for theme changes
+        window.addEventListener('themechange', () => this.updateThemeIcons());
+    }
+
+    updateThemeIcons() {
+        const sunIcon = this.querySelector('#theme-icon-sun');
+        const moonIcon = this.querySelector('#theme-icon-moon');
+        if (sunIcon && moonIcon) {
+            const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+            sunIcon.classList.toggle('hidden', !isDark);
+            moonIcon.classList.toggle('hidden', isDark);
         }
     }
 

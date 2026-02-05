@@ -2,47 +2,38 @@
 
 Este documento contém todas as credenciais de login disponíveis no sistema TechLog Clinic OS.
 
+> ⚠️ **Verificado em:** 05/02/2026 - Todas as credenciais abaixo foram testadas e estão funcionando.
+
 ---
 
 ## 🌐 Ambiente de Desenvolvimento/Teste
 
-### Super Admin (Acesso Total)
+### Admin Padrão (Clínica Demo)
 
-| Usuário      | Senha       | Role        | Descrição                    |
-| ------------ | ----------- | ----------- | ---------------------------- |
-| `superadmin` | `Mudar123!` | super_admin | Administrador global do SaaS |
-
-### Admin Padrão (Seed Principal)
-
-| Usuário | Senha       | Role         | Descrição                     |
-| ------- | ----------- | ------------ | ----------------------------- |
-| `admin` | `Mudar123!` | clinic_admin | Administrador da clínica demo |
-| `admin` | `123`       | admin        | (Seed antigo - force_seed)    |
-
-### Staff/Funcionários
-
-| Usuário      | Senha       | Role  | Descrição         |
-| ------------ | ----------- | ----- | ----------------- |
-| `joao.silva` | `Mudar123!` | staff | Funcionário/Staff |
+| Usuário | Senha       | Role         | Clínica        | Descrição                     |
+| ------- | ----------- | ------------ | -------------- | ----------------------------- |
+| `admin` | `Mudar123!` | clinic_admin | Clínica Padrão | Administrador da clínica demo |
 
 ---
 
 ## 🏥 Multi-Tenant (Clínicas Separadas)
 
+> **Nota:** Todas as senhas do multi-tenant são `Mudar123!`
+
 ### Clínica A - Clínica Viva (Plano Enterprise)
 
-| Usuário                  | Senha            | Role     | Descrição                  |
-| ------------------------ | ---------------- | -------- | -------------------------- |
-| `carlos@clinicaviva.com` | `clinica-a-2026` | admin    | Dr. Carlos Silva (Owner)   |
-| `maria@clinicaviva.com`  | `staff123`       | recepcao | Maria Santos (Recepção)    |
-| `joao@clinicaviva.com`   | `staff123`       | recepcao | João Oliveira (Assistente) |
+| Usuário                  | Senha       | Role     | Descrição                  |
+| ------------------------ | ----------- | -------- | -------------------------- |
+| `carlos@clinicaviva.com` | `Mudar123!` | admin    | Dr. Carlos Silva (Owner)   |
+| `maria@clinicaviva.com`  | `Mudar123!` | recepcao | Maria Santos (Recepção)    |
+| `joao@clinicaviva.com`   | `Mudar123!` | recepcao | João Oliveira (Assistente) |
 
 ### Clínica B - Saúde Total (Plano Basic)
 
-| Usuário                   | Senha            | Role     | Descrição                   |
-| ------------------------- | ---------------- | -------- | --------------------------- |
-| `patricia@saudetotal.com` | `clinica-b-2026` | admin    | Dra. Patricia Alves (Owner) |
-| `pedro@saudetotal.com`    | `staff123`       | recepcao | Pedro Costa (Atendente)     |
+| Usuário                   | Senha       | Role     | Descrição                   |
+| ------------------------- | ----------- | -------- | --------------------------- |
+| `patricia@saudetotal.com` | `Mudar123!` | admin    | Dra. Patricia Alves (Owner) |
+| `pedro@saudetotal.com`    | `Mudar123!` | recepcao | Pedro Costa (Atendente)     |
 
 ---
 
@@ -51,16 +42,12 @@ Este documento contém todas as credenciais de login disponíveis no sistema Tec
 Para execução de testes automatizados, use estas credenciais padrão:
 
 ```typescript
-// Credenciais válidas
+// Credenciais válidas (Admin)
 username: 'admin';
 password: 'Mudar123!';
 
-// Super Admin
-username: 'superadmin';
-password: 'Mudar123!';
-
-// Staff
-username: 'joao.silva';
+// Multi-tenant (qualquer usuário)
+username: 'carlos@clinicaviva.com';
 password: 'Mudar123!';
 ```
 
@@ -70,11 +57,24 @@ password: 'Mudar123!';
 
 Para testar autenticação via API:
 
-```javascript
-// diagnose-auth.js
-email: 'admin@medicalcrm.com';
-password: 'Mudar123!';
+```bash
+# Testar login via curl
+curl -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"Mudar123!"}'
 ```
+
+---
+
+## ✅ Validação de Credenciais
+
+Para garantir que as credenciais estão funcionando, execute:
+
+```bash
+npm run validate:logins
+```
+
+Este script testa todas as credenciais documentadas contra a API.
 
 ---
 
@@ -82,12 +82,11 @@ password: 'Mudar123!';
 
 | Role           | Permissões                                           |
 | -------------- | ---------------------------------------------------- |
-| `super_admin`  | Acesso total, gerencia todas as clínicas             |
 | `clinic_admin` | Admin da clínica, acesso completo na própria clínica |
 | `admin`        | Administrador (alias para clinic_admin)              |
 | `doctor`       | Médico, acesso a funcionalidades clínicas            |
-| `staff`        | Funcionário, acesso básico                           |
 | `recepcao`     | Recepção, gerencia leads e agendamentos              |
+| `staff`        | Funcionário, acesso básico                           |
 
 ---
 
@@ -103,26 +102,26 @@ password: 'Mudar123!';
 
 ## ⚠️ Notas Importantes
 
-1. **Ambiente de Produção**: As senhas acima são apenas para desenvolvimento/teste. Em produção, use
+1. **Fonte de verdade**: As credenciais estão centralizadas em
+   `shared/constants/seed-credentials.ts`
+
+2. **Ambiente de Produção**: As senhas acima são apenas para desenvolvimento/teste. Em produção, use
    senhas seguras.
 
-2. **Hash de Senha**: O sistema usa `bcrypt` para hash de senhas com salt rounds de 10.
+3. **Hash de Senha**: O sistema usa `bcrypt` para hash de senhas com salt rounds de 10.
 
-3. **JWT Token**: Após login, um token JWT é gerado com expiração configurável.
+4. **JWT Token**: Após login, um token JWT é gerado com expiração de 8 horas.
 
-4. **Seed Database**: Para popular o banco com dados de teste:
+5. **Seed Database**: Para popular o banco com dados de teste:
 
    ```bash
-   # Seed padrão
-   npm run db:seed
-
    # Seed multi-tenant
    npx ts-node scripts/seed_multi_tenant.ts
 
-   # Force seed (dados realistas)
-   npx ts-node scripts/force_seed.ts
+   # Validar credenciais
+   npm run validate:logins
    ```
 
 ---
 
-_Última atualização: Fevereiro 2026_
+_Última atualização: 05 de Fevereiro de 2026_

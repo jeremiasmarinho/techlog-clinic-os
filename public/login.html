@@ -1,17 +1,32 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acesso Restrito | Medical CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/themes.css">
     <style>
-        body { background: #0f172a; font-family: sans-serif; overflow: hidden; }
-        .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .input-glass { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); color: white; }
-        .input-glass:focus { border-color: #06b6d4; outline: none; background: rgba(0, 0, 0, 0.4); }
+        [data-theme="dark"] body { background: #0f172a; }
+        [data-theme="light"] body { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%); }
+        body { font-family: sans-serif; overflow: hidden; }
+        
+        /* Dark mode glass */
+        [data-theme="dark"] .glass-panel { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        [data-theme="dark"] .input-glass { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); color: white; }
+        [data-theme="dark"] .input-glass:focus { border-color: #06b6d4; outline: none; background: rgba(0, 0, 0, 0.4); }
+        
+        /* Light mode glass */
+        [data-theme="light"] .glass-panel { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(148, 163, 184, 0.3); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
+        [data-theme="light"] .input-glass { background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; }
+        [data-theme="light"] .input-glass:focus { border-color: #0891b2; outline: none; }
+        [data-theme="light"] .input-glass::placeholder { color: #94a3b8; }
+        [data-theme="light"] .text-white { color: #0f172a !important; }
+        [data-theme="light"] .text-gray-400 { color: #64748b !important; }
+        [data-theme="light"] .text-gray-500 { color: #94a3b8 !important; }
     </style>
+    <script src="./js/theme-manager.js"></script>
 </head>
 <body class="h-screen w-full flex items-center justify-center">
     <div class="glass-panel p-8 rounded-2xl w-full max-w-md mx-4 shadow-2xl">

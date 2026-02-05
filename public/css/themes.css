@@ -1,0 +1,238 @@
+/**
+ * 🎨 TECHLOG CLINIC - SISTEMA DE TEMAS
+ * 
+ * ⚠️ Este arquivo foi simplificado.
+ * O Design System completo está em /css/design-system.css
+ * 
+ * Este arquivo importa o design-system.css e mantém
+ * regras de compatibilidade com código Tailwind legado.
+ */
+
+/* Importa o Design System completo */
+@import url('/css/design-system.css');
+
+/* ============================================
+   AJUSTES DE COMPATIBILIDADE (LEGADO)
+   Remover conforme migrar as páginas
+   ============================================ */
+
+/* Compat: glass-card era usado antes */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-normal);
+}
+
+.glass-card:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Compat: themed-table */
+.themed-table thead {
+  background: var(--table-header-bg);
+}
+
+.themed-table tbody tr:hover {
+  background: var(--table-row-hover);
+}
+
+.themed-table tbody tr:nth-child(even) {
+  background: var(--table-row-alt);
+}
+
+/* Compat: .btn-primary sem .btn base */
+button.btn-primary:not(.btn),
+a.btn-primary:not(.btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+button.btn-primary:not(.btn):hover,
+a.btn-primary:not(.btn):hover {
+  background: var(--primary-hover);
+}
+
+/* ============================================
+   AJUSTES ESPECÍFICOS PARA SIDEBAR
+   ============================================ */
+
+[data-theme="light"] #sidebar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-right: 1px solid rgba(203, 213, 225, 0.5) !important;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] #sidebar .sidebar-item {
+  color: #334155 !important;
+}
+
+[data-theme="light"] #sidebar .sidebar-item:hover {
+  background: rgba(8, 145, 178, 0.1) !important;
+  color: #0891b2 !important;
+}
+
+[data-theme="light"] #sidebar .sidebar-item i {
+  color: #64748b !important;
+}
+
+[data-theme="light"] #sidebar .sidebar-item:hover i {
+  color: #0891b2 !important;
+}
+
+[data-theme="light"] #sidebar .bg-cyan-500\/20 {
+  background: rgba(8, 145, 178, 0.15) !important;
+}
+
+[data-theme="light"] #sidebar .text-white {
+  color: #0f172a !important;
+}
+
+[data-theme="light"] #sidebar .text-cyan-400 {
+  color: #0891b2 !important;
+}
+
+[data-theme="light"] #sidebar .text-gray-300,
+[data-theme="light"] #sidebar .text-slate-300 {
+  color: #475569 !important;
+}
+
+[data-theme="light"] #sidebar .border-slate-700\/50 {
+  border-color: rgba(203, 213, 225, 0.5) !important;
+}
+
+[data-theme="light"] #sidebar #toggleSidebarBtn {
+  background: #f1f5f9 !important;
+  border-color: rgba(203, 213, 225, 0.5) !important;
+  color: #0891b2 !important;
+}
+
+[data-theme="light"] #sidebar #toggleSidebarBtn:hover {
+  background: rgba(8, 145, 178, 0.1) !important;
+}
+
+[data-theme="light"] #sidebar select {
+  background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* ============================================
+   CORREÇÕES DE LIGHT MODE PARA TAILWIND
+   Sobrescreve classes Tailwind no light mode
+   ============================================ */
+
+/* Textos */
+[data-theme="light"] .text-white { color: #0f172a !important; }
+[data-theme="light"] .text-slate-200 { color: #334155 !important; }
+[data-theme="light"] .text-slate-300 { color: #475569 !important; }
+[data-theme="light"] .text-slate-400 { color: #64748b !important; }
+[data-theme="light"] .text-slate-500 { color: #64748b !important; }
+[data-theme="light"] .text-gray-300 { color: #475569 !important; }
+[data-theme="light"] .text-gray-400 { color: #64748b !important; }
+[data-theme="light"] .text-gray-500 { color: #64748b !important; }
+
+/* Cores de destaque */
+[data-theme="light"] .text-cyan-300 { color: #06b6d4 !important; }
+[data-theme="light"] .text-cyan-400 { color: #0891b2 !important; }
+[data-theme="light"] .text-teal-300 { color: #14b8a6 !important; }
+[data-theme="light"] .text-teal-400 { color: #0d9488 !important; }
+[data-theme="light"] .text-green-300 { color: #22c55e !important; }
+[data-theme="light"] .text-green-400 { color: #16a34a !important; }
+[data-theme="light"] .text-red-400 { color: #dc2626 !important; }
+[data-theme="light"] .text-yellow-400 { color: #ca8a04 !important; }
+[data-theme="light"] .text-orange-400 { color: #ea580c !important; }
+[data-theme="light"] .text-blue-400 { color: #2563eb !important; }
+[data-theme="light"] .text-purple-400 { color: #9333ea !important; }
+
+/* Fundos */
+[data-theme="light"] .bg-slate-800 { background-color: #f1f5f9 !important; }
+[data-theme="light"] .bg-slate-700 { background-color: #e2e8f0 !important; }
+[data-theme="light"] .bg-slate-900 { background-color: #f8fafc !important; }
+[data-theme="light"] .bg-slate-900\/95 { background: #ffffff !important; }
+[data-theme="light"] .bg-gray-800 { background-color: #f1f5f9 !important; }
+[data-theme="light"] .bg-gray-900 { background-color: #f8fafc !important; }
+[data-theme="light"] .bg-black\/80 { background: rgba(0, 0, 0, 0.4) !important; }
+[data-theme="light"] .bg-slate-800\/50 { background: #f8fafc !important; }
+
+/* Bordas */
+[data-theme="light"] .border-slate-600 { border-color: #e2e8f0 !important; }
+[data-theme="light"] .border-slate-700 { border-color: #cbd5e1 !important; }
+[data-theme="light"] .border-slate-700\/50 { border-color: #e2e8f0 !important; }
+[data-theme="light"] .border-gray-700 { border-color: #cbd5e1 !important; }
+
+/* Inputs no light mode */
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not(.input),
+[data-theme="light"] select:not(.input):not(.select),
+[data-theme="light"] textarea:not(.input):not(.textarea) {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Cards no light mode */
+[data-theme="light"] .glass-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(203, 213, 225, 0.6) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="light"] .glass-card:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Lead cards no light mode */
+[data-theme="light"] .lead-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(148, 163, 184, 0.4) !important;
+}
+
+[data-theme="light"] .lead-card .text-xs,
+[data-theme="light"] .lead-card .text-sm,
+[data-theme="light"] .lead-card p {
+  color: #334155 !important;
+}
+
+[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"]) {
+  color: #475569 !important;
+}
+
+/* Stats cards no light mode */
+[data-theme="light"] .stat-card .stat-value,
+[data-theme="light"] .stat-card .text-2xl,
+[data-theme="light"] .stat-card .text-3xl,
+[data-theme="light"] .stat-card .font-bold {
+  color: #0f172a !important;
+}
+
+/* Links */
+[data-theme="light"] a.text-cyan-400,
+[data-theme="light"] .text-cyan-400[onclick] {
+  color: #0891b2 !important;
+}
+
+[data-theme="light"] a:hover {
+  color: #0e7490 !important;
+}

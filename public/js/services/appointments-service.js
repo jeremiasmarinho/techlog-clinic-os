@@ -161,17 +161,63 @@ const AppointmentsService = {
     },
 
     /**
+     * Format appointment type for display
+     */
+    formatType(type) {
+        if (!type) return 'Consulta';
+
+        const typeMap = {
+            primeira_consulta: 'Primeira Consulta',
+            retorno: 'Retorno',
+            avaliacao: 'Avaliação',
+            procedimento: 'Procedimento',
+            exame: 'Exame',
+            urgencia: 'Urgência',
+            teleconsulta: 'Teleconsulta',
+        };
+
+        // Se existe no mapa, retorna o valor formatado
+        if (typeMap[type.toLowerCase()]) {
+            return typeMap[type.toLowerCase()];
+        }
+
+        // Se já está formatado (ex: "Primeira Consulta"), retorna como está
+        if (type.includes(' ') || /^[A-Z]/.test(type)) {
+            return type;
+        }
+
+        // Converte snake_case/kebab-case para Title Case
+        return type
+            .replace(/[_-]/g, ' ')
+            .toLowerCase()
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+    },
+
+    /**
      * Parse notes field to extract financial data
      */
     parseNotes(text) {
         if (!text) return { cleanText: '', financial: null };
 
         try {
-            const jsonMatch = text.match(/\{"financial":\{[^}]+\}\}/);
+            // Flexible regex to handle spaces in JSON
+            const jsonMatch = text.match(/\{\s*"financial"\s*:\s*\{[^{}]*\}\s*\}/);
             if (jsonMatch) {
                 const jsonData = JSON.parse(jsonMatch[0]);
                 const cleanText = text.replace(jsonMatch[0], '').trim();
                 return { cleanText, financial: jsonData.financial };
+            }
+
+            // Also try to match JSON at the end of text
+            const endJsonMatch = text.match(/\{[^{}]*"financial"[^{}]*\{[^{}]*\}[^{}]*\}$/);
+            if (endJsonMatch) {
+                try {
+                    const jsonData = JSON.parse(endJsonMatch[0]);
+                    const cleanText = text.replace(endJsonMatch[0], '').trim();
+                    return { cleanText, financial: jsonData.financial };
+                } catch (e) {
+                    // Continue
+                }
             }
         } catch (e) {
             console.warn('Error parsing notes JSON:', e);
@@ -331,7 +377,9 @@ async function openViewModal(id) {
             `<span class="px-3 py-1 rounded-full text-xs font-semibold ${status.color}">${status.icon} ${status.label}</span>`;
 
         // Type & Doctor
-        document.getElementById('viewType').textContent = appointment.type || 'Consulta';
+        document.getElementById('viewType').textContent = AppointmentsService.formatType(
+            appointment.type
+        );
         document.getElementById('viewDoctor').textContent = appointment.doctor || '-';
 
         // Financial

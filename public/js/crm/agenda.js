@@ -41,8 +41,9 @@ function parseDescription(text) {
     if (!text) return { cleanText: '', financial: null };
 
     try {
-        // Try to extract JSON from notes
-        const jsonMatch = text.match(/\{"financial":\{[^}]+\}\}/);
+        // Try to extract JSON from notes - flexible regex to handle spaces
+        // Match {"financial":{...}} pattern with optional spaces
+        const jsonMatch = text.match(/\{\s*"financial"\s*:\s*\{[^{}]*\}\s*\}/);
 
         if (jsonMatch) {
             const jsonData = JSON.parse(jsonMatch[0]);
@@ -61,6 +62,27 @@ function parseDescription(text) {
                     value: financial.value || null,
                 },
             };
+        }
+
+        // Also try to match JSON at the end of text (common pattern)
+        const endJsonMatch = text.match(/\{[^{}]*"financial"[^{}]*\{[^{}]*\}[^{}]*\}$/);
+        if (endJsonMatch) {
+            try {
+                const jsonData = JSON.parse(endJsonMatch[0]);
+                const financial = jsonData.financial || {};
+                const cleanText = text.replace(endJsonMatch[0], '').trim();
+
+                return {
+                    cleanText: cleanText || '',
+                    financial: {
+                        paymentType: financial.paymentType || null,
+                        insuranceName: financial.insuranceName || null,
+                        value: financial.value || null,
+                    },
+                };
+            } catch (e) {
+                // Continue to next pattern
+            }
         }
 
         // No JSON found, return original text

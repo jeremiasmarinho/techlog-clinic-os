@@ -191,6 +191,7 @@ class AgendaSlots {
 
     getStatusInfo(status) {
         const statusMap = {
+            // English statuses
             scheduled: { label: 'Agendado', color: 'amber', icon: 'fa-clock' },
             confirmed: { label: 'Confirmado', color: 'green', icon: 'fa-check-circle' },
             completed: { label: 'Atendido', color: 'cyan', icon: 'fa-user-check' },
@@ -200,8 +201,95 @@ class AgendaSlots {
             triage: { label: 'Triagem', color: 'blue', icon: 'fa-clipboard-list' },
             consultation: { label: 'Em Consulta', color: 'purple', icon: 'fa-stethoscope' },
             finished: { label: 'Finalizado', color: 'cyan', icon: 'fa-check-double' },
+            in_progress: { label: 'Em Andamento', color: 'blue', icon: 'fa-spinner' },
+            pending: { label: 'Pendente', color: 'yellow', icon: 'fa-hourglass-start' },
+            // Portuguese statuses
+            agendado: { label: 'Agendado', color: 'amber', icon: 'fa-clock' },
+            confirmado: { label: 'Confirmado', color: 'green', icon: 'fa-check-circle' },
+            atendido: { label: 'Atendido', color: 'cyan', icon: 'fa-user-check' },
+            cancelado: { label: 'Cancelado', color: 'red', icon: 'fa-times-circle' },
+            finalizado: { label: 'Finalizado', color: 'cyan', icon: 'fa-check-double' },
+            em_atendimento: { label: 'Em Atendimento', color: 'purple', icon: 'fa-stethoscope' },
+            em_andamento: { label: 'Em Andamento', color: 'blue', icon: 'fa-spinner' },
+            novo: { label: 'Novo', color: 'blue', icon: 'fa-plus' },
         };
-        return statusMap[status] || { label: status, color: 'gray', icon: 'fa-question' };
+
+        // Normalize status to lowercase for matching
+        const normalizedStatus = (status || '').toLowerCase().trim();
+
+        return (
+            statusMap[normalizedStatus] ||
+            statusMap[status] || {
+                label: this.formatStatusLabel(status),
+                color: 'gray',
+                icon: 'fa-question',
+            }
+        );
+    }
+
+    /**
+     * Format status label for unknown statuses
+     */
+    formatStatusLabel(status) {
+        if (!status) return 'Desconhecido';
+        return status
+            .replace(/[_-]/g, ' ')
+            .toLowerCase()
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+
+    /**
+     * Format appointment type for display
+     */
+    formatType(type) {
+        if (!type) return 'Consulta';
+
+        const typeMap = {
+            primeira_consulta: 'Primeira Consulta',
+            retorno: 'Retorno',
+            avaliacao: 'Avaliação',
+            procedimento: 'Procedimento',
+            exame: 'Exame',
+            urgencia: 'Urgência',
+            teleconsulta: 'Teleconsulta',
+        };
+
+        // Se existe no mapa, retorna o valor formatado
+        if (typeMap[type.toLowerCase()]) {
+            return typeMap[type.toLowerCase()];
+        }
+
+        // Se já está formatado (ex: "Primeira Consulta"), retorna como está
+        if (type.includes(' ') || /^[A-Z]/.test(type)) {
+            return type;
+        }
+
+        // Converte snake_case/kebab-case para Title Case
+        return type
+            .replace(/[_-]/g, ' ')
+            .toLowerCase()
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+    }
+
+    /**
+     * Parse notes field to extract clean text (remove JSON financial data)
+     */
+    parseNotes(text) {
+        if (!text) return { cleanText: '', financial: null };
+
+        try {
+            // Flexible regex to handle spaces in JSON
+            const jsonMatch = text.match(/\{\s*"financial"\s*:\s*\{[^{}]*\}\s*\}/);
+            if (jsonMatch) {
+                const jsonData = JSON.parse(jsonMatch[0]);
+                const cleanText = text.replace(jsonMatch[0], '').trim();
+                return { cleanText, financial: jsonData.financial };
+            }
+        } catch (e) {
+            console.warn('Error parsing notes JSON:', e);
+        }
+
+        return { cleanText: text, financial: null };
     }
 
     formatDateDisplay(date) {
@@ -280,10 +368,15 @@ class AgendaSlots {
             <span class="text-white">${dateInfo.month}</span>
         `;
 
-        // Atualiza o badge "Hoje"
+        // Atualiza o badge "Hoje" e o botão "Hoje"
         const todayBadge = document.getElementById('todayBadge');
+        const todayBtn = document.getElementById('todayBtn');
         if (todayBadge) {
             todayBadge.classList.toggle('hidden', !isToday);
+        }
+        // Esconde o botão "Hoje" quando já está no dia atual (evita duplicação visual)
+        if (todayBtn) {
+            todayBtn.classList.toggle('hidden', isToday);
         }
 
         // Atualiza estatísticas
@@ -405,6 +498,9 @@ class AgendaSlots {
         const apt = this.appointments.find((a) => a.id === id);
         if (!apt) return;
 
+        // Parse notes to extract clean text and financial data
+        const { cleanText, financial } = this.parseNotes(apt.notes);
+
         // Preenche o modal de visualização
         document.getElementById('viewPatientInitial').textContent = this.getInitials(
             apt.patient_name
@@ -421,11 +517,19 @@ class AgendaSlots {
         document.getElementById('viewStatus').innerHTML =
             `<span class="px-3 py-1 rounded-full text-xs font-semibold bg-${status.color}-500/20 text-${status.color}-300">${status.label}</span>`;
 
-        document.getElementById('viewType').textContent = apt.type || 'Consulta';
+        document.getElementById('viewType').textContent = this.formatType(apt.type);
         document.getElementById('viewDoctor').textContent = apt.doctor_name || '-';
-        document.getElementById('viewFinancial').textContent =
-            `R$ ${apt.value || '0,00'} - ${apt.insurance || 'Particular'}`;
-        document.getElementById('viewNotes').textContent = apt.notes || '-';
+
+        // Financial - use parsed data if available, otherwise use apt fields
+        const value = financial?.value
+            ? `R$ ${parseFloat(financial.value).toFixed(2).replace('.', ',')}`
+            : `R$ ${apt.value || '0,00'}`;
+        const payment =
+            financial?.paymentType || financial?.insuranceName || apt.insurance || 'Particular';
+        document.getElementById('viewFinancial').textContent = `${value} - ${payment}`;
+
+        // Notes - use clean text without JSON
+        document.getElementById('viewNotes').textContent = cleanText || '-';
 
         // Armazena o ID atual
         window.currentViewAppointmentId = id;
@@ -441,6 +545,9 @@ class AgendaSlots {
         const apt = this.appointments.find((a) => a.id === id);
         if (!apt) return;
 
+        // Parse notes to extract clean text
+        const { cleanText, financial } = this.parseNotes(apt.notes);
+
         // Preenche o formulário de edição
         document.getElementById('editId').value = apt.id;
         document.getElementById('editName').value = apt.patient_name || '';
@@ -452,9 +559,25 @@ class AgendaSlots {
         document.getElementById('editDoctor').value = apt.doctor_id || '';
         document.getElementById('editType').value = apt.type || '';
         document.getElementById('editStatus').value = apt.status || 'scheduled';
-        document.getElementById('editValue').value = apt.value || '';
-        document.getElementById('editInsurance').value = apt.insurance || '';
-        document.getElementById('editNotes').value = apt.notes || '';
+
+        // Financial fields - use parsed data if available
+        const editValueEl = document.getElementById('editValue');
+        if (editValueEl) {
+            if (financial?.value) {
+                editValueEl.value = `R$ ${parseFloat(financial.value).toFixed(2).replace('.', ',')}`;
+            } else {
+                editValueEl.value = apt.value || '';
+            }
+        }
+
+        const editInsuranceEl = document.getElementById('editInsurance');
+        if (editInsuranceEl) {
+            editInsuranceEl.value =
+                financial?.insuranceName || financial?.paymentType || apt.insurance || '';
+        }
+
+        // Notes - use clean text without JSON
+        document.getElementById('editNotes').value = cleanText || '';
 
         // Abre o modal
         const modal = document.getElementById('editModal');

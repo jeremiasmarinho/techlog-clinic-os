@@ -17,6 +17,7 @@
     "seed": "ts-node scripts/force_seed.ts",
     "seed:multi-tenant": "NODE_ENV=development ts-node scripts/seed_multi_tenant.ts",
     "seed:multi-tenant:test": "NODE_ENV=test ts-node scripts/seed_multi_tenant.ts",
+    "validate:logins": "node scripts/validate-logins.js",
     "test": "NODE_ENV=test jest --coverage",
     "test:watch": "NODE_ENV=test jest --watch",
     "test:unit": "NODE_ENV=test jest --testPathPattern=tests/.*\\.test\\.ts$",

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System | TechLog Clinic</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/design-system.css">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .demo-section { margin-bottom: 3rem; }
+        .demo-section h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-default);
+            color: var(--text-primary);
+        }
+        .demo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .color-swatch {
+            width: 80px;
+            height: 60px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0.25rem;
+            font-size: 0.65rem;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .demo-code {
+            background: var(--bg-tertiary);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+        pre {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body class="p-xl">
+    <!-- Theme Toggle -->
+    <div style="position: fixed; top: 1rem; right: 1rem; z-index: 100;">
+        <button id="themeToggle" class="btn btn-outline btn-icon" title="Alternar tema">
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-primary);">
+            🎨 TechLog Clinic Design System
+        </h1>
+        <p class="text-muted" style="margin-bottom: 3rem;">
+            Sistema de design centralizado para padronização de componentes.
+        </p>
+
+        <!-- Cores -->
+        <section class="demo-section">
+            <h2>🎨 Cores</h2>
+            
+            <h3 style="color: var(--text-secondary); margin: 1rem 0 0.5rem;">Status Colors</h3>
+            <div class="demo-grid">
+                <div class="color-swatch" style="background: var(--primary);">primary</div>
+                <div class="color-swatch" style="background: var(--success);">success</div>
+                <div class="color-swatch" style="background: var(--warning);">warning</div>
+                <div class="color-swatch" style="background: var(--danger);">danger</div>
+                <div class="color-swatch" style="background: var(--info);">info</div>
+                <div class="color-swatch" style="background: var(--orange);">orange</div>
+                <div class="color-swatch" style="background: var(--purple);">purple</div>
+                <div class="color-swatch" style="background: var(--teal);">teal</div>
+                <div class="color-swatch" style="background: var(--pink);">pink</div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Background Colors</h3>
+            <div class="demo-grid">
+                <div class="color-swatch" style="background: var(--bg-primary); border: 1px solid var(--border-default);">bg-primary</div>
+                <div class="color-swatch" style="background: var(--bg-secondary); border: 1px solid var(--border-default);">bg-secondary</div>
+                <div class="color-swatch" style="background: var(--bg-tertiary); border: 1px solid var(--border-default);">bg-tertiary</div>
+            </div>
+        </section>
+
+        <!-- Botões -->
+        <section class="demo-section">
+            <h2>🔘 Botões</h2>
+            
+            <h3 style="color: var(--text-secondary); margin: 1rem 0 0.5rem;">Cores</h3>
+            <div class="demo-grid">
+                <button class="btn btn-primary">Primary</button>
+                <button class="btn btn-secondary">Secondary</button>
+                <button class="btn btn-success">Success</button>
+                <button class="btn btn-danger">Danger</button>
+                <button class="btn btn-warning">Warning</button>
+                <button class="btn btn-info">Info</button>
+                <button class="btn btn-orange">Orange</button>
+                <button class="btn btn-purple">Purple</button>
+                <button class="btn btn-teal">Teal</button>
+                <button class="btn btn-pink">Pink</button>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Outline</h3>
+            <div class="demo-grid">
+                <button class="btn btn-outline">Outline</button>
+                <button class="btn btn-outline-primary">Outline Primary</button>
+                <button class="btn btn-outline-success">Outline Success</button>
+                <button class="btn btn-outline-danger">Outline Danger</button>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Ghost</h3>
+            <div class="demo-grid">
+                <button class="btn btn-ghost">Ghost</button>
+                <button class="btn btn-ghost-primary">Ghost Primary</button>
+                <button class="btn btn-ghost-danger">Ghost Danger</button>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Tamanhos</h3>
+            <div class="demo-grid">
+                <button class="btn btn-primary btn-xs">Extra Small</button>
+                <button class="btn btn-primary btn-sm">Small</button>
+                <button class="btn btn-primary">Default</button>
+                <button class="btn btn-primary btn-lg">Large</button>
+                <button class="btn btn-primary btn-xl">Extra Large</button>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Com Ícone</h3>
+            <div class="demo-grid">
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Adicionar
+                </button>
+                <button class="btn btn-success">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+                <button class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+                <button class="btn btn-icon btn-primary"><i class="fas fa-plus"></i></button>
+                <button class="btn btn-icon btn-outline"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-icon btn-ghost-danger"><i class="fas fa-trash"></i></button>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Gradiente</h3>
+            <div class="demo-grid">
+                <button class="btn btn-gradient-primary">Gradient Primary</button>
+                <button class="btn btn-gradient-success">Gradient Success</button>
+                <button class="btn btn-gradient-danger">Gradient Danger</button>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Grupo de Botões</h3>
+            <div class="btn-group">
+                <button class="btn btn-outline">Esquerda</button>
+                <button class="btn btn-outline">Meio</button>
+                <button class="btn btn-outline">Direita</button>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Estados</h3>
+            <div class="demo-grid">
+                <button class="btn btn-primary" disabled>Disabled</button>
+                <button class="btn btn-primary">
+                    <div class="spinner spinner-sm" style="border-top-color: white;"></div>
+                    Loading...
+                </button>
+            </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="demo-section">
+            <h2>🃏 Cards</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="card">
+                    <h3 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Card Básico</h3>
+                    <p class="text-muted">Conteúdo do card básico.</p>
+                </div>
+                
+                <div class="card card-hover">
+                    <h3 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Card Hover</h3>
+                    <p class="text-muted">Passe o mouse para ver o efeito.</p>
+                </div>
+                
+                <div class="card-glass">
+                    <h3 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Card Glass</h3>
+                    <p class="text-muted">Efeito glassmorphism.</p>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Cards com Borda Colorida</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="card card-primary">
+                    <p class="text-muted">card-primary</p>
+                </div>
+                <div class="card card-success">
+                    <p class="text-muted">card-success</p>
+                </div>
+                <div class="card card-warning">
+                    <p class="text-muted">card-warning</p>
+                </div>
+                <div class="card card-danger">
+                    <p class="text-muted">card-danger</p>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Stat Cards</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success-light">
+                        <i class="fas fa-users text-success"></i>
+                    </div>
+                    <div class="stat-value">1,234</div>
+                    <div class="stat-label">Pacientes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-accent-light">
+                        <i class="fas fa-calendar text-accent"></i>
+                    </div>
+                    <div class="stat-value">56</div>
+                    <div class="stat-label">Agendamentos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning-light">
+                        <i class="fas fa-dollar-sign text-warning"></i>
+                    </div>
+                    <div class="stat-value">R$ 12.5k</div>
+                    <div class="stat-label">Receita</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inputs -->
+        <section class="demo-section">
+            <h2>📝 Inputs</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label">Input Padrão</label>
+                    <input type="text" class="input" placeholder="Digite aqui...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Com Ícone</label>
+                    <div class="input-group">
+                        <i class="fas fa-search input-icon"></i>
+                        <input type="text" class="input" placeholder="Buscar...">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Select</label>
+                    <select class="input select">
+                        <option>Opção 1</option>
+                        <option>Opção 2</option>
+                        <option>Opção 3</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Com Erro</label>
+                    <input type="text" class="input input-error" value="Inválido">
+                    <span class="form-error">Este campo é obrigatório</span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Desabilitado</label>
+                    <input type="text" class="input" disabled value="Não editável">
+                </div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Tamanhos</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; max-width: 400px;">
+                <input type="text" class="input input-sm" placeholder="Small">
+                <input type="text" class="input" placeholder="Default">
+                <input type="text" class="input input-lg" placeholder="Large">
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Checkbox & Radio</h3>
+            <div class="demo-grid">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-primary);">
+                    <input type="checkbox" class="checkbox" checked> Checkbox
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-primary);">
+                    <input type="checkbox" class="checkbox"> Unchecked
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-primary);">
+                    <input type="radio" class="radio" name="demo" checked> Radio A
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-primary);">
+                    <input type="radio" class="radio" name="demo"> Radio B
+                </label>
+            </div>
+        </section>
+
+        <!-- Badges -->
+        <section class="demo-section">
+            <h2>🏷️ Badges</h2>
+            
+            <h3 style="color: var(--text-secondary); margin: 1rem 0 0.5rem;">Light (Padrão)</h3>
+            <div class="demo-grid">
+                <span class="badge badge-primary">Primary</span>
+                <span class="badge badge-secondary">Secondary</span>
+                <span class="badge badge-success">Success</span>
+                <span class="badge badge-warning">Warning</span>
+                <span class="badge badge-danger">Danger</span>
+                <span class="badge badge-info">Info</span>
+                <span class="badge badge-orange">Orange</span>
+                <span class="badge badge-purple">Purple</span>
+                <span class="badge badge-teal">Teal</span>
+                <span class="badge badge-pink">Pink</span>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Solid</h3>
+            <div class="demo-grid">
+                <span class="badge badge-solid-primary">Solid Primary</span>
+                <span class="badge badge-solid-success">Solid Success</span>
+                <span class="badge badge-solid-warning">Solid Warning</span>
+                <span class="badge badge-solid-danger">Solid Danger</span>
+                <span class="badge badge-solid-info">Solid Info</span>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Com Dot</h3>
+            <div class="demo-grid">
+                <span class="badge badge-success badge-dot">Online</span>
+                <span class="badge badge-warning badge-dot">Pendente</span>
+                <span class="badge badge-danger badge-dot">Offline</span>
+            </div>
+        </section>
+
+        <!-- Tabela -->
+        <section class="demo-section">
+            <h2>📊 Tabela</h2>
+            
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>João Silva</td>
+                        <td>joao@email.com</td>
+                        <td><span class="badge badge-success">Ativo</span></td>
+                        <td>
+                            <button class="btn btn-icon btn-xs btn-ghost"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon btn-xs btn-ghost-danger"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Maria Santos</td>
+                        <td>maria@email.com</td>
+                        <td><span class="badge badge-warning">Pendente</span></td>
+                        <td>
+                            <button class="btn btn-icon btn-xs btn-ghost"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon btn-xs btn-ghost-danger"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Pedro Costa</td>
+                        <td>pedro@email.com</td>
+                        <td><span class="badge badge-danger">Inativo</span></td>
+                        <td>
+                            <button class="btn btn-icon btn-xs btn-ghost"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon btn-xs btn-ghost-danger"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Outros Componentes -->
+        <section class="demo-section">
+            <h2>🧩 Outros Componentes</h2>
+            
+            <h3 style="color: var(--text-secondary); margin: 1rem 0 0.5rem;">Avatar</h3>
+            <div class="demo-grid">
+                <div class="avatar avatar-sm">J</div>
+                <div class="avatar">JS</div>
+                <div class="avatar avatar-lg">JS</div>
+                <div class="avatar avatar-xl">JS</div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Progress</h3>
+            <div style="max-width: 400px; display: flex; flex-direction: column; gap: 0.5rem;">
+                <div class="progress">
+                    <div class="progress-bar" style="width: 30%;"></div>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success" style="width: 60%;"></div>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-warning" style="width: 80%;"></div>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-danger" style="width: 45%;"></div>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Spinner</h3>
+            <div class="demo-grid">
+                <div class="spinner spinner-sm"></div>
+                <div class="spinner"></div>
+                <div class="spinner spinner-lg"></div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Tabs</h3>
+            <div class="tabs" style="max-width: 400px;">
+                <div class="tab active">Tab 1</div>
+                <div class="tab">Tab 2</div>
+                <div class="tab">Tab 3</div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Pills</h3>
+            <div class="pills" style="width: fit-content;">
+                <div class="pill active">Opção 1</div>
+                <div class="pill">Opção 2</div>
+                <div class="pill">Opção 3</div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Toast</h3>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem; position: relative; padding: 1rem;">
+                <div class="toast toast-success" style="position: relative; right: auto; bottom: auto;">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <span>Operação realizada com sucesso!</span>
+                </div>
+                <div class="toast toast-error" style="position: relative; right: auto; bottom: auto;">
+                    <i class="fas fa-times-circle text-danger"></i>
+                    <span>Erro ao processar requisição</span>
+                </div>
+                <div class="toast toast-warning" style="position: relative; right: auto; bottom: auto;">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    <span>Atenção: dados incompletos</span>
+                </div>
+            </div>
+            
+            <h3 style="color: var(--text-secondary); margin: 1.5rem 0 0.5rem;">Empty State</h3>
+            <div class="empty-state" style="background: var(--bg-secondary); border-radius: var(--radius-lg);">
+                <i class="fas fa-inbox empty-state-icon"></i>
+                <div class="empty-state-title">Nenhum item encontrado</div>
+                <div class="empty-state-description">Adicione itens para começar a usar este recurso.</div>
+                <button class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-plus"></i> Adicionar
+                </button>
+            </div>
+        </section>
+
+        <!-- Hover Effects -->
+        <section class="demo-section">
+            <h2>✨ Efeitos de Hover</h2>
+            
+            <div class="demo-grid">
+                <div class="card hover-lift" style="width: 150px; text-align: center;">
+                    <code>.hover-lift</code>
+                </div>
+                <div class="card hover-glow" style="width: 150px; text-align: center;">
+                    <code>.hover-glow</code>
+                </div>
+                <div class="card hover-scale" style="width: 150px; text-align: center;">
+                    <code>.hover-scale</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Como usar -->
+        <section class="demo-section">
+            <h2>📖 Como Usar</h2>
+            
+            <div class="card">
+                <p class="text-muted" style="margin-bottom: 1rem;">
+                    Adicione o CSS no <code class="demo-code">&lt;head&gt;</code> de qualquer página:
+                </p>
+                <pre>&lt;link rel="stylesheet" href="/css/design-system.css"&gt;</pre>
+                
+                <p class="text-muted" style="margin: 1rem 0;">
+                    Ou use o <code class="demo-code">themes.css</code> que já importa o design system:
+                </p>
+                <pre>&lt;link rel="stylesheet" href="/css/themes.css"&gt;</pre>
+                
+                <p class="text-muted" style="margin-top: 1rem;">
+                    Consulte a documentação completa em <a href="/docs/guides/DESIGN_SYSTEM.md" style="color: var(--primary);">/docs/guides/DESIGN_SYSTEM.md</a>
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <script src="/js/theme-manager.js"></script>
+    <script>
+        // Theme toggle
+        const toggleBtn = document.getElementById('themeToggle');
+        toggleBtn.addEventListener('click', () => {
+            ThemeManager.toggle();
+            updateIcon();
+        });
+
+        function updateIcon() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            toggleBtn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        }
+
+        // Initialize
+        ThemeManager.init();
+        updateIcon();
+
+        // Tab interaction
+        document.querySelectorAll('.tabs').forEach(tabs => {
+            tabs.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                });
+            });
+        });
+
+        // Pill interaction
+        document.querySelectorAll('.pills').forEach(pills => {
+            pills.querySelectorAll('.pill').forEach(pill => {
+                pill.addEventListener('click', () => {
+                    pills.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

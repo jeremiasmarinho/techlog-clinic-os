@@ -1,22 +1,48 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações - Medical CRM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/themes.css">
     <style>
-        body {
+        /* Dark mode background */
+        [data-theme="dark"] body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f766e 100%);
-            min-height: 100vh;
         }
-        .glass-card {
+        /* Light mode background */
+        [data-theme="light"] body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #ccfbf1 100%);
+        }
+        body { min-height: 100vh; }
+        
+        /* Dark glass card */
+        [data-theme="dark"] .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        /* Light glass card */
+        [data-theme="light"] .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Light mode text overrides */
+        [data-theme="light"] .text-white { color: #0f172a !important; }
+        [data-theme="light"] .text-slate-300 { color: #475569 !important; }
+        [data-theme="light"] .text-slate-400 { color: #64748b !important; }
+        [data-theme="light"] .text-cyan-400 { color: #0891b2 !important; }
+        [data-theme="light"] .bg-slate-800 { background: #f1f5f9 !important; }
+        [data-theme="light"] .bg-slate-900 { background: #f8fafc !important; }
+        [data-theme="light"] .border-slate-700 { border-color: #e2e8f0 !important; }
+        [data-theme="light"] .border-slate-600 { border-color: #cbd5e1 !important; }
         .tab-button {
             position: relative;
             transition: all 0.3s ease;
@@ -168,6 +194,7 @@
             }
         }
     </style>
+    <script src="./js/theme-manager.js"></script>
     <script src="./js/components/sidebar.js"></script>
     <script src="./js/components/clinic-header.js"></script>
     <script src="./js/services/clinic-service.js"></script>
