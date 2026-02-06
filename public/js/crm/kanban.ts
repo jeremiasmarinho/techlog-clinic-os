@@ -17,6 +17,8 @@ declare function showToast(options: {
     duration?: number;
 }): void;
 
+declare function buildAvatarHTML(name: string, size?: 'sm' | 'md' | 'lg' | 'xl'): string;
+
 // Tipos e interfaces
 interface KanbanLead {
     id: number;
@@ -538,9 +540,7 @@ async function openConfirmationQueue(): Promise<void> {
             listHTML += `
                 <div class="flex items-center justify-between bg-slate-700/50 p-4 rounded-xl border border-slate-600/50 hover:border-emerald-500/30 transition">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold">
-                            ${(lead.name || 'P').charAt(0).toUpperCase()}
-                        </div>
+                        ${buildAvatarHTML(lead.name || 'P', 'md')}
                         <div>
                             <p class="text-white font-medium">${lead.name || 'Paciente'}</p>
                             <p class="text-slate-400 text-sm">

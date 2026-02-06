@@ -274,7 +274,8 @@ body {
 }
 
 [data-theme="light"] .kanban-card:hover {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06);
+  background: #f5f7fa;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.08);
   filter: none;
 }
 

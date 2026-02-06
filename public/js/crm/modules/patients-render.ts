@@ -10,6 +10,7 @@ import {
 } from './patients-utils.ts';
 
 declare function formatDateTime(date: string): string;
+declare function buildAvatarHTML(name: string, size?: 'sm' | 'md' | 'lg' | 'xl'): string;
 
 interface RenderablePatient {
     id: number;
@@ -64,9 +65,7 @@ export function renderPatients(list: RenderablePatient[], viewingArchive: boolea
         row.innerHTML = `
             <td class="px-6 py-4">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-clinic-teal to-teal-600 rounded-full flex items-center justify-center text-white font-bold">
-                        ${patient.name.charAt(0).toUpperCase()}
-                    </div>
+                    ${buildAvatarHTML(patient.name, 'md')}
                     <div class="ml-4">
                         <div class="text-sm font-medium text-gray-900">${patient.name}</div>
                         <div class="text-sm text-gray-500">${formatPhone(patient.phone)}</div>

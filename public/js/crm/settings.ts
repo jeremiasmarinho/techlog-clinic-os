@@ -262,9 +262,7 @@ function renderUsers(users: SettingsUser[]): void {
         row.innerHTML = `
             <td class="px-6 py-4">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                        ${user.name.charAt(0).toUpperCase()}
-                    </div>
+                    ${buildAvatarHTML(user.name, 'md')}
                     <div class="ml-4">
                         <div class="text-sm font-medium text-white">${user.name}</div>
                     </div>
@@ -650,6 +648,8 @@ declare function showConfirmModal(options: {
     icon?: string;
     variant?: string;
 }): Promise<boolean>;
+
+declare function buildAvatarHTML(name: string, size?: 'sm' | 'md' | 'lg' | 'xl'): string;
 
 async function logout(): Promise<void> {
     const confirmed = await showConfirmModal({

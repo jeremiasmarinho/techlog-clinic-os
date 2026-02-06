@@ -5,6 +5,9 @@
 
 import type { ClinicSettings } from '../types/models.ts';
 
+declare function getAvatarColorClass(name: string): string;
+declare function getInitials(name: string): string;
+
 interface ClinicBrandingSettings {
     identity: {
         name?: string;
@@ -218,8 +221,8 @@ class MedicalSidebar extends HTMLElement {
                     <!-- User Info -->
                     <div class="px-5 mb-6 pb-6 border-b border-slate-700/50">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-user-circle text-cyan-400 text-xl"></i>
+                            <div id="sidebarUserAvatar" class="avatar-profile avatar-profile-sm avatar-ocean">
+                                <i class="fas fa-user text-sm"></i>
                             </div>
                             <div class="sidebar-text whitespace-nowrap overflow-hidden">
                                 <p class="text-white text-sm font-medium">Olá,</p>
@@ -394,6 +397,14 @@ class MedicalSidebar extends HTMLElement {
                 const userNameEl = this.querySelector('#userName') as HTMLElement | null;
                 if (userNameEl && payload.name) {
                     userNameEl.textContent = payload.name;
+                }
+                // Update sidebar avatar with user's color and initials
+                const avatarEl = this.querySelector('#sidebarUserAvatar') as HTMLElement | null;
+                if (avatarEl && payload.name && typeof getAvatarColorClass === 'function') {
+                    const colorClass = getAvatarColorClass(payload.name);
+                    avatarEl.className = avatarEl.className.replace(/avatar-\w+/g, '').trim();
+                    avatarEl.classList.add('avatar-profile', 'avatar-profile-sm', colorClass);
+                    avatarEl.innerHTML = getInitials(payload.name);
                 }
             } catch (e) {
                 console.error('Error parsing token:', e);

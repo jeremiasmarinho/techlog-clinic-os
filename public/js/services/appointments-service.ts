@@ -18,6 +18,10 @@ declare function showToast(options: {
     duration?: number;
 }): void;
 
+declare function buildAvatarHTML(name: string, size?: 'sm' | 'md' | 'lg' | 'xl'): string;
+declare function getAvatarColorClass(name: string): string;
+declare function getInitials(name: string): string;
+
 import type {
     Appointment,
     AppointmentFinancial,
@@ -352,7 +356,13 @@ async function openViewModal(id: string | number): Promise<void> {
         const status = AppointmentsService.getStatusDisplay(appointment.status);
 
         const viewPatientInitial = document.getElementById('viewPatientInitial');
-        if (viewPatientInitial) viewPatientInitial.textContent = name.charAt(0).toUpperCase();
+        if (viewPatientInitial) {
+            viewPatientInitial.textContent = getInitials(name);
+            // Apply color class
+            const colorClass = getAvatarColorClass(name);
+            viewPatientInitial.className = viewPatientInitial.className.replace(/avatar-\w+/g, '');
+            viewPatientInitial.classList.add(colorClass);
+        }
 
         const viewPatientName = document.getElementById('viewPatientName');
         if (viewPatientName) viewPatientName.textContent = name;
@@ -563,9 +573,7 @@ function renderArchivedCard(apt: Appointment): string {
         <div class="bg-slate-700/50 border border-slate-600 rounded-xl p-4 hover:border-slate-500 transition">
             <div class="flex items-start justify-between gap-4">
                 <div class="flex items-center gap-3 flex-1">
-                    <div class="w-12 h-12 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold text-lg">
-                        ${name.charAt(0).toUpperCase()}
-                    </div>
+                    ${buildAvatarHTML(name, 'lg')}
                     <div class="flex-1 min-w-0">
                         <h4 class="text-white font-medium truncate">${name}</h4>
                         <p class="text-slate-400 text-sm">

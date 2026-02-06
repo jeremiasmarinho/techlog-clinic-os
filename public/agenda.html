@@ -84,6 +84,7 @@
     <script src="./dist/components/sidebar.js"></script>
     <script src="./dist/components/confirm-modal.js"></script>
     <script src="./dist/components/toast.js"></script>
+    <script src="./dist/utils/avatar-colors.js"></script>
     <script src="./dist/components/clinic-header.js"></script>
 </head>
 <body class="min-h-screen flex flex-col" data-hide-clinic-header="true">
@@ -212,7 +213,7 @@
             </div>
             <div class="p-5 space-y-4">
                 <div class="flex items-center gap-4">
-                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-xl font-bold" id="viewPatientInitial">?</div>
+                    <div class="avatar-profile avatar-profile-lg avatar-ocean" id="viewPatientInitial">?</div>
                     <div>
                         <h4 id="viewPatientName" class="text-xl font-semibold text-white">-</h4>
                         <p id="viewPatientPhone" class="text-slate-400 flex items-center gap-2">-</p>

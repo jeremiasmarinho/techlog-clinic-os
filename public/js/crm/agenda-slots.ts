@@ -614,6 +614,14 @@ class AgendaSlots {
         const viewPatientInitial = document.getElementById('viewPatientInitial');
         if (viewPatientInitial) {
             viewPatientInitial.textContent = this.getInitials(apt.patient_name);
+            // Apply avatar color
+            if (typeof getAvatarColorClass === 'function') {
+                const colorClass = getAvatarColorClass(apt.patient_name);
+                viewPatientInitial.className = viewPatientInitial.className
+                    .replace(/avatar-\w+/g, '')
+                    .trim();
+                viewPatientInitial.classList.add('avatar-profile', 'avatar-profile-lg', colorClass);
+            }
         }
 
         const viewPatientName = document.getElementById('viewPatientName');

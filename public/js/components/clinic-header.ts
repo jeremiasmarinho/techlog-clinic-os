@@ -12,6 +12,9 @@ declare function showConfirmModal(options: {
     variant?: string;
 }): Promise<boolean>;
 
+declare function getAvatarColorClass(name: string): string;
+declare function getInitials(name: string): string;
+
 interface RoleConfig {
     label: string;
     color: string;
@@ -100,8 +103,8 @@ class ClinicHeader {
                                         ${this.isOwner ? '<span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-0.5 rounded"><i class="fas fa-star mr-1"></i>Owner</span>' : ''}
                                     </div>
                                 </div>
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold">
-                                    ${this.userName.charAt(0).toUpperCase()}
+                                <div class="w-10 h-10 rounded-full ${getAvatarColorClass(this.userName)} flex items-center justify-center text-white font-bold">
+                                    ${getInitials(this.userName)}
                                 </div>
                             </div>
                             <button 

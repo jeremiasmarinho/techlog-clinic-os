@@ -2109,6 +2109,170 @@
   font-size: 1.25rem;
 }
 
+/* ---- Avatar Profile - Modern Color System ---- */
+.avatar-profile {
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: 0.025em;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  color: #ffffff;
+}
+
+.avatar-profile-sm {
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  font-size: 0.75rem;
+}
+
+.avatar-profile-lg {
+  width: 3.5rem;
+  height: 3.5rem;
+  min-width: 3.5rem;
+  font-size: 1.25rem;
+}
+
+.avatar-profile-xl {
+  width: 4.5rem;
+  height: 4.5rem;
+  min-width: 4.5rem;
+  font-size: 1.5rem;
+}
+
+/* 12 vibrant color variants — Dark mode (default) */
+.avatar-coral {
+  background: linear-gradient(135deg, #f97066 0%, #e54d42 100%);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+}
+
+.avatar-violet {
+  background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.35);
+}
+
+.avatar-ocean {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+}
+
+.avatar-emerald {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.avatar-amber {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.30);
+  color: #78350f;
+}
+
+.avatar-rose {
+  background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.35);
+}
+
+.avatar-indigo {
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.avatar-teal {
+  background: linear-gradient(135deg, #2dd4bf 0%, #14b8a6 100%);
+  box-shadow: 0 2px 8px rgba(20, 184, 166, 0.35);
+}
+
+.avatar-fuchsia {
+  background: linear-gradient(135deg, #e879f9 0%, #c026d3 100%);
+  box-shadow: 0 2px 8px rgba(192, 38, 211, 0.35);
+}
+
+.avatar-sky {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.35);
+}
+
+.avatar-lime {
+  background: linear-gradient(135deg, #a3e635 0%, #84cc16 100%);
+  box-shadow: 0 2px 8px rgba(132, 204, 22, 0.30);
+  color: #365314;
+}
+
+.avatar-orange {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.35);
+}
+
+/* Light mode — slightly deeper, richer gradients */
+[data-theme="light"] .avatar-coral {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 10px rgba(220, 38, 38, 0.30);
+}
+
+[data-theme="light"] .avatar-violet {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.30);
+}
+
+[data-theme="light"] .avatar-ocean {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.30);
+}
+
+[data-theme="light"] .avatar-emerald {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 2px 10px rgba(5, 150, 105, 0.30);
+}
+
+[data-theme="light"] .avatar-amber {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.30);
+  color: #ffffff;
+}
+
+[data-theme="light"] .avatar-rose {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+  box-shadow: 0 2px 10px rgba(190, 18, 60, 0.30);
+}
+
+[data-theme="light"] .avatar-indigo {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  box-shadow: 0 2px 10px rgba(79, 70, 229, 0.30);
+}
+
+[data-theme="light"] .avatar-teal {
+  background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  box-shadow: 0 2px 10px rgba(13, 148, 136, 0.30);
+}
+
+[data-theme="light"] .avatar-fuchsia {
+  background: linear-gradient(135deg, #c026d3 0%, #a21caf 100%);
+  box-shadow: 0 2px 10px rgba(162, 28, 175, 0.30);
+}
+
+[data-theme="light"] .avatar-sky {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.30);
+}
+
+[data-theme="light"] .avatar-lime {
+  background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%);
+  box-shadow: 0 2px 10px rgba(101, 163, 13, 0.30);
+  color: #ffffff;
+}
+
+[data-theme="light"] .avatar-orange {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  box-shadow: 0 2px 10px rgba(234, 88, 12, 0.30);
+}
+
 /* Progress bar */
 .progress {
   width: 100%;
@@ -2447,10 +2611,10 @@
 }
 
 [data-theme="light"] .btn-outline:hover {
-  background: #f8fafc;
-  border-color: rgba(148, 163, 184, 0.6);
+  background: #eaeff5;
+  border-color: rgba(148, 163, 184, 0.7);
   color: #0f172a;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="light"] .btn-outline-primary {
@@ -2459,7 +2623,7 @@
 }
 
 [data-theme="light"] .btn-outline-primary:hover {
-  background: rgba(8, 145, 178, 0.1);
+  background: rgba(8, 145, 178, 0.18);
   color: #0e7490;
   border-color: #0e7490;
 }
@@ -2470,7 +2634,7 @@
 }
 
 [data-theme="light"] .btn-outline-success:hover {
-  background: rgba(22, 163, 74, 0.1);
+  background: rgba(22, 163, 74, 0.18);
   color: #15803d;
   border-color: #15803d;
 }
@@ -2481,7 +2645,7 @@
 }
 
 [data-theme="light"] .btn-outline-danger:hover {
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(220, 38, 38, 0.18);
   color: #b91c1c;
   border-color: #b91c1c;
 }
@@ -2492,7 +2656,7 @@
 }
 
 [data-theme="light"] .btn-outline-warning:hover {
-  background: rgba(217, 119, 6, 0.1);
+  background: rgba(217, 119, 6, 0.18);
   color: #b45309;
   border-color: #b45309;
 }
@@ -2503,7 +2667,7 @@
 }
 
 [data-theme="light"] .btn-outline-info:hover {
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(37, 99, 235, 0.18);
   color: #1d4ed8;
   border-color: #1d4ed8;
 }
@@ -2514,7 +2678,7 @@
 }
 
 [data-theme="light"] .btn-ghost:hover {
-  background: #f1f5f9;
+  background: #e2e8f0;
   color: #0f172a;
 }
 
@@ -2523,7 +2687,7 @@
 }
 
 [data-theme="light"] .btn-ghost-primary:hover {
-  background: rgba(8, 145, 178, 0.1);
+  background: rgba(8, 145, 178, 0.18);
   color: #0e7490;
 }
 
@@ -2532,7 +2696,7 @@
 }
 
 [data-theme="light"] .btn-ghost-danger:hover {
-  background: rgba(220, 38, 38, 0.1);
+  background: rgba(220, 38, 38, 0.18);
   color: #b91c1c;
 }
 
@@ -2553,10 +2717,10 @@
 }
 
 [data-theme="light"] .btn-icon.btn-outline:hover {
-  background: #f8fafc;
+  background: #eaeff5;
   border-color: transparent;
   color: #1e293b;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.10);
 }
 
 [data-theme="light"] .btn-icon.btn-primary:hover {
@@ -2610,8 +2774,9 @@
 
 [data-theme="light"] .card:hover,
 [data-theme="light"] .card-hover:hover {
+  background: #f8f9fb;
   border-color: transparent;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14), 0 4px 8px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="light"] .card-glass {
@@ -2621,9 +2786,9 @@
 }
 
 [data-theme="light"] .card-glass:hover {
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(240, 243, 247, 0.96);
   border-color: transparent;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="light"] .card-header,
@@ -2839,8 +3004,8 @@
 
 [data-theme="light"] .lead-card:hover {
   border-color: transparent;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
-  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14), 0 4px 8px rgba(0, 0, 0, 0.08);
+  background: #f5f7fa;
 }
 
 [data-theme="light"] .lead-card .lead-name {
@@ -2898,7 +3063,7 @@
 
 [data-theme="light"] .tab:hover {
   color: #1e293b;
-  background: #f8fafc;
+  background: #eaeff5;
 }
 
 [data-theme="light"] .tab.active {
@@ -2918,7 +3083,7 @@
 
 [data-theme="light"] .pill:hover {
   color: #1e293b;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.07);
 }
 
 [data-theme="light"] .pill.active {
@@ -2939,7 +3104,7 @@
 }
 
 [data-theme="light"] .dropdown-item:hover {
-  background: #f8fafc;
+  background: #f1f5f9;
   color: #0f172a;
 }
 
