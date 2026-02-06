@@ -267,7 +267,7 @@ class MedicalSidebar extends HTMLElement {
                             <span>Tema</span>
                         </button>
                         
-                        <button onclick="logout()" class="sidebar-item bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-600 hover:to-red-700">
+                        <button onclick="logout()" class="sidebar-item sidebar-logout-btn">
                             <i class="fas fa-sign-out-alt"></i>
                             <span>Sair</span>
                         </button>

@@ -502,6 +502,35 @@
 }
 
 /* ============================================
+   SIDEBAR LOGOUT BUTTON
+   Unified style for both dark and light themes
+   ============================================ */
+
+.sidebar-logout-btn {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  color: #ffffff !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 2px 8px rgba(185, 28, 28, 0.25);
+}
+
+.sidebar-logout-btn:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%) !important;
+  box-shadow: 0 4px 14px rgba(185, 28, 28, 0.4);
+  transform: translateY(-1px);
+}
+
+.sidebar-logout-btn:active {
+  background: linear-gradient(135deg, #991b1b 0%, #7f1d1d 100%) !important;
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(185, 28, 28, 0.3);
+}
+
+.sidebar-logout-btn i,
+.sidebar-logout-btn span {
+  color: #ffffff !important;
+}
+
+/* ============================================
    TOAST NOTIFICATION
    ============================================ */
 
