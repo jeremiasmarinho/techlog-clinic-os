@@ -85,6 +85,9 @@ out/
 .parcel-cache/
 .vuepress/dist
 
+# Frontend TypeScript compiled files
+public/dist/
+
 # ============================================================
 # 🧪 TESTES E COBERTURA
 # ============================================================
