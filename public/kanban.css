@@ -1,35 +1,145 @@
+/* ============================================
+   KANBAN - SISTEMA DE VARIÁVEIS
+   Dark mode = base. Light mode = mesmos efeitos,
+   apenas valores de cor mudam.
+   ============================================ */
+
 :root {
-  --glass-bg: rgba(255, 255, 255, 0.2);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --card-bg: rgba(15, 23, 42, 0.55);
-  --card-border: rgba(255, 255, 255, 0.15);
+  /* Página */
+  --kb-gradient-1: rgba(6, 182, 212, 0.15);
+  --kb-gradient-2: rgba(14, 165, 233, 0.15);
+  --kb-bg: #0f172a;
+  /* Glass / Colunas */
+  --kb-glass-bg: rgba(255, 255, 255, 0.08);
+  --kb-glass-border: rgba(255, 255, 255, 0.12);
+  /* Cards */
+  --kb-card-bg: rgba(15, 23, 42, 0.55);
+  --kb-card-border: rgba(255, 255, 255, 0.10);
+  --kb-card-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --kb-card-hover-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+  --kb-card-hover-filter: brightness(1.08);
+  /* Count */
+  --kb-count-bg: rgba(15, 23, 42, 0.5);
+  --kb-count-border: rgba(255, 255, 255, 0.2);
+  --kb-count-text: currentColor;
+  /* Avatar */
+  --kb-avatar-bg: rgba(14, 165, 233, 0.3);
+  --kb-avatar-border: rgba(14, 165, 233, 0.4);
+  --kb-avatar-text: #e2e8f0;
+  /* Tags */
+  --kb-tag-blue-bg: rgba(59, 130, 246, 0.2);
+  --kb-tag-blue-border: rgba(59, 130, 246, 0.4);
+  --kb-tag-blue-text: #bfdbfe;
+  --kb-tag-emerald-bg: rgba(16, 185, 129, 0.2);
+  --kb-tag-emerald-border: rgba(16, 185, 129, 0.4);
+  --kb-tag-emerald-text: #a7f3d0;
+  --kb-tag-purple-bg: rgba(168, 85, 247, 0.2);
+  --kb-tag-purple-border: rgba(168, 85, 247, 0.4);
+  --kb-tag-purple-text: #e9d5ff;
+  /* Estados */
+  --kb-loading-overlay: rgba(15, 23, 42, 0.4);
+  --kb-spinner-ring: rgba(255, 255, 255, 0.4);
+  --kb-spinner-arc: #ffffff;
+  --kb-check-bg: rgba(16, 185, 129, 0.9);
+  --kb-check-text: #0f172a;
+  --kb-drop-border: rgba(56, 189, 248, 0.8);
+  --kb-drop-glow: 0 0 0 2px rgba(56, 189, 248, 0.35);
+  --kb-placeholder-border: rgba(255, 255, 255, 0.3);
+  /* Toast */
+  --kb-toast-bg: rgba(15, 23, 42, 0.92);
+  --kb-toast-text: #f8fafc;
+  --kb-toast-border: rgba(255, 255, 255, 0.15);
+  --kb-toast-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  --kb-toast-success: rgba(16, 185, 129, 0.45);
+  --kb-toast-error: rgba(248, 113, 113, 0.45);
+  /* Scrollbar */
+  --kb-scroll-thumb: rgba(255, 255, 255, 0.2);
+  --kb-scroll-track: rgba(255, 255, 255, 0.05);
+  /* Modal */
+  --kb-modal-overlay: rgba(0, 0, 0, 0.6);
+  --kb-modal-bg: rgba(255, 255, 255, 0.10);
+  --kb-modal-border: rgba(255, 255, 255, 0.20);
+  --kb-modal-text: #ffffff;
+  --kb-modal-muted: rgba(255, 255, 255, 0.70);
+  --kb-modal-input-bg: rgba(255, 255, 255, 0.10);
+  --kb-modal-input-border: rgba(255, 255, 255, 0.20);
+  --kb-modal-btn-bg: #06b6d4;
+  --kb-modal-btn-hover: #0891b2;
 }
+
+/* ============================================
+   LIGHT MODE - Mesmos efeitos, tonalidade clara
+   ============================================ */
+
+[data-theme="light"] {
+  --kb-gradient-1: rgba(8, 145, 178, 0.08);
+  --kb-gradient-2: rgba(14, 165, 233, 0.06);
+  --kb-bg: #e8edf3;
+  --kb-glass-bg: rgba(255, 255, 255, 0.65);
+  --kb-glass-border: rgba(148, 163, 184, 0.25);
+  --kb-card-bg: rgba(255, 255, 255, 0.82);
+  --kb-card-border: rgba(148, 163, 184, 0.18);
+  --kb-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --kb-card-hover-shadow: 0 12px 28px rgba(0, 0, 0, 0.10), 0 4px 10px rgba(8, 145, 178, 0.06);
+  --kb-card-hover-filter: brightness(0.98);
+  --kb-count-bg: rgba(15, 23, 42, 0.06);
+  --kb-count-border: rgba(15, 23, 42, 0.10);
+  --kb-count-text: #475569;
+  --kb-avatar-bg: rgba(8, 145, 178, 0.14);
+  --kb-avatar-border: rgba(8, 145, 178, 0.25);
+  --kb-avatar-text: #0c5e73;
+  --kb-tag-blue-bg: rgba(59, 130, 246, 0.12);
+  --kb-tag-blue-border: rgba(59, 130, 246, 0.28);
+  --kb-tag-blue-text: #1e40af;
+  --kb-tag-emerald-bg: rgba(16, 185, 129, 0.12);
+  --kb-tag-emerald-border: rgba(16, 185, 129, 0.28);
+  --kb-tag-emerald-text: #065f46;
+  --kb-tag-purple-bg: rgba(168, 85, 247, 0.12);
+  --kb-tag-purple-border: rgba(168, 85, 247, 0.28);
+  --kb-tag-purple-text: #5b21b6;
+  --kb-loading-overlay: rgba(255, 255, 255, 0.5);
+  --kb-spinner-ring: rgba(8, 145, 178, 0.3);
+  --kb-spinner-arc: #0891b2;
+  --kb-check-bg: rgba(5, 150, 105, 0.9);
+  --kb-check-text: #ffffff;
+  --kb-drop-border: rgba(8, 145, 178, 0.6);
+  --kb-drop-glow: 0 0 0 2px rgba(8, 145, 178, 0.20);
+  --kb-placeholder-border: rgba(148, 163, 184, 0.4);
+  --kb-toast-bg: rgba(255, 255, 255, 0.92);
+  --kb-toast-text: #1e293b;
+  --kb-toast-border: rgba(148, 163, 184, 0.20);
+  --kb-toast-shadow: 0 12px 40px rgba(0, 0, 0, 0.10);
+  --kb-toast-success: rgba(5, 150, 105, 0.50);
+  --kb-toast-error: rgba(220, 38, 38, 0.50);
+  --kb-scroll-thumb: rgba(0, 0, 0, 0.12);
+  --kb-scroll-track: rgba(0, 0, 0, 0.04);
+  --kb-modal-overlay: rgba(15, 23, 42, 0.35);
+  --kb-modal-bg: rgba(255, 255, 255, 0.92);
+  --kb-modal-border: rgba(148, 163, 184, 0.25);
+  --kb-modal-text: #1e293b;
+  --kb-modal-muted: #64748b;
+  --kb-modal-input-bg: rgba(248, 250, 252, 0.9);
+  --kb-modal-input-border: rgba(203, 213, 225, 0.5);
+  --kb-modal-btn-bg: #0891b2;
+  --kb-modal-btn-hover: #0e7490;
+}
+
+/* ============================================
+   ESTILOS (consomem apenas variáveis --kb-*)
+   ============================================ */
 
 body {
-  background: radial-gradient(circle at top, rgba(6, 182, 212, 0.15), transparent 50%),
-    radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.15), transparent 45%),
-    #0f172a;
+  background:
+    radial-gradient(circle at top, var(--kb-gradient-1), transparent 50%),
+    radial-gradient(circle at 20% 20%, var(--kb-gradient-2), transparent 45%),
+    var(--kb-bg);
 }
 
-.kanban-scroll {
-  overflow-x: auto;
-  padding-bottom: 16px;
-  scroll-behavior: smooth;
-}
-
-.kanban-scroll::-webkit-scrollbar {
-  height: 10px;
-}
-
-.kanban-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-}
-
-.kanban-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 999px;
-}
+/* Layout */
+.kanban-scroll { overflow-x: auto; padding-bottom: 16px; scroll-behavior: smooth; }
+.kanban-scroll::-webkit-scrollbar { height: 10px; }
+.kanban-scroll::-webkit-scrollbar-thumb { background: var(--kb-scroll-thumb); border-radius: 999px; }
+.kanban-scroll::-webkit-scrollbar-track { background: var(--kb-scroll-track); border-radius: 999px; }
 
 .kanban-grid {
   display: grid;
@@ -38,9 +148,10 @@ body {
   gap: 20px;
 }
 
+/* Colunas - glass preservado em ambos os temas */
 .kanban-column {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--kb-glass-bg);
+  border: 1px solid var(--kb-glass-border);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 16px;
@@ -51,279 +162,136 @@ body {
   gap: 14px;
 }
 
-.kanban-cards {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 120px;
-}
+.kanban-cards { display: flex; flex-direction: column; gap: 14px; min-height: 120px; }
 
-.kanban-column-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+.kanban-column-header { display: flex; align-items: center; justify-content: space-between; }
 
 .kanban-count {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--kb-count-bg);
+  border: 1px solid var(--kb-count-border);
+  color: var(--kb-count-text);
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 0.75rem;
 }
 
+/* Cards - glass + hover preservados */
 .kanban-card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  background: var(--kb-card-bg);
+  border: 1px solid var(--kb-card-border);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: 14px;
   padding: 14px;
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.25);
+  box-shadow: var(--kb-card-shadow);
   transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
-.kanban-card.is-dragging {
-  opacity: 0.45;
-  transform: scale(0.98);
-  filter: blur(0.5px);
+.kanban-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--kb-card-hover-shadow);
+  filter: var(--kb-card-hover-filter);
 }
 
-.kanban-card.is-loading {
-  pointer-events: none;
+.kanban-card-header { display: flex; align-items: center; gap: 12px; }
+.kanban-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+
+/* Avatar */
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--kb-avatar-bg);
+  border: 1px solid var(--kb-avatar-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--kb-avatar-text);
 }
 
+/* Tags */
+.kanban-tag { font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+.tag-blue { background: var(--kb-tag-blue-bg); border: 1px solid var(--kb-tag-blue-border); color: var(--kb-tag-blue-text); }
+.tag-emerald { background: var(--kb-tag-emerald-bg); border: 1px solid var(--kb-tag-emerald-border); color: var(--kb-tag-emerald-text); }
+.tag-purple { background: var(--kb-tag-purple-bg); border: 1px solid var(--kb-tag-purple-border); color: var(--kb-tag-purple-text); }
+
+/* Estados do card */
+.kanban-card.is-dragging { opacity: 0.45; transform: scale(0.98); filter: blur(0.5px); }
+.kanban-card.is-loading { pointer-events: none; }
 .kanban-card.is-loading::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.4);
+  background: var(--kb-loading-overlay);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
 }
 
 .kanban-spinner {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top-color: #ffffff;
-  animation: spin 0.8s linear infinite;
-  z-index: 2;
+  position: absolute; top: 12px; right: 12px; width: 18px; height: 18px;
+  border-radius: 999px; border: 2px solid var(--kb-spinner-ring);
+  border-top-color: var(--kb-spinner-arc); animation: spin 0.8s linear infinite; z-index: 2;
 }
 
 .kanban-check {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  background: rgba(16, 185, 129, 0.9);
-  color: #0f172a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  z-index: 2;
+  position: absolute; top: 12px; right: 12px; width: 20px; height: 20px;
+  border-radius: 999px; background: var(--kb-check-bg); color: var(--kb-check-text);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; font-weight: 700; z-index: 2;
 }
 
-.kanban-card.is-success {
-  animation: successFlash 0.9s ease;
-}
+.kanban-card.is-success { animation: successFlash 0.9s ease; }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes successFlash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0);
-  }
-
-  30% {
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4);
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0);
-  }
-}
-
+/* Drop target & placeholder */
 .kanban-column.is-drop-target {
-  border-color: rgba(56, 189, 248, 0.8);
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35);
+  border-color: var(--kb-drop-border);
+  box-shadow: var(--kb-drop-glow);
 }
+.kanban-card-placeholder { border: 1px dashed var(--kb-placeholder-border); border-radius: 14px; min-height: 64px; }
 
-.kanban-card-placeholder {
-  border: 1px dashed rgba(255, 255, 255, 0.3);
-  border-radius: 14px;
-  min-height: 64px;
-}
-
+/* Toast */
 .kanban-toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: rgba(15, 23, 42, 0.9);
-  color: #f8fafc;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--kb-toast-bg);
+  color: var(--kb-toast-text);
+  border: 1px solid var(--kb-toast-border);
   padding: 12px 16px;
   border-radius: 12px;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.4);
+  box-shadow: var(--kb-toast-shadow);
   font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  display: flex; align-items: center; gap: 8px;
   z-index: 50;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
+.kanban-toast.success { border-color: var(--kb-toast-success); }
+.kanban-toast.error { border-color: var(--kb-toast-error); }
 
-.kanban-toast.success {
-  border-color: rgba(16, 185, 129, 0.45);
+/* Modal de atendimento */
+#attendanceModal > div > div,
+#attendanceModal .bg-white\/10 {
+  background: var(--kb-modal-bg) !important;
+  border: 1px solid var(--kb-modal-border) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--kb-modal-text);
 }
-
-.kanban-toast.error {
-  border-color: rgba(248, 113, 113, 0.45);
+#attendanceModal label { color: var(--kb-modal-muted) !important; }
+#attendanceModal textarea,
+#attendanceModal input:not([type="button"]):not([type="submit"]) {
+  background: var(--kb-modal-input-bg) !important;
+  border: 1px solid var(--kb-modal-input-border) !important; color: var(--kb-modal-text) !important;
 }
+#attendanceModal #attendanceSubmitBtn { background: var(--kb-modal-btn-bg) !important; color: #fff !important; }
+#attendanceModal #attendanceSubmitBtn:hover { background: var(--kb-modal-btn-hover) !important; }
 
-.kanban-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 18px 28px rgba(15, 23, 42, 0.35);
-  filter: brightness(1.08);
-}
-
-.kanban-card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: rgba(14, 165, 233, 0.3);
-  border: 1px solid rgba(14, 165, 233, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: #e2e8f0;
-}
-
-.kanban-card-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 12px;
-}
-
-.kanban-tag {
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-
-.tag-blue {
-  background: rgba(59, 130, 246, 0.2);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  color: #bfdbfe;
-}
-
-.tag-emerald {
-  background: rgba(16, 185, 129, 0.2);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #a7f3d0;
-}
-
-.tag-purple {
-  background: rgba(168, 85, 247, 0.2);
-  border: 1px solid rgba(168, 85, 247, 0.4);
-  color: #e9d5ff;
-}
-
-/* ============================================
-   KANBAN - LIGHT MODE OVERRIDES
-   ============================================ */
-
-[data-theme="light"] body {
-  background: radial-gradient(circle at top, rgba(8, 145, 178, 0.06), transparent 50%),
-    radial-gradient(circle at 20% 20%, rgba(14, 165, 233, 0.05), transparent 45%),
-    #e8edf3;
-}
-
-[data-theme="light"] .kanban-column {
-  background: rgba(233, 238, 246, 0.90);
-  border: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
-}
-
-[data-theme="light"] .kanban-card {
-  background: #ffffff;
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme="light"] .kanban-card:hover {
-  background: #f5f7fa;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.08);
-  filter: none;
-}
-
-[data-theme="light"] .kanban-count {
-  background: rgba(0, 0, 0, 0.06);
-  border: none;
-  color: #334155;
-}
-
-[data-theme="light"] .kanban-toast {
-  background: #ffffff;
-  color: #1e293b;
-  border: none;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.14), 0 4px 14px rgba(0, 0, 0, 0.06);
-}
-
-[data-theme="light"] .kanban-toast.success {
-  border-left: 3px solid #10b981;
-}
-
-[data-theme="light"] .kanban-toast.error {
-  border-left: 3px solid #f87171;
-}
-
-[data-theme="light"] .kanban-card-placeholder {
-  border: 1px dashed rgba(148, 163, 184, 0.4);
-}
-
-[data-theme="light"] .avatar {
-  background: rgba(8, 145, 178, 0.14);
-  border: none;
-  color: #0c5e73;
-}
-
-[data-theme="light"] .tag-blue {
-  background: #dbeafe;
-  border: none;
-  color: #1e40af;
-}
-
-[data-theme="light"] .tag-emerald {
-  background: #d1fae5;
-  border: none;
-  color: #065f46;
-}
-
-[data-theme="light"] .tag-purple {
-  background: #ede9fe;
-  border: none;
-  color: #5b21b6;
+/* Keyframes */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes successFlash {
+  0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0); }
+  30%  { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0); }
 }

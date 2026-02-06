@@ -243,7 +243,7 @@ a.btn-primary:not(.btn):hover {
 }
 
 [data-theme="light"] .text-cyan-400 {
-  color: #155e75 !important;
+  color: #0891b2 !important;
 }
 
 [data-theme="light"] .text-teal-300 {
@@ -411,14 +411,14 @@ html[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"
 [data-theme="light"] .bg-emerald-500\/20,
 [data-theme="light"] [class*="bg-green-"][class*="/20"],
 [data-theme="light"] [class*="bg-emerald-"][class*="/20"] {
-  background: #dcfce7 !important;
+  background: #d1fae5 !important;
 }
 
 [data-theme="light"] .text-green-300,
 [data-theme="light"] .text-green-400,
 [data-theme="light"] .text-emerald-300,
 [data-theme="light"] .text-emerald-400 {
-  color: #15803d !important;
+  color: #065f46 !important;
 }
 
 /* Roxo (Recorrente, Agendado, etc.) */
@@ -445,8 +445,7 @@ html[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"
 }
 
 [data-theme="light"] .text-blue-300,
-[data-theme="light"] .text-blue-400,
-[data-theme="light"] .text-cyan-300 {
+[data-theme="light"] .text-blue-400 {
   color: #1d4ed8 !important;
 }
 
@@ -462,7 +461,7 @@ html[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"
 [data-theme="light"] .text-yellow-400,
 [data-theme="light"] .text-amber-300,
 [data-theme="light"] .text-amber-400 {
-  color: #b45309 !important;
+  color: #92400e !important;
 }
 
 /* Laranja */
@@ -667,11 +666,11 @@ html[data-theme="light"] .kanban-column .lead-card:hover {
   transform: translateY(-3px) !important;
 }
 
-/* Nomes dos leads */
+/* Nomes dos leads - suave, não preto puro */
 html[data-theme="light"] .lead-card .lead-name,
 html[data-theme="light"] .lead-card h3,
 html[data-theme="light"] lead-card h3 {
-  color: #0f1729 !important;
+  color: #334155 !important;
 }
 
 /* Texto geral dos leads */
@@ -808,25 +807,4 @@ html[data-theme="light"] lead-card span[class*="bg-amber"] {
   background: #16a34a !important;
 }
 
-/* ============================================
-   KANBAN COLUMNS - LIGHT MODE
-   ============================================ */
-
-[data-theme="light"] .kanban-column,
-[data-theme="light"] .kanban-column.glass-card {
-  background: rgba(233, 238, 246, 0.90) !important;
-  border: none !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
-  backdrop-filter: none !important;
-}
-
-/* Headers das colunas - sem borda */
-[data-theme="light"] .kanban-column>div:first-child {
-  border-bottom: none !important;
-}
-
-/* Contador nas colunas */
-[data-theme="light"] .kanban-column span[class*="bg-white/20"] {
-  background: rgba(0, 0, 0, 0.1) !important;
-  color: #1a2b3d !important;
-}
+/* Kanban light mode handled by kanban.css variables */
