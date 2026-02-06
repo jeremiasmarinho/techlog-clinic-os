@@ -155,6 +155,12 @@
   --sidebar-item-hover: rgba(6, 182, 212, 0.1);
   --sidebar-item-active: rgba(6, 182, 212, 0.2);
 
+  /* ---- Appointment Block ---- */
+  --appointment-bg: rgba(59, 130, 246, 0.1);
+  --appointment-border: rgba(59, 130, 246, 0.2);
+  --appointment-text: #93c5fd;
+  --appointment-icon: #60a5fa;
+
   /* ---- Modal ---- */
   --modal-overlay: rgba(0, 0, 0, 0.7);
   --modal-bg: #1e293b;
@@ -280,6 +286,12 @@
   --sidebar-item-hover: rgba(8, 145, 178, 0.08);
   --sidebar-item-active: rgba(8, 145, 178, 0.12);
 
+  /* ---- Appointment Block ---- */
+  --appointment-bg: #dce2ea;
+  --appointment-border: #c8d0da;
+  --appointment-text: #334155;
+  --appointment-icon: #475569;
+
   /* ---- Modal ---- */
   --modal-overlay: rgba(26, 43, 61, 0.4);
   --modal-bg: #ffffff;
@@ -301,6 +313,37 @@
   --gradient-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
+
+/* ============================================
+   APPOINTMENT BLOCK
+   ============================================ */
+
+.appointment-block {
+  background-color: var(--appointment-bg);
+  border: 1px solid var(--appointment-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.appointment-icon {
+  color: var(--appointment-icon);
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.appointment-text {
+  color: var(--appointment-text);
+  font-weight: 500;
+}
+
+.appointment-text+.appointment-text {
+  margin-left: 0.5rem;
+}
 
 /* ============================================
    2. BOTÕES

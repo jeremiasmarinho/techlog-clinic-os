@@ -106,14 +106,11 @@ export function createLeadCard(
     let appointmentInfo = '';
     if (lead.appointment_date) {
         const formatted = formatDateTimeShort(lead.appointment_date);
-        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-        const blockStyle = isLight ? 'background-color: #dce2ea; border: 1px solid #c8d0da;' : '';
-        const textStyle = isLight ? 'color: #334155;' : '';
         appointmentInfo = `
-            <div class="appointment-block rounded-lg p-2 mb-2 flex items-center text-sm ${isLight ? '' : 'bg-blue-500/10'}" style="${blockStyle}">
-                <i class="fas fa-calendar-check ${isLight ? '' : 'text-blue-400'} mr-2" style="${textStyle}"></i>
-                <span class="${isLight ? '' : 'text-blue-200'} font-medium" style="${textStyle}">${formatted}</span>
-                ${lead.doctor ? `<span class="${isLight ? '' : 'text-blue-300'} ml-2" style="${textStyle}">👨‍⚕️ ${lead.doctor}</span>` : ''}
+            <div class="appointment-block">
+                <i class="fas fa-calendar-check appointment-icon"></i>
+                <span class="appointment-text">${formatted}</span>
+                ${lead.doctor ? `<span class="appointment-text">👨‍⚕️ ${lead.doctor}</span>` : ''}
             </div>
         `;
     }

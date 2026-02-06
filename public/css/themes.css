@@ -697,19 +697,7 @@ html[data-theme="light"] lead-card i {
   color: #0c5e73 !important;
 }
 
-/* Appointment block - light gray background in light mode */
-html[data-theme="light"] .appointment-block,
-html[data-theme="light"] .lead-card .appointment-block {
-  background: #dce2ea !important;
-  background-color: #dce2ea !important;
-  border: 1px solid #c8d0da !important;
-  border-radius: 0.5rem;
-}
 
-html[data-theme="light"] .appointment-block span,
-html[data-theme="light"] .appointment-block i {
-  color: #334155 !important;
-}
 
 /* ============================================
    BADGES NOS LEADS - CONTRASTE GARANTIDO
