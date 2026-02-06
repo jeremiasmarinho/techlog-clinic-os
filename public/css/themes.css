@@ -690,7 +690,7 @@ html[data-theme="light"] lead-card i {
    ============================================ */
 
 /* Amarelo - Primeira Consulta, Cancelado */
-html[data-theme="light"] span[class*="bg-yellow"],
+html[data-theme="light"] span[class*="bg-yellow"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-yellow"],
 html[data-theme="light"] lead-card span[class*="bg-yellow"] {
   background: #fef3c7 !important;
@@ -700,8 +700,8 @@ html[data-theme="light"] lead-card span[class*="bg-yellow"] {
 }
 
 /* Verde - Consulta, Compareceu */
-html[data-theme="light"] span[class*="bg-green"],
-html[data-theme="light"] span[class*="bg-emerald"],
+html[data-theme="light"] span[class*="bg-green"]:not(.legend-dot):not(.slot-avatar),
+html[data-theme="light"] span[class*="bg-emerald"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-green"],
 html[data-theme="light"] .lead-card span[class*="bg-emerald"],
 html[data-theme="light"] lead-card span[class*="bg-green"],
@@ -713,8 +713,8 @@ html[data-theme="light"] lead-card span[class*="bg-emerald"] {
 }
 
 /* Roxo - Recorrente */
-html[data-theme="light"] span[class*="bg-purple"],
-html[data-theme="light"] span[class*="bg-violet"],
+html[data-theme="light"] span[class*="bg-purple"]:not(.legend-dot):not(.slot-avatar),
+html[data-theme="light"] span[class*="bg-violet"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-purple"],
 html[data-theme="light"] .lead-card span[class*="bg-violet"],
 html[data-theme="light"] lead-card span[class*="bg-purple"],
@@ -726,7 +726,7 @@ html[data-theme="light"] lead-card span[class*="bg-violet"] {
 }
 
 /* Azul - Retorno, Convênio */
-html[data-theme="light"] span[class*="bg-blue"],
+html[data-theme="light"] span[class*="bg-blue"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-blue"],
 html[data-theme="light"] lead-card span[class*="bg-blue"] {
   background: #dbeafe !important;
@@ -736,10 +736,10 @@ html[data-theme="light"] lead-card span[class*="bg-blue"] {
 }
 
 /* Cyan - Consulta detalhada */
-html[data-theme="light"] span[class*="bg-cyan"],
+html[data-theme="light"] span[class*="bg-cyan"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-cyan"],
 html[data-theme="light"] lead-card span[class*="bg-cyan"],
-html[data-theme="light"] div[class*="bg-cyan"] {
+html[data-theme="light"] div[class*="bg-cyan"]:not(.slot-avatar) {
   background: #cffafe !important;
   background-color: #cffafe !important;
   color: #0e7490 !important;
@@ -747,7 +747,7 @@ html[data-theme="light"] div[class*="bg-cyan"] {
 }
 
 /* Rosa - Exame */
-html[data-theme="light"] span[class*="bg-pink"],
+html[data-theme="light"] span[class*="bg-pink"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-pink"],
 html[data-theme="light"] lead-card span[class*="bg-pink"] {
   background: #fce7f3 !important;
@@ -757,7 +757,7 @@ html[data-theme="light"] lead-card span[class*="bg-pink"] {
 }
 
 /* Vermelho - Não compareceu */
-html[data-theme="light"] span[class*="bg-red"],
+html[data-theme="light"] span[class*="bg-red"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-red"],
 html[data-theme="light"] lead-card span[class*="bg-red"] {
   background: #fee2e2 !important;
@@ -767,8 +767,8 @@ html[data-theme="light"] lead-card span[class*="bg-red"] {
 }
 
 /* Cinza - Geral */
-html[data-theme="light"] span[class*="bg-gray"],
-html[data-theme="light"] span[class*="bg-slate"][class*="/20"],
+html[data-theme="light"] span[class*="bg-gray"]:not(.legend-dot):not(.slot-avatar),
+html[data-theme="light"] span[class*="bg-slate"][class*="/20"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-gray"],
 html[data-theme="light"] lead-card span[class*="bg-gray"] {
   background: #f3f4f6 !important;
@@ -778,8 +778,8 @@ html[data-theme="light"] lead-card span[class*="bg-gray"] {
 }
 
 /* Laranja - Valores/Financeiro */
-html[data-theme="light"] span[class*="bg-orange"],
-html[data-theme="light"] span[class*="bg-amber"],
+html[data-theme="light"] span[class*="bg-orange"]:not(.legend-dot):not(.slot-avatar),
+html[data-theme="light"] span[class*="bg-amber"]:not(.legend-dot):not(.slot-avatar),
 html[data-theme="light"] .lead-card span[class*="bg-orange"],
 html[data-theme="light"] .lead-card span[class*="bg-amber"],
 html[data-theme="light"] lead-card span[class*="bg-orange"],

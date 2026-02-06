@@ -484,6 +484,201 @@
   border-color: transparent;
 }
 
+/* ---- Legend dots - cores vibrantes como dark mode ---- */
+[data-theme="light"] .legend-dot.bg-amber-500 {
+  background-color: #f59e0b !important;
+}
+
+[data-theme="light"] .legend-dot.bg-green-500 {
+  background-color: #22c55e !important;
+}
+
+[data-theme="light"] .legend-dot.bg-cyan-500 {
+  background-color: #06b6d4 !important;
+}
+
+[data-theme="light"] .legend-dot.bg-red-500 {
+  background-color: #ef4444 !important;
+}
+
+[data-theme="light"] .legend-dot.bg-slate-500 {
+  background-color: #64748b !important;
+}
+
+/* ---- Legend text ---- */
+[data-theme="light"] .legend-item {
+  color: #334155;
+}
+
+/* ---- Slot status row backgrounds - tinted per status ---- */
+/* Agendado (amber) */
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-amber"] {
+  background: rgba(245, 158, 11, 0.10) !important;
+  border-left-color: #f59e0b !important;
+}
+
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-amber"]:hover {
+  background: rgba(245, 158, 11, 0.18) !important;
+}
+
+/* Confirmado (green) */
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-green"] {
+  background: rgba(34, 197, 94, 0.10) !important;
+  border-left-color: #22c55e !important;
+}
+
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-green"]:hover {
+  background: rgba(34, 197, 94, 0.18) !important;
+}
+
+/* Atendido (cyan) */
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-cyan"] {
+  background: rgba(6, 182, 212, 0.10) !important;
+  border-left-color: #06b6d4 !important;
+}
+
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-cyan"]:hover {
+  background: rgba(6, 182, 212, 0.18) !important;
+}
+
+/* Cancelado (red) */
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-red"] {
+  background: rgba(239, 68, 68, 0.10) !important;
+  border-left-color: #ef4444 !important;
+}
+
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-red"]:hover {
+  background: rgba(239, 68, 68, 0.18) !important;
+}
+
+/* Faltou (slate) */
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-slate"] {
+  background: rgba(100, 116, 139, 0.10) !important;
+  border-left-color: #64748b !important;
+}
+
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-slate"]:hover {
+  background: rgba(100, 116, 139, 0.18) !important;
+}
+
+/* Em Andamento / Triagem (blue) */
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-blue"] {
+  background: rgba(59, 130, 246, 0.10) !important;
+  border-left-color: #3b82f6 !important;
+}
+
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-blue"]:hover {
+  background: rgba(59, 130, 246, 0.18) !important;
+}
+
+/* Em Consulta (purple) */
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-purple"] {
+  background: rgba(168, 85, 247, 0.10) !important;
+  border-left-color: #a855f7 !important;
+}
+
+[data-theme="light"] .slot-occupied .slot-content[class*="bg-purple"]:hover {
+  background: rgba(168, 85, 247, 0.18) !important;
+}
+
+/* ---- Slot avatar - cores vibrantes ---- */
+[data-theme="light"] .slot-avatar[class*="bg-amber"] {
+  background: rgba(245, 158, 11, 0.20) !important;
+  color: #92400e !important;
+}
+
+[data-theme="light"] .slot-avatar[class*="bg-green"] {
+  background: rgba(34, 197, 94, 0.20) !important;
+  color: #166534 !important;
+}
+
+[data-theme="light"] .slot-avatar[class*="bg-cyan"] {
+  background: rgba(6, 182, 212, 0.20) !important;
+  color: #155e75 !important;
+}
+
+[data-theme="light"] .slot-avatar[class*="bg-red"] {
+  background: rgba(239, 68, 68, 0.20) !important;
+  color: #991b1b !important;
+}
+
+[data-theme="light"] .slot-avatar[class*="bg-slate"] {
+  background: rgba(100, 116, 139, 0.20) !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .slot-avatar[class*="bg-blue"] {
+  background: rgba(59, 130, 246, 0.20) !important;
+  color: #1e40af !important;
+}
+
+[data-theme="light"] .slot-avatar[class*="bg-purple"] {
+  background: rgba(168, 85, 247, 0.20) !important;
+  color: #5b21b6 !important;
+}
+
+/* ---- Slot status badge - cores vibrantes ---- */
+[data-theme="light"] .slot-status[class*="bg-amber"] {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #92400e !important;
+}
+
+[data-theme="light"] .slot-status[class*="bg-green"] {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #166534 !important;
+}
+
+[data-theme="light"] .slot-status[class*="bg-cyan"] {
+  background: rgba(6, 182, 212, 0.15) !important;
+  color: #155e75 !important;
+}
+
+[data-theme="light"] .slot-status[class*="bg-red"] {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #991b1b !important;
+}
+
+[data-theme="light"] .slot-status[class*="bg-slate"] {
+  background: rgba(100, 116, 139, 0.15) !important;
+  color: #334155 !important;
+}
+
+[data-theme="light"] .slot-status[class*="bg-blue"] {
+  background: rgba(59, 130, 246, 0.15) !important;
+  color: #1e40af !important;
+}
+
+[data-theme="light"] .slot-status[class*="bg-purple"] {
+  background: rgba(168, 85, 247, 0.15) !important;
+  color: #5b21b6 !important;
+}
+
+/* ---- Slot patient name ---- */
+[data-theme="light"] .slot-occupied .font-semibold.text-white {
+  color: #0f172a !important;
+}
+
+/* ---- Slot secondary info ---- */
+[data-theme="light"] .slot-occupied .text-slate-400 {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .slot-occupied .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* ---- Filter bar ---- */
+[data-theme="light"] .filter-label {
+  color: #475569;
+}
+
+[data-theme="light"] .filter-select {
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.5);
+  color: #0f172a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%230891b2' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+}
+
 [data-theme="light"] .slot-add-btn {
   background: #f8fafc;
   border-color: rgba(226, 232, 240, 0.5);
