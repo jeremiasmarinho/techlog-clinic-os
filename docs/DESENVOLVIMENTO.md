@@ -326,9 +326,11 @@ docs: atualiza documentação do projeto
 
 ### Configuração do Copilot Chat
 
-O projeto possui configuração customizada para o GitHub Copilot em `.github/copilot-instructions.md`.
+O projeto possui configuração customizada para o GitHub Copilot em
+`.github/copilot-instructions.md`.
 
 Essas instruções ajudam o Copilot a:
+
 - Entender a arquitetura em camadas (Controller → Service → Repository)
 - Seguir os padrões de código estabelecidos
 - Usar as constantes centralizadas

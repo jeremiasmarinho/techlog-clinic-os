@@ -195,15 +195,18 @@ Configure a variável de ambiente `ACCESS_TOKEN` ou use o padrão: `techlog-secr
 
 ## 🤖 GitHub Copilot
 
-Este projeto possui instruções customizadas para o GitHub Copilot em `.github/copilot-instructions.md`.
+Este projeto possui instruções customizadas para o GitHub Copilot em
+`.github/copilot-instructions.md`.
 
 O Copilot está configurado para:
+
 - Seguir a arquitetura em camadas (Controller → Service → Repository)
 - Usar constantes centralizadas
 - Aplicar padrões de validação e segurança
 - Gerar código consistente com o projeto
 
 **Para desenvolvedores:**
+
 - Ver [docs/DESENVOLVIMENTO.md](docs/DESENVOLVIMENTO.md#-github-copilot) para instruções de uso
 - Consultar [COPILOT_GUIDELINES.md](COPILOT_GUIDELINES.md) para guidelines completas
 

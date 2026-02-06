@@ -2,7 +2,9 @@
 
 ## Project Overview
 
-TechLog Clinic OS is a **SaaS medical clinic scheduling system** built with Node.js, TypeScript, Express, and SQLite. The system emphasizes **simplicity, intuitive design, and modern architecture**.
+TechLog Clinic OS is a **SaaS medical clinic scheduling system** built with Node.js, TypeScript,
+Express, and SQLite. The system emphasizes **simplicity, intuitive design, and modern
+architecture**.
 
 ## Critical Architecture Rules
 
@@ -73,6 +75,7 @@ public/js/
 ### 1. Centralized Constants
 
 **Always use** `src/config/constants.ts` for:
+
 - API endpoints
 - Error messages
 - Status values
@@ -83,6 +86,7 @@ public/js/
 ### 2. Error Handling
 
 Use custom error classes from `src/shared/errors/`:
+
 - `NotFoundError` (404)
 - `ValidationError` (400)
 - `UnauthorizedError` (401)
@@ -91,6 +95,7 @@ Use custom error classes from `src/shared/errors/`:
 ### 3. API Response Format
 
 **Success:**
+
 ```json
 {
     "success": true,
@@ -99,11 +104,12 @@ Use custom error classes from `src/shared/errors/`:
 ```
 
 **Error:**
+
 ```json
 {
-    "success": false,
-    "error": "User-friendly message",
-    "code": "ERROR_CODE"
+  "success": false,
+  "error": "User-friendly message",
+  "code": "ERROR_CODE"
 }
 ```
 
@@ -181,6 +187,7 @@ npm run db:seed         # Seed test data
 ## Multi-Tenant Context
 
 This is a **multi-tenant SaaS** system:
+
 - Every query MUST filter by `clinic_id`
 - Check `clinic_id` in middleware
 - Prevent cross-tenant data access
@@ -196,10 +203,12 @@ This is a **multi-tenant SaaS** system:
 ## Documentation
 
 For detailed architecture and migration plans, see:
+
 - `/COPILOT_GUIDELINES.md` - Complete guidelines
 - `/docs/PROJETO.md` - Project documentation
 - `/docs/DESENVOLVIMENTO.md` - Development guide
 
 ---
 
-**Remember**: This system prioritizes **simplicity and maintainability**. When in doubt, choose the simpler, more explicit solution.
+**Remember**: This system prioritizes **simplicity and maintainability**. When in doubt, choose the
+simpler, more explicit solution.
