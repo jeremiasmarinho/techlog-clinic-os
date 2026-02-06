@@ -250,3 +250,73 @@ body {
   border: 1px solid rgba(168, 85, 247, 0.4);
   color: #e9d5ff;
 }
+
+/* ============================================
+   KANBAN - LIGHT MODE OVERRIDES
+   ============================================ */
+
+[data-theme="light"] .kanban-column {
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .kanban-card {
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .kanban-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  filter: none;
+}
+
+[data-theme="light"] .kanban-count {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  color: #475569;
+}
+
+[data-theme="light"] .kanban-toast {
+  background: #ffffff;
+  color: #334155;
+  border: none;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .kanban-toast.success {
+  border-left: 3px solid #10b981;
+}
+
+[data-theme="light"] .kanban-toast.error {
+  border-left: 3px solid #f87171;
+}
+
+[data-theme="light"] .kanban-card-placeholder {
+  border: 1px dashed rgba(148, 163, 184, 0.4);
+}
+
+[data-theme="light"] .avatar {
+  background: rgba(8, 145, 178, 0.12);
+  border: none;
+  color: #0e7490;
+}
+
+[data-theme="light"] .tag-blue {
+  background: #dbeafe;
+  border: none;
+  color: #1d4ed8;
+}
+
+[data-theme="light"] .tag-emerald {
+  background: #d1fae5;
+  border: none;
+  color: #065f46;
+}
+
+[data-theme="light"] .tag-purple {
+  background: #ede9fe;
+  border: none;
+  color: #6d28d9;
+}
