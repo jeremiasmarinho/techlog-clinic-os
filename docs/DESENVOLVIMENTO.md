@@ -345,14 +345,14 @@ Essas instruções ajudam o Copilot a:
    - O Copilot automaticamente lerá as instruções do projeto
 
 2. **No GitHub:**
-   - Acesse github.com/copilot/agents
-   - Selecione o repositório techlog-clinic-os
+   - Acesse [github.com/copilot](https://github.com/copilot) ou use o ícone do Copilot no GitHub
+   - Selecione o repositório techlog-clinic-os no dropdown
    - Faça perguntas sobre o código ou peça ajuda com implementações
 
 3. **Dicas para Melhores Resultados:**
    - Seja específico sobre qual camada você está trabalhando
    - Mencione se precisa de Controller, Service ou Repository
-   - Peça para seguir os padrões do arquivo COPILOT_GUIDELINES.md
+   - Peça para seguir os padrões do arquivo `/COPILOT_GUIDELINES.md`
    - Inclua o contexto de multi-tenant quando relevante
 
 ### Documentação
