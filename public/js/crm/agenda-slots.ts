@@ -3,6 +3,15 @@
  * Uma visualização mais intuitiva para clínicas médicas
  */
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 interface AgendaSlotsOptions {
     startHour?: number;
     endHour?: number;
@@ -851,12 +860,19 @@ function archiveAppointmentFromView(): void {
     }
 }
 
-function deleteAppointmentFromView(): void {
-    if (
-        window.currentViewAppointmentId &&
-        confirm('Tem certeza que deseja excluir este agendamento?')
-    ) {
-        deleteAppointment(window.currentViewAppointmentId);
+async function deleteAppointmentFromView(): Promise<void> {
+    if (window.currentViewAppointmentId) {
+        const confirmed = await showConfirmModal({
+            title: 'Excluir Agendamento',
+            message: 'Tem certeza que deseja excluir este agendamento?',
+            confirmText: 'Excluir',
+            cancelText: 'Cancelar',
+            icon: 'fa-trash-alt',
+            variant: 'danger',
+        });
+        if (confirmed) {
+            deleteAppointment(window.currentViewAppointmentId);
+        }
     }
 }
 

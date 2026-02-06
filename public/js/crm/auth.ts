@@ -4,6 +4,15 @@
 
 declare function showNotification(message: string, type?: string): void;
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 interface User {
     id: number;
     name: string;
@@ -44,7 +53,14 @@ if (userNameSidebarEl) {
 
 // Logout function
 async function logout(): Promise<void> {
-    const confirmed: boolean = await confirm('Deseja realmente sair do sistema?');
+    const confirmed = await showConfirmModal({
+        title: 'Sair do Sistema',
+        message: 'Deseja realmente sair do sistema?',
+        confirmText: 'Sair',
+        cancelText: 'Cancelar',
+        icon: 'fa-sign-out-alt',
+        variant: 'danger',
+    });
     if (confirmed) {
         sessionStorage.clear();
         window.location.href = '/login.html';

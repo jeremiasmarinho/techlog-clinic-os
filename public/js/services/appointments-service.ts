@@ -3,6 +3,15 @@
  * Single source of truth for all appointment/lead operations
  */
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 import type {
     Appointment,
     AppointmentFinancial,
@@ -250,7 +259,15 @@ async function archiveAppointment(id: string | number): Promise<void> {
 }
 
 async function deleteAppointment(id: string | number): Promise<void> {
-    if (!confirm('🗑️ Excluir este agendamento? Esta ação não pode ser desfeita!')) return;
+    const confirmed = await showConfirmModal({
+        title: 'Excluir Agendamento',
+        message: 'Excluir este agendamento? Esta ação não pode ser desfeita!',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        icon: 'fa-trash-alt',
+        variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
         await AppointmentsService.delete(id);
@@ -571,10 +588,15 @@ async function restoreAppointment(id: string): Promise<void> {
 }
 
 async function permanentlyDeleteAppointment(id: string): Promise<void> {
-    if (
-        !confirm('⚠️ Excluir PERMANENTEMENTE este agendamento?\n\nEsta ação não pode ser desfeita!')
-    )
-        return;
+    const confirmed = await showConfirmModal({
+        title: 'Exclusão Permanente',
+        message: 'Excluir PERMANENTEMENTE este agendamento? Esta ação não pode ser desfeita!',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        icon: 'fa-trash-alt',
+        variant: 'danger',
+    });
+    if (!confirmed) return;
 
     try {
         await AppointmentsService.delete(id);

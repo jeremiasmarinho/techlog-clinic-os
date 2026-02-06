@@ -197,6 +197,7 @@
     </style>
     <script src="./dist/theme-manager.js"></script>
     <script src="./dist/components/sidebar.js"></script>
+    <script src="./dist/components/confirm-modal.js"></script>
     <script src="./dist/components/clinic-header.js"></script>
 </head>
 <body class="text-slate-200" data-hide-clinic-header="true">
@@ -452,10 +453,20 @@
             return localStorage.getItem('token') || sessionStorage.getItem('token');
         }
 
-        function logout() {
-            localStorage.removeItem('token');
-            sessionStorage.removeItem('token');
-            window.location.href = '/login.html';
+        async function logout() {
+            const confirmed = await showConfirmModal({
+                title: 'Sair do Sistema',
+                message: 'Deseja realmente sair do sistema?',
+                confirmText: 'Sair',
+                cancelText: 'Cancelar',
+                icon: 'fa-sign-out-alt',
+                variant: 'danger',
+            });
+            if (confirmed) {
+                localStorage.removeItem('token');
+                sessionStorage.removeItem('token');
+                window.location.href = '/login.html';
+            }
         }
 
         function checkAuth() {
@@ -760,7 +771,15 @@
         }
 
         async function deleteItem(id) {
-            if (!confirm('⚠️ Excluir PERMANENTEMENTE este registro?\n\nEsta ação não pode ser desfeita!')) return;
+            const confirmed = await showConfirmModal({
+                title: 'Exclusão Permanente',
+                message: 'Excluir PERMANENTEMENTE este registro? Esta ação não pode ser desfeita!',
+                confirmText: 'Excluir',
+                cancelText: 'Cancelar',
+                icon: 'fa-trash-alt',
+                variant: 'danger',
+            });
+            if (!confirmed) return;
             
             try {
                 const token = getToken();

@@ -621,8 +621,24 @@ function showNotification(message: string, type: string = 'success'): void {
     }, 3000);
 }
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 async function logout(): Promise<void> {
-    const confirmed: boolean = confirm('Deseja realmente sair do sistema?');
+    const confirmed = await showConfirmModal({
+        title: 'Sair do Sistema',
+        message: 'Deseja realmente sair do sistema?',
+        confirmText: 'Sair',
+        cancelText: 'Cancelar',
+        icon: 'fa-sign-out-alt',
+        variant: 'danger',
+    });
     if (confirmed) {
         sessionStorage.clear();
         localStorage.clear();

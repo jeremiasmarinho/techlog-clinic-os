@@ -2,6 +2,15 @@
 // Kanban Board - Lead Management System with JWT Auth (TypeScript)
 // ============================================
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 // Tipos e interfaces
 interface KanbanLead {
     id: number;
@@ -1464,7 +1473,14 @@ async function moveToColumn(newStatus: string): Promise<void> {
 
 // Delete lead
 async function deleteLead(id: number | string): Promise<void> {
-    const confirmed = confirm('Tem certeza que deseja remover este lead?');
+    const confirmed = await showConfirmModal({
+        title: 'Excluir Lead',
+        message: 'Tem certeza que deseja remover este lead? Esta ação não pode ser desfeita.',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        icon: 'fa-trash-alt',
+        variant: 'danger',
+    });
     if (!confirmed) {
         return;
     }

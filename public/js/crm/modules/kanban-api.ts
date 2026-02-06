@@ -2,6 +2,15 @@
  * Kanban API Module - API interactions
  */
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 interface Lead {
     id: number;
     name: string;
@@ -64,7 +73,14 @@ export async function deleteLead(
     token: string,
     loadLeads: LoadLeadsFn
 ): Promise<void> {
-    const confirmDelete = confirm('Tem certeza que deseja excluir este lead?');
+    const confirmDelete = await showConfirmModal({
+        title: 'Excluir Lead',
+        message: 'Tem certeza que deseja excluir este lead? Esta ação não pode ser desfeita.',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        icon: 'fa-trash-alt',
+        variant: 'danger',
+    });
 
     if (!confirmDelete) return;
 

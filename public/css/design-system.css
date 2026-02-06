@@ -165,6 +165,16 @@
   --modal-overlay: rgba(0, 0, 0, 0.7);
   --modal-bg: #1e293b;
 
+  /* ---- Confirm Modal ---- */
+  --confirm-bg: #1e293b;
+  --confirm-border: rgba(71, 85, 105, 0.5);
+  --confirm-title: #f1f5f9;
+  --confirm-message: #94a3b8;
+  --confirm-cancel-bg: rgba(51, 65, 85, 0.8);
+  --confirm-cancel-hover: rgba(71, 85, 105, 0.9);
+  --confirm-cancel-text: #cbd5e1;
+  --confirm-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+
   /* ---- Scrollbar ---- */
   --scrollbar-bg: #1e293b;
   --scrollbar-thumb: #475569;
@@ -296,6 +306,16 @@
   --modal-overlay: rgba(26, 43, 61, 0.4);
   --modal-bg: #ffffff;
 
+  /* ---- Confirm Modal ---- */
+  --confirm-bg: #ffffff;
+  --confirm-border: #e2e8f0;
+  --confirm-title: #0f172a;
+  --confirm-message: #475569;
+  --confirm-cancel-bg: #e2e8f0;
+  --confirm-cancel-hover: #cbd5e1;
+  --confirm-cancel-text: #334155;
+  --confirm-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+
   /* ---- Scrollbar ---- */
   --scrollbar-bg: #e8edf3;
   --scrollbar-thumb: #cbd5e1;
@@ -313,6 +333,114 @@
   --gradient-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
+
+/* ============================================
+   CONFIRM MODAL
+   ============================================ */
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-overlay);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.confirm-overlay.active {
+  opacity: 1;
+}
+
+.confirm-dialog {
+  background: var(--confirm-bg);
+  border: 1px solid var(--confirm-border);
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: var(--confirm-shadow);
+  transform: scale(0.9) translateY(10px);
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.confirm-dialog.active {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.confirm-icon-wrap {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.confirm-title {
+  color: var(--confirm-title);
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.confirm-message {
+  color: var(--confirm-message);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.confirm-btn-cancel {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: var(--confirm-cancel-bg);
+  color: var(--confirm-cancel-text);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.confirm-btn-cancel:hover {
+  background: var(--confirm-cancel-hover);
+}
+
+.confirm-btn-ok {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-btn-ok:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
 
 /* ============================================
    APPOINTMENT BLOCK
