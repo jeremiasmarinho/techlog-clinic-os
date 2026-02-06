@@ -301,3 +301,4 @@ test.pdf
 # - jest.config.js
 # - playwright.config.ts
 # ============================================================
+uploads/
