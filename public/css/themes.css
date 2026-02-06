@@ -133,6 +133,18 @@ a.btn-primary:not(.btn):hover {
   color: #0c5e73 !important;
 }
 
+/* Logout button - keep white text on red background */
+[data-theme="light"] #sidebar .sidebar-item[onclick*="logout"],
+[data-theme="light"] #sidebar .sidebar-item.from-red-600\/80,
+[data-theme="light"] #sidebar .sidebar-item[class*="from-red"] {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] #sidebar .sidebar-item[onclick*="logout"] i,
+[data-theme="light"] #sidebar .sidebar-item[class*="from-red"] i {
+  color: #ffffff !important;
+}
+
 [data-theme="light"] #sidebar .bg-cyan-500\/20 {
   background: linear-gradient(135deg, rgba(8, 145, 178, 0.15) 0%, rgba(13, 148, 136, 0.12) 100%) !important;
 }
