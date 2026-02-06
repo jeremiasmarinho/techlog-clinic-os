@@ -79,7 +79,7 @@ a.btn-primary:not(.btn):hover {
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.04), 4px 0 8px rgba(0, 0, 0, 0.02);
 }
 
-[data-theme="light"] #sidebar .sidebar-item {
+[data-theme="light"] #sidebar .sidebar-item:not(.sidebar-logout-btn) {
   color: #334155 !important;
   transition: all 0.2s ease;
   border-radius: 8px;
@@ -87,7 +87,7 @@ a.btn-primary:not(.btn):hover {
   position: relative;
 }
 
-[data-theme="light"] #sidebar .sidebar-item::before {
+[data-theme="light"] #sidebar .sidebar-item:not(.sidebar-logout-btn)::before {
   content: '';
   position: absolute;
   left: 0;
@@ -100,13 +100,13 @@ a.btn-primary:not(.btn):hover {
   transition: height 0.2s ease;
 }
 
-[data-theme="light"] #sidebar .sidebar-item:hover {
+[data-theme="light"] #sidebar .sidebar-item:not(.sidebar-logout-btn):hover {
   background: linear-gradient(90deg, rgba(8, 145, 178, 0.12) 0%, rgba(8, 145, 178, 0.06) 100%) !important;
   color: #0891b2 !important;
   transform: translateX(2px);
 }
 
-[data-theme="light"] #sidebar .sidebar-item:hover::before {
+[data-theme="light"] #sidebar .sidebar-item:not(.sidebar-logout-btn):hover::before {
   height: 60%;
 }
 
@@ -119,12 +119,12 @@ a.btn-primary:not(.btn):hover {
   height: 70%;
 }
 
-[data-theme="light"] #sidebar .sidebar-item i {
+[data-theme="light"] #sidebar .sidebar-item:not(.sidebar-logout-btn) i {
   color: #475569 !important;
   transition: all 0.2s ease;
 }
 
-[data-theme="light"] #sidebar .sidebar-item:hover i {
+[data-theme="light"] #sidebar .sidebar-item:not(.sidebar-logout-btn):hover i {
   color: #0891b2 !important;
   transform: scale(1.1);
 }
