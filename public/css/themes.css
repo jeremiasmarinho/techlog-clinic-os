@@ -697,6 +697,18 @@ html[data-theme="light"] lead-card i {
   color: #0c5e73 !important;
 }
 
+/* Appointment block - soft teal tint (matches dark mode blue block) */
+html[data-theme="light"] .lead-card div[class*="bg-blue-500/10"],
+html[data-theme="light"] .lead-card .bg-blue-500\/10 {
+  background: rgba(8, 145, 178, 0.10) !important;
+  border: 1px solid rgba(8, 145, 178, 0.15) !important;
+}
+
+html[data-theme="light"] .lead-card div[class*="bg-blue-500/10"] span,
+html[data-theme="light"] .lead-card div[class*="bg-blue-500/10"] i {
+  color: #0c5e73 !important;
+}
+
 /* ============================================
    BADGES NOS LEADS - CONTRASTE GARANTIDO
    ============================================ */
@@ -822,9 +834,9 @@ html[data-theme="light"] lead-card span[class*="bg-amber"] {
 
 [data-theme="light"] .kanban-column,
 [data-theme="light"] .kanban-column.glass-card {
-  background: rgba(255, 255, 255, 0.8) !important;
+  background: rgba(233, 238, 246, 0.90) !important;
   border: none !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04) !important;
   backdrop-filter: none !important;
 }
 
