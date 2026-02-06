@@ -14,7 +14,7 @@
         }
         /* Light mode background */
         [data-theme="light"] body {
-            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #ccfbf1 100%);
+            background: linear-gradient(145deg, #e8edf3 0%, #dfe6ef 50%, #e4ecf4 100%);
         }
         body { min-height: 100vh; }
         
@@ -26,19 +26,12 @@
         }
         /* Light glass card */
         [data-theme="light"] .glass-card {
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
             border: none;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
         }
-        
-        /* Light mode text overrides */
-        [data-theme="light"] .text-white { color: #0f172a !important; }
-        [data-theme="light"] .text-slate-300 { color: #475569 !important; }
-        [data-theme="light"] .text-slate-400 { color: #64748b !important; }
-        [data-theme="light"] .text-cyan-400 { color: #0891b2 !important; }
-        [data-theme="light"] .bg-slate-800 { background: #f1f5f9 !important; }
-        [data-theme="light"] .border-slate-700 { border-color: transparent !important; }
+        /* Note: text/bg/border overrides handled by themes.css */
         
         /* Sidebar Styles */
         #sidebar { width: 5rem; }

@@ -12,7 +12,7 @@
         [data-theme="dark"] body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
         
         /* Light mode background */
-        [data-theme="light"] body { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+        [data-theme="light"] body { background: linear-gradient(145deg, #e8edf3 0%, #dfe6ef 50%, #e4ecf4 100%); }
         
         body { min-height: 100vh; }
         
@@ -21,10 +21,10 @@
         
         /* Light glass card */
         [data-theme="light"] .glass-card { 
-            background: rgba(255, 255, 255, 0.85); 
+            background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(10px); 
             border: none;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
         }
         
         .status-badge { @apply px-2 py-1 rounded-full text-xs font-medium; }
@@ -55,12 +55,12 @@
         
         /* Light mode filter buttons */
         [data-theme="light"] .filter-btn {
-            background: #dce2ea;
+            background: #e8edf3;
             color: #334155;
-            border: 1px solid #c8d0da;
+            border: 1px solid transparent;
         }
         [data-theme="light"] .filter-btn:hover:not(.active) {
-            background: #cbd5e1;
+            background: #dfe6ef;
             color: #0f172a;
         }
         
@@ -93,16 +93,12 @@
         
         .archive-card:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
         
-        /* Light mode text overrides */
-        [data-theme="light"] .text-white { color: #0f172a !important; }
-        [data-theme="light"] .text-slate-200 { color: #334155 !important; }
-        [data-theme="light"] .text-slate-300 { color: #475569 !important; }
-        [data-theme="light"] .text-slate-400 { color: #64748b !important; }
+        /* Light mode overrides - page-specific only, rest handled by themes.css */
         [data-theme="light"] .text-cyan-400 { color: #0891b2 !important; }
-        [data-theme="light"] .bg-slate-700 { background: #dce2ea !important; }
-        [data-theme="light"] .bg-slate-800 { background: #e2e8f0 !important; }
-        [data-theme="light"] .border-slate-600 { border-color: #c8d0da !important; }
-        [data-theme="light"] .border-slate-700 { border-color: #d1d8e0 !important; }
+        [data-theme="light"] .bg-slate-700 { background: #e8eef4 !important; }
+        [data-theme="light"] .bg-slate-800 { background: #e8edf3 !important; }
+        [data-theme="light"] .border-slate-600 { border-color: transparent !important; }
+        [data-theme="light"] .border-slate-700 { border-color: transparent !important; }
         
         /* Archive cards light mode */
         [data-theme="light"] .archive-card {

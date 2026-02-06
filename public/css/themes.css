@@ -377,16 +377,16 @@ a.btn-primary:not(.btn):hover {
   transform: translateY(-1px);
 }
 
-/* Lead cards no light mode - borderless */
+/* Lead cards no light mode - cinza claro com sombra */
 [data-theme="light"] .lead-card {
-  background: #ffffff !important;
+  background: #e8ecf1 !important;
   border: none !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12), 0 1px 5px rgba(0, 0, 0, 0.07) !important;
   transition: all 0.2s ease;
 }
 
 [data-theme="light"] .lead-card:hover {
-  background: #f5f7fa !important;
+  background: #dfe4ea !important;
   border: none !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(8, 145, 178, 0.08) !important;
   transform: translateY(-3px);
@@ -648,10 +648,10 @@ html[data-theme="light"] lead-card,
 html[data-theme="light"] .lead-card.glass-card,
 html[data-theme="light"] .kanban-column .lead-card,
 html[data-theme="light"] .glass-card.lead-card {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
+  background: #e8ecf1 !important;
+  background-color: #e8ecf1 !important;
   border: none !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12), 0 1px 5px rgba(0, 0, 0, 0.07) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -659,8 +659,8 @@ html[data-theme="light"] .glass-card.lead-card {
 html[data-theme="light"] .lead-card:hover,
 html[data-theme="light"] lead-card:hover,
 html[data-theme="light"] .kanban-column .lead-card:hover {
-  background: #f5f7fa !important;
-  background-color: #f5f7fa !important;
+  background: #dfe4ea !important;
+  background-color: #dfe4ea !important;
   border: none !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(8, 145, 178, 0.08) !important;
   transform: translateY(-3px) !important;
@@ -689,108 +689,153 @@ html[data-theme="light"] lead-card i {
 
 
 /* ============================================
-   BADGES NOS LEADS - CONTRASTE GARANTIDO
+   BADGES - PASTEL PARA CONTEXTOS GERAIS
    ============================================ */
 
 /* Amarelo - Primeira Consulta, Cancelado */
-html[data-theme="light"] span[class*="bg-yellow"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-yellow"],
-html[data-theme="light"] lead-card span[class*="bg-yellow"] {
+html[data-theme="light"] span[class*="bg-yellow"]:not(.legend-dot):not(.slot-avatar) {
   background: #fef3c7 !important;
-  background-color: #fef3c7 !important;
   color: #92400e !important;
   border: none !important;
 }
 
 /* Verde - Consulta, Compareceu */
 html[data-theme="light"] span[class*="bg-green"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] span[class*="bg-emerald"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-green"],
-html[data-theme="light"] .lead-card span[class*="bg-emerald"],
-html[data-theme="light"] lead-card span[class*="bg-green"],
-html[data-theme="light"] lead-card span[class*="bg-emerald"] {
+html[data-theme="light"] span[class*="bg-emerald"]:not(.legend-dot):not(.slot-avatar) {
   background: #d1fae5 !important;
-  background-color: #d1fae5 !important;
   color: #065f46 !important;
   border: none !important;
 }
 
 /* Roxo - Recorrente */
 html[data-theme="light"] span[class*="bg-purple"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] span[class*="bg-violet"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-purple"],
-html[data-theme="light"] .lead-card span[class*="bg-violet"],
-html[data-theme="light"] lead-card span[class*="bg-purple"],
-html[data-theme="light"] lead-card span[class*="bg-violet"] {
+html[data-theme="light"] span[class*="bg-violet"]:not(.legend-dot):not(.slot-avatar) {
   background: #ede9fe !important;
-  background-color: #ede9fe !important;
   color: #5b21b6 !important;
   border: none !important;
 }
 
 /* Azul - Retorno, Convênio */
-html[data-theme="light"] span[class*="bg-blue"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-blue"],
-html[data-theme="light"] lead-card span[class*="bg-blue"] {
+html[data-theme="light"] span[class*="bg-blue"]:not(.legend-dot):not(.slot-avatar) {
   background: #dbeafe !important;
-  background-color: #dbeafe !important;
   color: #1e40af !important;
   border: none !important;
 }
 
-/* Cyan - Consulta detalhada */
+/* Cyan */
 html[data-theme="light"] span[class*="bg-cyan"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-cyan"],
-html[data-theme="light"] lead-card span[class*="bg-cyan"],
 html[data-theme="light"] div[class*="bg-cyan"]:not(.slot-avatar) {
   background: #cffafe !important;
-  background-color: #cffafe !important;
   color: #0e7490 !important;
   border: none !important;
 }
 
-/* Rosa - Exame */
-html[data-theme="light"] span[class*="bg-pink"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-pink"],
-html[data-theme="light"] lead-card span[class*="bg-pink"] {
+/* Rosa */
+html[data-theme="light"] span[class*="bg-pink"]:not(.legend-dot):not(.slot-avatar) {
   background: #fce7f3 !important;
-  background-color: #fce7f3 !important;
   color: #9d174d !important;
   border: none !important;
 }
 
-/* Vermelho - Não compareceu */
-html[data-theme="light"] span[class*="bg-red"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-red"],
-html[data-theme="light"] lead-card span[class*="bg-red"] {
+/* Vermelho */
+html[data-theme="light"] span[class*="bg-red"]:not(.legend-dot):not(.slot-avatar) {
   background: #fee2e2 !important;
-  background-color: #fee2e2 !important;
   color: #991b1b !important;
   border: none !important;
 }
 
-/* Cinza - Geral */
+/* Cinza */
 html[data-theme="light"] span[class*="bg-gray"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] span[class*="bg-slate"][class*="/20"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-gray"],
-html[data-theme="light"] lead-card span[class*="bg-gray"] {
+html[data-theme="light"] span[class*="bg-slate"][class*="/20"]:not(.legend-dot):not(.slot-avatar) {
   background: #f3f4f6 !important;
-  background-color: #f3f4f6 !important;
   color: #374151 !important;
   border: none !important;
 }
 
-/* Laranja - Valores/Financeiro */
+/* Laranja */
 html[data-theme="light"] span[class*="bg-orange"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] span[class*="bg-amber"]:not(.legend-dot):not(.slot-avatar),
-html[data-theme="light"] .lead-card span[class*="bg-orange"],
-html[data-theme="light"] .lead-card span[class*="bg-amber"],
-html[data-theme="light"] lead-card span[class*="bg-orange"],
-html[data-theme="light"] lead-card span[class*="bg-amber"] {
+html[data-theme="light"] span[class*="bg-amber"]:not(.legend-dot):not(.slot-avatar) {
   background: #ffedd5 !important;
-  background-color: #ffedd5 !important;
   color: #9a3412 !important;
   border: none !important;
+}
+
+/* ============================================
+   BADGES NOS LEADS - MANTER CORES DO DARK MODE
+   (maior especificidade sobrepõe as regras acima)
+   ============================================ */
+
+/* Reforçar cores originais do Tailwind nos lead cards */
+html[data-theme="light"] .lead-card span[class*="bg-yellow-400"],
+html[data-theme="light"] .lead-card span[class*="bg-yellow-500"] {
+  background-color: #facc15 !important;
+  color: #111827 !important;
+  border-color: #eab308 !important;
+  border: 1px solid #eab308 !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-teal-600"] {
+  background-color: #0d9488 !important;
+  color: #ffffff !important;
+  border: 1px solid #0f766e !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-emerald-500"],
+html[data-theme="light"] .lead-card span[class*="bg-green-500"],
+html[data-theme="light"] .lead-card span[class*="bg-green-400"] {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  border: 1px solid #059669 !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-indigo-500"] {
+  background-color: #6366f1 !important;
+  color: #ffffff !important;
+  border: 1px solid #4f46e5 !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-purple-500"] {
+  background-color: #a855f7 !important;
+  color: #ffffff !important;
+  border: 1px solid #9333ea !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-blue-500"] {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  border: 1px solid #2563eb !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-cyan-600"] {
+  background-color: #0891b2 !important;
+  color: #ffffff !important;
+  border: 1px solid #0e7490 !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-pink-500"] {
+  background-color: #ec4899 !important;
+  color: #ffffff !important;
+  border: 1px solid #db2777 !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-red-600"],
+html[data-theme="light"] .lead-card span[class*="bg-red-400"] {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+  border: 1px solid #b91c1c !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-gray-300"] {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
+  border: 1px solid #9ca3af !important;
+}
+
+html[data-theme="light"] .lead-card span[class*="bg-orange-500"],
+html[data-theme="light"] .lead-card span[class*="bg-amber-500"] {
+  background-color: #f97316 !important;
+  color: #ffffff !important;
+  border: 1px solid #ea580c !important;
 }
 
 /* WhatsApp button */

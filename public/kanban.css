@@ -136,10 +136,25 @@ body {
 }
 
 /* Layout */
-.kanban-scroll { overflow-x: auto; padding-bottom: 16px; scroll-behavior: smooth; }
-.kanban-scroll::-webkit-scrollbar { height: 10px; }
-.kanban-scroll::-webkit-scrollbar-thumb { background: var(--kb-scroll-thumb); border-radius: 999px; }
-.kanban-scroll::-webkit-scrollbar-track { background: var(--kb-scroll-track); border-radius: 999px; }
+.kanban-scroll {
+  overflow-x: auto;
+  padding-bottom: 16px;
+  scroll-behavior: smooth;
+}
+
+.kanban-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+
+.kanban-scroll::-webkit-scrollbar-thumb {
+  background: var(--kb-scroll-thumb);
+  border-radius: 999px;
+}
+
+.kanban-scroll::-webkit-scrollbar-track {
+  background: var(--kb-scroll-track);
+  border-radius: 999px;
+}
 
 .kanban-grid {
   display: grid;
@@ -162,9 +177,18 @@ body {
   gap: 14px;
 }
 
-.kanban-cards { display: flex; flex-direction: column; gap: 14px; min-height: 120px; }
+.kanban-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 120px;
+}
 
-.kanban-column-header { display: flex; align-items: center; justify-content: space-between; }
+.kanban-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
 .kanban-count {
   background: var(--kb-count-bg);
@@ -195,8 +219,18 @@ body {
   filter: var(--kb-card-hover-filter);
 }
 
-.kanban-card-header { display: flex; align-items: center; gap: 12px; }
-.kanban-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+.kanban-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kanban-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
 
 /* Avatar */
 .avatar {
@@ -213,14 +247,42 @@ body {
 }
 
 /* Tags */
-.kanban-tag { font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
-.tag-blue { background: var(--kb-tag-blue-bg); border: 1px solid var(--kb-tag-blue-border); color: var(--kb-tag-blue-text); }
-.tag-emerald { background: var(--kb-tag-emerald-bg); border: 1px solid var(--kb-tag-emerald-border); color: var(--kb-tag-emerald-text); }
-.tag-purple { background: var(--kb-tag-purple-bg); border: 1px solid var(--kb-tag-purple-border); color: var(--kb-tag-purple-text); }
+.kanban-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.tag-blue {
+  background: var(--kb-tag-blue-bg);
+  border: 1px solid var(--kb-tag-blue-border);
+  color: var(--kb-tag-blue-text);
+}
+
+.tag-emerald {
+  background: var(--kb-tag-emerald-bg);
+  border: 1px solid var(--kb-tag-emerald-border);
+  color: var(--kb-tag-emerald-text);
+}
+
+.tag-purple {
+  background: var(--kb-tag-purple-bg);
+  border: 1px solid var(--kb-tag-purple-border);
+  color: var(--kb-tag-purple-text);
+}
 
 /* Estados do card */
-.kanban-card.is-dragging { opacity: 0.45; transform: scale(0.98); filter: blur(0.5px); }
-.kanban-card.is-loading { pointer-events: none; }
+.kanban-card.is-dragging {
+  opacity: 0.45;
+  transform: scale(0.98);
+  filter: blur(0.5px);
+}
+
+.kanban-card.is-loading {
+  pointer-events: none;
+}
+
 .kanban-card.is-loading::after {
   content: '';
   position: absolute;
@@ -231,30 +293,56 @@ body {
 }
 
 .kanban-spinner {
-  position: absolute; top: 12px; right: 12px; width: 18px; height: 18px;
-  border-radius: 999px; border: 2px solid var(--kb-spinner-ring);
-  border-top-color: var(--kb-spinner-arc); animation: spin 0.8s linear infinite; z-index: 2;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid var(--kb-spinner-ring);
+  border-top-color: var(--kb-spinner-arc);
+  animation: spin 0.8s linear infinite;
+  z-index: 2;
 }
 
 .kanban-check {
-  position: absolute; top: 12px; right: 12px; width: 20px; height: 20px;
-  border-radius: 999px; background: var(--kb-check-bg); color: var(--kb-check-text);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.7rem; font-weight: 700; z-index: 2;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--kb-check-bg);
+  color: var(--kb-check-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  z-index: 2;
 }
 
-.kanban-card.is-success { animation: successFlash 0.9s ease; }
+.kanban-card.is-success {
+  animation: successFlash 0.9s ease;
+}
 
 /* Drop target & placeholder */
 .kanban-column.is-drop-target {
   border-color: var(--kb-drop-border);
   box-shadow: var(--kb-drop-glow);
 }
-.kanban-card-placeholder { border: 1px dashed var(--kb-placeholder-border); border-radius: 14px; min-height: 64px; }
+
+.kanban-card-placeholder {
+  border: 1px dashed var(--kb-placeholder-border);
+  border-radius: 14px;
+  min-height: 64px;
+}
 
 /* Toast */
 .kanban-toast {
-  position: fixed; bottom: 24px; right: 24px;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
   background: var(--kb-toast-bg);
   color: var(--kb-toast-text);
   border: 1px solid var(--kb-toast-border);
@@ -262,16 +350,24 @@ body {
   border-radius: 12px;
   box-shadow: var(--kb-toast-shadow);
   font-size: 0.85rem;
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   z-index: 50;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
-.kanban-toast.success { border-color: var(--kb-toast-success); }
-.kanban-toast.error { border-color: var(--kb-toast-error); }
+
+.kanban-toast.success {
+  border-color: var(--kb-toast-success);
+}
+
+.kanban-toast.error {
+  border-color: var(--kb-toast-error);
+}
 
 /* Modal de atendimento */
-#attendanceModal > div > div,
+#attendanceModal>div>div,
 #attendanceModal .bg-white\/10 {
   background: var(--kb-modal-bg) !important;
   border: 1px solid var(--kb-modal-border) !important;
@@ -279,19 +375,44 @@ body {
   -webkit-backdrop-filter: blur(16px);
   color: var(--kb-modal-text);
 }
-#attendanceModal label { color: var(--kb-modal-muted) !important; }
+
+#attendanceModal label {
+  color: var(--kb-modal-muted) !important;
+}
+
 #attendanceModal textarea,
 #attendanceModal input:not([type="button"]):not([type="submit"]) {
   background: var(--kb-modal-input-bg) !important;
-  border: 1px solid var(--kb-modal-input-border) !important; color: var(--kb-modal-text) !important;
+  border: 1px solid var(--kb-modal-input-border) !important;
+  color: var(--kb-modal-text) !important;
 }
-#attendanceModal #attendanceSubmitBtn { background: var(--kb-modal-btn-bg) !important; color: #fff !important; }
-#attendanceModal #attendanceSubmitBtn:hover { background: var(--kb-modal-btn-hover) !important; }
+
+#attendanceModal #attendanceSubmitBtn {
+  background: var(--kb-modal-btn-bg) !important;
+  color: #fff !important;
+}
+
+#attendanceModal #attendanceSubmitBtn:hover {
+  background: var(--kb-modal-btn-hover) !important;
+}
 
 /* Keyframes */
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes successFlash {
-  0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0); }
-  30%  { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0);
+  }
+
+  30% {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.0);
+  }
 }
