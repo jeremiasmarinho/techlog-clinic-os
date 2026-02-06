@@ -107,7 +107,7 @@ export function createLeadCard(
     if (lead.appointment_date) {
         const formatted = formatDateTimeShort(lead.appointment_date);
         appointmentInfo = `
-            <div class="bg-blue-500/10 rounded-lg p-2 mb-2 flex items-center text-sm">
+            <div class="appointment-block bg-blue-500/10 rounded-lg p-2 mb-2 flex items-center text-sm">
                 <i class="fas fa-calendar-check text-blue-400 mr-2"></i>
                 <span class="text-blue-200 font-medium">${formatted}</span>
                 ${lead.doctor ? `<span class="text-blue-300 ml-2">👨‍⚕️ ${lead.doctor}</span>` : ''}

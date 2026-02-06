@@ -697,18 +697,18 @@ html[data-theme="light"] lead-card i {
   color: #0c5e73 !important;
 }
 
-/* Appointment block - visible teal tint (matches dark mode blue block) */
-html[data-theme="light"] .lead-card div[class*="bg-blue-500"],
-html[data-theme="light"] .lead-card .bg-blue-500\/10 {
-  background: #e0f4f8 !important;
-  background-color: #e0f4f8 !important;
-  border: 1px solid rgba(8, 145, 178, 0.25) !important;
+/* Appointment block - light gray background in light mode */
+html[data-theme="light"] .appointment-block,
+html[data-theme="light"] .lead-card .appointment-block {
+  background: #edf0f4 !important;
+  background-color: #edf0f4 !important;
+  border: 1px solid #dde3ea !important;
   border-radius: 0.5rem;
 }
 
-html[data-theme="light"] .lead-card div[class*="bg-blue-500"] span,
-html[data-theme="light"] .lead-card div[class*="bg-blue-500"] i {
-  color: #0c5e73 !important;
+html[data-theme="light"] .appointment-block span,
+html[data-theme="light"] .appointment-block i {
+  color: #334155 !important;
 }
 
 /* ============================================
