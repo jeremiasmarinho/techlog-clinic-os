@@ -32,6 +32,9 @@ clinic.test.db
 *.db-journal
 *.db-shm
 *.db-wal
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
 
 # Database dumps
 *.sql
