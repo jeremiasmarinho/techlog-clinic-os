@@ -3,6 +3,12 @@
  * Handles public appointment form submission
  */
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 // Declaração global para resetForm (usada no HTML via onclick)
 declare global {
     interface Window {
@@ -60,7 +66,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // Reset form
             form.reset();
         } catch (error) {
-            alert('❌ Erro ao enviar agendamento. Por favor, tente novamente.');
+            showToast({
+                message: 'Erro ao enviar agendamento. Por favor, tente novamente.',
+                type: 'error',
+            });
         } finally {
             // Reset button state
             if (submitBtn) submitBtn.disabled = false;

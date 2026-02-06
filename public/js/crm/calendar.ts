@@ -85,6 +85,21 @@ interface AppointmentData {
 declare function openViewModal(id: string | number): void;
 declare function openEditModal(id: string | number): void;
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 declare const tippy: ((el: HTMLElement, opts: Record<string, unknown>) => void) | undefined;
 
 // Wait for FullCalendar to be loaded
@@ -153,7 +168,10 @@ function initCalendar(): void {
                 )?.value.trim() || '';
 
             if (!patientName || !dateTime) {
-                alert('Por favor, preencha o nome do paciente e a data/hora');
+                showToast({
+                    message: 'Por favor, preencha o nome do paciente e a data/hora',
+                    type: 'warning',
+                });
                 return;
             }
 
@@ -209,15 +227,16 @@ function initCalendar(): void {
                 // Recarrega os eventos do calendário
                 calendar.refetchEvents();
 
-                alert(
-                    isEdit
-                        ? '✅ Agendamento atualizado com sucesso!'
-                        : '✅ Agendamento criado com sucesso!'
-                );
+                showToast({
+                    message: isEdit
+                        ? 'Agendamento atualizado com sucesso!'
+                        : 'Agendamento criado com sucesso!',
+                    type: 'success',
+                });
             } catch (error: unknown) {
                 const errorMsg =
                     error instanceof Error ? error.message : 'Erro ao processar agendamento';
-                alert('❌ ' + errorMsg);
+                showToast({ message: errorMsg, type: 'error' });
             }
         });
     }
@@ -497,7 +516,7 @@ if (document.readyState === 'loading') {
         });
 
         if (!response.ok) {
-            alert('❌ Erro ao carregar dados do agendamento');
+            showToast({ message: 'Erro ao carregar dados do agendamento', type: 'error' });
             return;
         }
 
@@ -547,14 +566,22 @@ if (document.readyState === 'loading') {
             modal.classList.add('flex');
         }
     } catch (error: unknown) {
-        alert('❌ Erro ao carregar dados do agendamento');
+        showToast({ message: 'Erro ao carregar dados do agendamento', type: 'error' });
     }
 };
 
 (window as unknown as Record<string, unknown>).archiveAppointment = async function (
     id: string | number
 ): Promise<void> {
-    if (!confirm('Deseja arquivar este agendamento?')) return;
+    const confirmArchive = await showConfirmModal({
+        title: 'Arquivar Agendamento',
+        message: 'Deseja arquivar este agendamento?',
+        confirmText: 'Arquivar',
+        cancelText: 'Cancelar',
+        variant: 'warning',
+        icon: 'fa-box-archive',
+    });
+    if (!confirmArchive) return;
 
     const token: string | null =
         sessionStorage.getItem('MEDICAL_CRM_TOKEN') ||
@@ -572,7 +599,7 @@ if (document.readyState === 'loading') {
         });
 
         if (response.ok) {
-            alert('✅ Agendamento arquivado com sucesso!');
+            showToast({ message: 'Agendamento arquivado com sucesso!', type: 'success' });
             location.reload();
         } else {
             const data: { error?: string } = await response.json();
@@ -580,19 +607,23 @@ if (document.readyState === 'loading') {
         }
     } catch (error: unknown) {
         const errorMsg = error instanceof Error ? error.message : 'Erro ao arquivar agendamento';
-        alert('❌ Erro ao arquivar agendamento: ' + errorMsg);
+        showToast({ message: errorMsg, type: 'error' });
     }
 };
 
 (window as unknown as Record<string, unknown>).deleteAppointment = async function (
     id: string | number
 ): Promise<void> {
-    if (
-        !confirm(
-            'Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita.'
-        )
-    )
-        return;
+    const confirmDelete = await showConfirmModal({
+        title: 'Excluir Agendamento',
+        message:
+            'Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita.',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        variant: 'danger',
+        icon: 'fa-trash',
+    });
+    if (!confirmDelete) return;
 
     const token: string | null =
         sessionStorage.getItem('MEDICAL_CRM_TOKEN') ||
@@ -608,7 +639,7 @@ if (document.readyState === 'loading') {
         });
 
         if (response.ok) {
-            alert('✅ Agendamento excluído com sucesso!');
+            showToast({ message: 'Agendamento excluído com sucesso!', type: 'success' });
             location.reload();
         } else {
             const data: { error?: string } = await response.json();
@@ -616,6 +647,6 @@ if (document.readyState === 'loading') {
         }
     } catch (error: unknown) {
         const errorMsg = error instanceof Error ? error.message : 'Erro ao excluir agendamento';
-        alert('❌ Erro ao excluir agendamento: ' + errorMsg);
+        showToast({ message: errorMsg, type: 'error' });
     }
 };

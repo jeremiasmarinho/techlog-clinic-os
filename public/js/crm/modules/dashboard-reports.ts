@@ -2,6 +2,12 @@
  * Dashboard Reports Module - Report generation
  */
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 interface HistoryEntry {
     date: string;
     count: number;
@@ -130,7 +136,10 @@ export function copyReportText(elementId: string): void {
         navigator.clipboard
             .writeText(text)
             .then(() => {
-                alert('✅ Relatório copiado para área de transferência!');
+                showToast({
+                    message: 'Relatório copiado para área de transferência!',
+                    type: 'success',
+                });
             })
             .catch((err) => {
                 console.error('Erro ao copiar:', err);
@@ -152,10 +161,10 @@ function fallbackCopyText(text: string): void {
 
     try {
         document.execCommand('copy');
-        alert('✅ Relatório copiado para área de transferência!');
+        showToast({ message: 'Relatório copiado para área de transferência!', type: 'success' });
     } catch (err) {
         console.error('Erro ao copiar:', err);
-        alert('❌ Erro ao copiar. Por favor, copie manualmente.');
+        showToast({ message: 'Erro ao copiar. Por favor, copie manualmente.', type: 'error' });
     }
 
     document.body.removeChild(textarea);

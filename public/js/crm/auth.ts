@@ -4,6 +4,12 @@
 
 declare function showNotification(message: string, type?: string): void;
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 declare function showConfirmModal(options: {
     title?: string;
     message: string;
@@ -37,7 +43,7 @@ const currentUser: string | null = sessionStorage.getItem('userName');
 
 if (!authToken) {
     // Redirect to login if not authenticated
-    alert('Sessão inválida. Faça login novamente.');
+    showToast({ message: 'Sessão inválida. Faça login novamente.', type: 'warning' });
     window.location.href = '/login.html';
 }
 
@@ -180,7 +186,7 @@ document.addEventListener('DOMContentLoaded', (): void => {
                 .value;
 
             if (password.length < 3) {
-                alert('⚠️ A senha deve ter no mínimo 3 caracteres');
+                showToast({ message: 'A senha deve ter no mínimo 3 caracteres', type: 'warning' });
                 return;
             }
 
@@ -215,9 +221,14 @@ document.addEventListener('DOMContentLoaded', (): void => {
 });
 
 async function deleteUser(userId: number, userName: string): Promise<void> {
-    const confirmed: boolean = await confirm(
-        `Deseja realmente remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`
-    );
+    const confirmed: boolean = await showConfirmModal({
+        title: 'Remover Usuário',
+        message: `Deseja realmente remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`,
+        confirmText: 'Remover',
+        cancelText: 'Cancelar',
+        icon: 'fa-user-times',
+        variant: 'danger',
+    });
     if (!confirmed) {
         return;
     }

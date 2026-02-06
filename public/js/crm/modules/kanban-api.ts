@@ -11,6 +11,12 @@ declare function showConfirmModal(options: {
     variant?: string;
 }): Promise<boolean>;
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 interface Lead {
     id: number;
     name: string;
@@ -60,7 +66,7 @@ export async function loadLeads(
         renderLeads(leads);
     } catch (error) {
         console.error('Erro ao carregar leads:', error);
-        alert('Erro ao carregar leads. Verifique sua conexão.');
+        showToast({ message: 'Erro ao carregar leads. Verifique sua conexão.', type: 'error' });
     } finally {
         showLoading(false);
     }
@@ -96,11 +102,11 @@ export async function deleteLead(
             throw new Error('Erro ao excluir lead');
         }
 
-        alert('Lead excluído com sucesso!');
+        showToast({ message: 'Lead excluído com sucesso!', type: 'success' });
         loadLeads();
     } catch (error) {
         console.error('Erro ao excluir lead:', error);
-        alert('Erro ao excluir lead');
+        showToast({ message: 'Erro ao excluir lead', type: 'error' });
     }
 }
 
@@ -159,7 +165,7 @@ export async function moveToColumn(
         loadLeads();
     } catch (error) {
         console.error('Erro ao mover lead:', error);
-        alert('Erro ao mover lead');
+        showToast({ message: 'Erro ao mover lead', type: 'error' });
     } finally {
         showLoading(false);
     }

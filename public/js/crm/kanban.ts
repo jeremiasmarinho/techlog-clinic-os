@@ -11,6 +11,12 @@ declare function showConfirmModal(options: {
     variant?: string;
 }): Promise<boolean>;
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 // Tipos e interfaces
 interface KanbanLead {
     id: number;
@@ -115,7 +121,7 @@ const token: string | null =
     sessionStorage.getItem('token') ||
     sessionStorage.getItem('accessToken');
 if (!token) {
-    alert('Sessão inválida. Faça login novamente.');
+    showToast({ message: 'Sessão inválida. Faça login novamente.', type: 'warning' });
     window.location.href = '/login.html';
 }
 
@@ -888,7 +894,10 @@ async function loadLeads(): Promise<void> {
         updateBusinessMetrics(leads);
     } catch (error) {
         console.error('Erro ao carregar leads:', error);
-        alert('❌ Erro ao carregar leads. Verifique a conexão com o servidor.');
+        showToast({
+            message: 'Erro ao carregar leads. Verifique a conexão com o servidor.',
+            type: 'error',
+        });
     } finally {
         showLoading(false);
     }

@@ -198,6 +198,7 @@
     <script src="./dist/theme-manager.js"></script>
     <script src="./dist/components/sidebar.js"></script>
     <script src="./dist/components/confirm-modal.js"></script>
+    <script src="./dist/components/toast.js"></script>
     <script src="./dist/components/clinic-header.js"></script>
 </head>
 <body class="text-slate-200" data-hide-clinic-header="true">
@@ -750,7 +751,15 @@
         // ACTIONS
         // ============================================
         async function restoreItem(id) {
-            if (!confirm('Restaurar este agendamento? Ele voltará para a agenda.')) return;
+            const confirmed = await showConfirmModal({
+                title: 'Restaurar Agendamento',
+                message: 'Restaurar este agendamento? Ele voltará para a agenda.',
+                confirmText: 'Restaurar',
+                cancelText: 'Cancelar',
+                icon: 'fa-undo',
+                variant: 'info',
+            });
+            if (!confirmed) return;
             
             try {
                 const token = getToken();
@@ -761,12 +770,12 @@
                 
                 if (!response.ok) throw new Error('Erro ao restaurar');
                 
-                alert('✅ Agendamento restaurado com sucesso!');
+                showToast({ message: 'Agendamento restaurado com sucesso!', type: 'success' });
                 loadArchive();
                 
             } catch (error) {
                 console.error('Error restoring:', error);
-                alert('❌ Erro ao restaurar agendamento');
+                showToast({ message: 'Erro ao restaurar agendamento', type: 'error' });
             }
         }
 
@@ -790,12 +799,12 @@
                 
                 if (!response.ok) throw new Error('Erro ao excluir');
                 
-                alert('✅ Registro excluído permanentemente!');
+                showToast({ message: 'Registro excluído permanentemente!', type: 'success' });
                 loadArchive();
                 
             } catch (error) {
                 console.error('Error deleting:', error);
-                alert('❌ Erro ao excluir registro');
+                showToast({ message: 'Erro ao excluir registro', type: 'error' });
             }
         }
 
@@ -1007,7 +1016,7 @@
                 
             } catch (error) {
                 console.error('Export error:', error);
-                alert('Erro ao exportar arquivo');
+                showToast({ message: 'Erro ao exportar arquivo', type: 'error' });
             }
         }
 

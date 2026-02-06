@@ -95,13 +95,16 @@ const token: string | null =
 const userRole: string | null = sessionStorage.getItem('userRole');
 
 if (!token) {
-    alert('Sessão inválida. Faça login novamente.');
+    showToast({ message: 'Sessão inválida. Faça login novamente.', type: 'warning' });
     window.location.href = '/login.html';
 }
 
 // PROTECTION: Staff cannot access this page
 if (userRole === 'staff') {
-    alert('⚠️ Acesso negado. Apenas administradores podem acessar esta página.');
+    showToast({
+        message: 'Acesso negado. Apenas administradores podem acessar esta página.',
+        type: 'warning',
+    });
     window.location.href = '/agenda.html';
 }
 
@@ -203,7 +206,7 @@ async function loadUsers(): Promise<void> {
 
         if (!response.ok) {
             if (response.status === 401) {
-                alert('Sessão expirada. Faça login novamente.');
+                showToast({ message: 'Sessão expirada. Faça login novamente.', type: 'warning' });
                 window.location.href = '/login.html';
                 return;
             }
@@ -419,7 +422,14 @@ async function loadPlanInfo(): Promise<void> {
 async function requestUpgrade(plan: string): Promise<void> {
     if (!window.ClinicService) return;
 
-    const confirmed: boolean = confirm(`Deseja solicitar upgrade para o plano ${plan}?`);
+    const confirmed: boolean = await showConfirmModal({
+        title: 'Upgrade de Plano',
+        message: `Deseja solicitar upgrade para o plano ${plan}?`,
+        confirmText: 'Solicitar',
+        cancelText: 'Cancelar',
+        variant: 'info',
+        icon: 'fa-arrow-up',
+    });
     if (!confirmed) return;
 
     try {
@@ -539,9 +549,14 @@ async function handleCreateUser(event: Event): Promise<void> {
 // Delete User
 // ============================================
 async function deleteUser(userId: number, userName: string): Promise<void> {
-    const confirmed: boolean = confirm(
-        `⚠️ Tem certeza que deseja remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`
-    );
+    const confirmed: boolean = await showConfirmModal({
+        title: 'Remover Usuário',
+        message: `Tem certeza que deseja remover o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`,
+        confirmText: 'Remover',
+        cancelText: 'Cancelar',
+        variant: 'danger',
+        icon: 'fa-user-times',
+    });
     if (!confirmed) {
         return;
     }
@@ -620,6 +635,12 @@ function showNotification(message: string, type: string = 'success'): void {
         toast.classList.add('hidden');
     }, 3000);
 }
+
+declare function showToast(options: {
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
 
 declare function showConfirmModal(options: {
     title?: string;
@@ -1065,14 +1086,17 @@ function handleLogoUpload(event: Event): void {
     // Validate file type
     if (!file.type.startsWith('image/')) {
         console.log('❌ Tipo inválido:', file.type);
-        alert('Por favor, selecione uma imagem válida (PNG, JPG)');
+        showToast({
+            message: 'Por favor, selecione uma imagem válida (PNG, JPG)',
+            type: 'warning',
+        });
         return;
     }
 
     // Validate file size (2MB)
     if (file.size > 2 * 1024 * 1024) {
         console.log('❌ Arquivo muito grande:', file.size);
-        alert('A imagem deve ter no máximo 2MB');
+        showToast({ message: 'A imagem deve ter no máximo 2MB', type: 'warning' });
         return;
     }
 
@@ -1212,12 +1236,12 @@ function addInsurance(): void {
     const value: string = input.value.trim();
 
     if (!value) {
-        alert('Digite o nome do convênio');
+        showToast({ message: 'Digite o nome do convênio', type: 'warning' });
         return;
     }
 
     if (insurancePlans.includes(value)) {
-        alert('Este convênio já foi adicionado');
+        showToast({ message: 'Este convênio já foi adicionado', type: 'warning' });
         return;
     }
 
@@ -1280,12 +1304,12 @@ function addSpecialty(): void {
     const value: string = input.value.trim();
 
     if (!value) {
-        alert('Digite o nome da especialidade');
+        showToast({ message: 'Digite o nome da especialidade', type: 'warning' });
         return;
     }
 
     if (specialties.includes(value)) {
-        alert('Esta especialidade já foi adicionada');
+        showToast({ message: 'Esta especialidade já foi adicionada', type: 'warning' });
         return;
     }
 

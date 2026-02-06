@@ -5,6 +5,12 @@
  * ============================================
  */
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 import type { ApiResponse } from '../types/models';
 
 /**
@@ -26,7 +32,7 @@ export function isAuthenticated(): boolean {
  */
 export function requireAuth(): void {
     if (!isAuthenticated()) {
-        alert('Sessão inválida. Faça login novamente.');
+        showToast({ message: 'Sessão inválida. Faça login novamente.', type: 'warning' });
         window.location.href = '/login.html';
     }
 }

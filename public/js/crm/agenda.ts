@@ -81,6 +81,18 @@ declare function getWhatsAppTemplates(
     lead: Record<string, unknown>
 ): { confirmar?: { url: string } } | null;
 declare function showNotification(message: string, type?: string): void;
+declare function showToast(options: {
+    message: string;
+    type: 'success' | 'error' | 'warning' | 'info';
+}): void;
+declare function showConfirmModal(options: {
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    variant?: 'danger' | 'warning' | 'info';
+    icon?: string;
+}): Promise<boolean>;
 
 declare global {
     interface Window {
@@ -106,7 +118,7 @@ const token: string | null =
     sessionStorage.getItem('token') ||
     sessionStorage.getItem('accessToken');
 if (!token) {
-    alert('Sessão inválida. Faça login novamente.');
+    showToast({ message: 'Sessão inválida. Faça login novamente.', type: 'warning' });
     window.location.href = '/login.html';
 }
 
@@ -567,7 +579,14 @@ async function editAppointment(appointmentId: number): Promise<void> {
  * Archive Appointment
  */
 async function archiveAppointment(appointmentId: number | string): Promise<void> {
-    const confirmed = confirm('⚠️ Arquivar este agendamento?');
+    const confirmed = await showConfirmModal({
+        title: 'Arquivar agendamento',
+        message: 'Arquivar este agendamento?',
+        confirmText: 'Arquivar',
+        cancelText: 'Cancelar',
+        variant: 'warning',
+        icon: 'fa-box-archive',
+    });
     if (!confirmed) return;
 
     try {
@@ -582,11 +601,11 @@ async function archiveAppointment(appointmentId: number | string): Promise<void>
 
         if (!response.ok) throw new Error('Erro ao arquivar');
 
-        alert('✅ Agendamento arquivado com sucesso!');
+        showToast({ message: 'Agendamento arquivado com sucesso!', type: 'success' });
         location.reload();
     } catch (error: unknown) {
         console.error('Erro ao arquivar:', error);
-        alert('❌ Erro ao arquivar agendamento');
+        showToast({ message: 'Erro ao arquivar agendamento', type: 'error' });
     }
 }
 
@@ -594,9 +613,15 @@ async function archiveAppointment(appointmentId: number | string): Promise<void>
  * Delete Appointment
  */
 async function deleteAppointment(appointmentId: number | string): Promise<void> {
-    const confirmed = confirm(
-        '🗑️ Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita!'
-    );
+    const confirmed = await showConfirmModal({
+        title: 'Excluir agendamento',
+        message:
+            'Tem certeza que deseja EXCLUIR este agendamento? Esta ação não pode ser desfeita!',
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        variant: 'danger',
+        icon: 'fa-trash',
+    });
     if (!confirmed) return;
 
     try {
@@ -609,11 +634,11 @@ async function deleteAppointment(appointmentId: number | string): Promise<void> 
 
         if (!response.ok) throw new Error('Erro ao excluir');
 
-        alert('✅ Agendamento excluído com sucesso!');
+        showToast({ message: 'Agendamento excluído com sucesso!', type: 'success' });
         location.reload();
     } catch (error: unknown) {
         console.error('Erro ao excluir:', error);
-        alert('❌ Erro ao excluir agendamento');
+        showToast({ message: 'Erro ao excluir agendamento', type: 'error' });
     }
 }
 
@@ -642,11 +667,14 @@ async function markAttendance(appointmentId: number, attendanceStatus: string): 
             cancelado: 'Cancelamento registrado.',
         };
 
-        alert(`✅ ${labels[attendanceStatus] || 'Status atualizado!'}`);
+        showToast({
+            message: `${labels[attendanceStatus] || 'Status atualizado!'}`,
+            type: 'success',
+        });
         loadAgenda();
     } catch (error: unknown) {
         console.error('Erro ao marcar presença:', error);
-        alert('❌ Erro ao atualizar status');
+        showToast({ message: 'Erro ao atualizar status', type: 'error' });
     }
 }
 
@@ -708,7 +736,7 @@ async function openEditModal(appointmentId: number | string): Promise<void> {
             });
 
             if (!response.ok) {
-                alert('❌ Agendamento não encontrado');
+                showToast({ message: 'Agendamento não encontrado', type: 'error' });
                 return;
             }
 
@@ -719,7 +747,7 @@ async function openEditModal(appointmentId: number | string): Promise<void> {
             appointment = data;
         } catch (error: unknown) {
             console.error('Erro ao buscar agendamento:', error);
-            alert('❌ Erro ao carregar dados do agendamento');
+            showToast({ message: 'Erro ao carregar dados do agendamento', type: 'error' });
             return;
         }
     }
@@ -826,7 +854,7 @@ function closeEditModal(): void {
 
 function openPaymentCheckout(): void {
     if (!currentModalAppointment) {
-        alert('⚠️ Nenhum agendamento selecionado');
+        showToast({ message: 'Nenhum agendamento selecionado', type: 'warning' });
         return;
     }
 
@@ -856,12 +884,12 @@ function openPaymentCheckout(): void {
 
 async function openWhatsAppConfirmation(): Promise<void> {
     if (!currentModalAppointment) {
-        alert('⚠️ Nenhum agendamento selecionado');
+        showToast({ message: 'Nenhum agendamento selecionado', type: 'warning' });
         return;
     }
 
     if (!currentModalAppointment.phone) {
-        alert('⚠️ Telefone do paciente não encontrado');
+        showToast({ message: 'Telefone do paciente não encontrado', type: 'warning' });
         return;
     }
 
@@ -875,7 +903,14 @@ async function openWhatsAppConfirmation(): Promise<void> {
         `https://wa.me/55${currentModalAppointment.phone.replace(/\D/g, '')}`;
     window.open(url, '_blank');
 
-    const confirmed = confirm('O paciente confirmou?');
+    const confirmed = await showConfirmModal({
+        title: 'Confirmar presença',
+        message: 'O paciente confirmou?',
+        confirmText: 'Sim, confirmou',
+        cancelText: 'Cancelar',
+        variant: 'info',
+        icon: 'fa-circle-check',
+    });
     if (!confirmed) return;
 
     try {
@@ -893,12 +928,12 @@ async function openWhatsAppConfirmation(): Promise<void> {
             throw new Error(errorData.error || 'Erro ao confirmar agendamento');
         }
 
-        alert('✅ Agendamento confirmado com sucesso!');
+        showToast({ message: 'Agendamento confirmado com sucesso!', type: 'success' });
         location.reload();
     } catch (error: unknown) {
         console.error('❌ Error confirming appointment:', error);
         const message = error instanceof Error ? error.message : 'Erro desconhecido';
-        alert(`❌ Erro ao confirmar: ${message}`);
+        showToast({ message: `Erro ao confirmar: ${message}`, type: 'error' });
     }
 }
 
@@ -931,7 +966,7 @@ async function saveEdit(event: Event): Promise<void> {
 
     // Validate required fields
     if (!name || !phone || !appointmentDate) {
-        alert('⚠️ Preencha todos os campos obrigatórios');
+        showToast({ message: 'Preencha todos os campos obrigatórios', type: 'warning' });
         return;
     }
 
@@ -979,12 +1014,12 @@ async function saveEdit(event: Event): Promise<void> {
         closeEditModal();
 
         // Show success notification and reload page
-        alert('✅ Agendamento atualizado com sucesso!');
+        showToast({ message: 'Agendamento atualizado com sucesso!', type: 'success' });
         location.reload();
     } catch (error: unknown) {
         console.error('❌ Error updating appointment:', error);
         const message = error instanceof Error ? error.message : 'Erro desconhecido';
-        alert(`❌ Erro ao atualizar: ${message}`);
+        showToast({ message: `Erro ao atualizar: ${message}`, type: 'error' });
     }
 }
 
@@ -1093,7 +1128,7 @@ if (checkoutFormEl) {
         event.preventDefault();
 
         if (!currentModalAppointment) {
-            alert('⚠️ Nenhum agendamento selecionado');
+            showToast({ message: 'Nenhum agendamento selecionado', type: 'warning' });
             return;
         }
 
@@ -1106,7 +1141,7 @@ if (checkoutFormEl) {
         ).value;
 
         if (!amount || amount <= 0) {
-            alert('⚠️ Informe um valor válido');
+            showToast({ message: 'Informe um valor válido', type: 'warning' });
             return;
         }
 
@@ -1138,17 +1173,13 @@ if (checkoutFormEl) {
             }
 
             markAppointmentPaid(currentModalAppointment.id);
-            if (typeof showNotification === 'function') {
-                showNotification('✅ Pagamento recebido com sucesso!', 'success');
-            } else {
-                alert('✅ Pagamento recebido com sucesso!');
-            }
+            showToast({ message: 'Pagamento recebido com sucesso!', type: 'success' });
 
             closeEditModal();
         } catch (error: unknown) {
             console.error('❌ Error registering payment:', error);
             const message = error instanceof Error ? error.message : 'Erro desconhecido';
-            alert(`❌ Erro ao registrar pagamento: ${message}`);
+            showToast({ message: `Erro ao registrar pagamento: ${message}`, type: 'error' });
         }
     });
 }

@@ -2,6 +2,12 @@
 // Admin Panel - Mobile Menu & UI Controls
 // ============================================
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 import { extractTimeFromDate } from '../utils/date-utils';
 
 interface ConfirmationLead {
@@ -237,7 +243,7 @@ async function openConfirmationQueue(): Promise<void> {
             sessionStorage.getItem('accessToken');
 
         if (!token) {
-            alert('Sessão expirada. Faça login novamente.');
+            showToast({ message: 'Sessão expirada. Faça login novamente.', type: 'warning' });
             window.location.href = '/login.html';
             return;
         }
@@ -278,7 +284,7 @@ async function openConfirmationQueue(): Promise<void> {
         }
     } catch (error) {
         console.error('❌ Error opening confirmation queue:', error);
-        alert('❌ Erro ao carregar fila de confirmação');
+        showToast({ message: 'Erro ao carregar fila de confirmação', type: 'error' });
     }
 }
 
@@ -476,7 +482,7 @@ function copyMessage(leadId: number, message: string): void {
         })
         .catch((err: unknown) => {
             console.error('Failed to copy:', err);
-            alert('❌ Erro ao copiar mensagem');
+            showToast({ message: 'Erro ao copiar mensagem', type: 'error' });
         });
 }
 

@@ -7,6 +7,15 @@
  * - Login As (Impersonate) para suporte
  */
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 // Tipos locais
 interface SystemStats {
     mrr: {
@@ -165,7 +174,14 @@ async function toggleClinicStatus(clinicId: string, currentStatus: string): Prom
     const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
     const action = newStatus === 'suspended' ? 'bloquear' : 'desbloquear';
 
-    const confirmed = confirm(`Tem certeza que deseja ${action} esta clínica?`);
+    const confirmed = await showConfirmModal({
+        title: action === 'bloquear' ? 'Bloquear Clínica' : 'Desbloquear Clínica',
+        message: `Tem certeza que deseja ${action} esta clínica?`,
+        confirmText: action === 'bloquear' ? 'Bloquear' : 'Desbloquear',
+        cancelText: 'Cancelar',
+        icon: action === 'bloquear' ? 'fa-ban' : 'fa-check-circle',
+        variant: action === 'bloquear' ? 'danger' : 'info',
+    });
     if (!confirmed) return;
 
     const reason = prompt(
@@ -202,10 +218,14 @@ async function toggleClinicStatus(clinicId: string, currentStatus: string): Prom
 }
 
 async function impersonateClinic(clinicId: string, clinicName: string): Promise<void> {
-    const confirmed = confirm(
-        `Deseja gerar token de suporte para acessar "${clinicName}"?\n\n` +
-            `Isso permitirá que você faça login como admin desta clínica.`
-    );
+    const confirmed = await showConfirmModal({
+        title: 'Token de Suporte',
+        message: `Deseja gerar token de suporte para acessar "${clinicName}"?\n\nIsso permitirá que você faça login como admin desta clínica.`,
+        confirmText: 'Gerar Token',
+        cancelText: 'Cancelar',
+        icon: 'fa-key',
+        variant: 'warning',
+    });
 
     if (!confirmed) return;
 

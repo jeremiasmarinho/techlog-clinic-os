@@ -3,6 +3,20 @@
  * Gerenciamento de clínicas no painel super_admin
  */
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 // Tipos locais
 interface SaasClinic {
     id: number;
@@ -462,15 +476,23 @@ async function handleStatusChange(target: HTMLSelectElement): Promise<void> {
         });
         await Promise.all([loadClinics(), loadStats()]);
     } catch (error) {
-        alert((error as Error).message || 'Erro ao atualizar status');
+        showToast({
+            message: (error as Error).message || 'Erro ao atualizar status',
+            type: 'error',
+        });
     }
 }
 
 async function handleDeleteClinic(target: HTMLElement): Promise<void> {
     const clinicId = target.dataset.id;
-    const confirmed = window.confirm(
-        'Tem certeza que deseja deletar esta clínica? Esta ação é irreversível.'
-    );
+    const confirmed = await showConfirmModal({
+        title: 'Deletar Clínica',
+        message: 'Tem certeza que deseja deletar esta clínica? Esta ação é irreversível.',
+        confirmText: 'Deletar',
+        cancelText: 'Cancelar',
+        icon: 'fa-trash-alt',
+        variant: 'danger',
+    });
     if (!confirmed) return;
 
     try {
@@ -479,7 +501,10 @@ async function handleDeleteClinic(target: HTMLElement): Promise<void> {
         });
         await Promise.all([loadClinics(), loadStats()]);
     } catch (error) {
-        alert((error as Error).message || 'Erro ao deletar clínica');
+        showToast({
+            message: (error as Error).message || 'Erro ao deletar clínica',
+            type: 'error',
+        });
     }
 }
 
@@ -513,7 +538,10 @@ function bindEvents(): void {
             try {
                 await downloadCsv(`${apiBase}/analytics/export`, `analytics_${Date.now()}.csv`);
             } catch (error) {
-                alert((error as Error).message || 'Erro ao exportar analytics');
+                showToast({
+                    message: (error as Error).message || 'Erro ao exportar analytics',
+                    type: 'error',
+                });
             }
         });
     }
@@ -523,7 +551,10 @@ function bindEvents(): void {
             try {
                 await downloadCsv(`${apiBase}/audit-logs/export`, `audit_logs_${Date.now()}.csv`);
             } catch (error) {
-                alert((error as Error).message || 'Erro ao exportar auditoria');
+                showToast({
+                    message: (error as Error).message || 'Erro ao exportar auditoria',
+                    type: 'error',
+                });
             }
         });
     }
@@ -546,7 +577,10 @@ function bindEvents(): void {
                     });
                     await Promise.all([loadClinics(), loadStats(), loadUpgradeRequests()]);
                 } catch (error) {
-                    alert((error as Error).message || 'Erro ao atualizar solicitação');
+                    showToast({
+                        message: (error as Error).message || 'Erro ao atualizar solicitação',
+                        type: 'error',
+                    });
                 }
             }
         });

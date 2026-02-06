@@ -12,6 +12,12 @@ declare function showConfirmModal(options: {
     variant?: string;
 }): Promise<boolean>;
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+
 import type {
     Appointment,
     AppointmentFinancial,
@@ -130,7 +136,7 @@ export const AppointmentsService: AppointmentsServiceType = {
 
     openWhatsApp(phone: string | null | undefined, message: string = ''): void {
         if (!phone) {
-            alert('Telefone não informado');
+            showToast({ message: 'Telefone não informado', type: 'warning' });
             return;
         }
         const cleanPhone = phone.replace(/\D/g, '');
@@ -239,22 +245,36 @@ let currentViewingAppointment: Appointment | null = null;
 async function confirmAppointment(id: string | number): Promise<void> {
     try {
         await AppointmentsService.confirm(id);
-        alert('✅ Agendamento confirmado!');
+        showToast({ message: 'Agendamento confirmado!', type: 'success' });
         location.reload();
     } catch (error) {
-        alert('❌ ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+        showToast({
+            message: error instanceof Error ? error.message : 'Erro desconhecido',
+            type: 'error',
+        });
     }
 }
 
 async function archiveAppointment(id: string | number): Promise<void> {
-    if (!confirm('⚠️ Arquivar este agendamento?')) return;
+    const archiveConfirmed = await showConfirmModal({
+        title: 'Arquivar Agendamento',
+        message: 'Arquivar este agendamento?',
+        confirmText: 'Arquivar',
+        cancelText: 'Cancelar',
+        icon: 'fa-archive',
+        variant: 'warning',
+    });
+    if (!archiveConfirmed) return;
 
     try {
         await AppointmentsService.archive(id);
-        alert('✅ Agendamento arquivado!');
+        showToast({ message: 'Agendamento arquivado!', type: 'success' });
         location.reload();
     } catch (error) {
-        alert('❌ ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+        showToast({
+            message: error instanceof Error ? error.message : 'Erro desconhecido',
+            type: 'error',
+        });
     }
 }
 
@@ -271,32 +291,49 @@ async function deleteAppointment(id: string | number): Promise<void> {
 
     try {
         await AppointmentsService.delete(id);
-        alert('✅ Agendamento excluído!');
+        showToast({ message: 'Agendamento excluído!', type: 'success' });
         location.reload();
     } catch (error) {
-        alert('❌ ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+        showToast({
+            message: error instanceof Error ? error.message : 'Erro desconhecido',
+            type: 'error',
+        });
     }
 }
 
 async function completeAppointment(id: string | number): Promise<void> {
     try {
         await AppointmentsService.complete(id);
-        alert('✅ Agendamento marcado como atendido!');
+        showToast({ message: 'Agendamento marcado como atendido!', type: 'success' });
         location.reload();
     } catch (error) {
-        alert('❌ ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+        showToast({
+            message: error instanceof Error ? error.message : 'Erro desconhecido',
+            type: 'error',
+        });
     }
 }
 
 async function markNoShow(id: string | number): Promise<void> {
-    if (!confirm('⚠️ Marcar como não compareceu?')) return;
+    const noShowConfirmed = await showConfirmModal({
+        title: 'Não Compareceu',
+        message: 'Marcar como não compareceu?',
+        confirmText: 'Confirmar',
+        cancelText: 'Cancelar',
+        icon: 'fa-user-times',
+        variant: 'warning',
+    });
+    if (!noShowConfirmed) return;
 
     try {
         await AppointmentsService.noShow(id);
-        alert('✅ Marcado como não compareceu!');
+        showToast({ message: 'Marcado como não compareceu!', type: 'success' });
         location.reload();
     } catch (error) {
-        alert('❌ ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+        showToast({
+            message: error instanceof Error ? error.message : 'Erro desconhecido',
+            type: 'error',
+        });
     }
 }
 
@@ -367,7 +404,10 @@ async function openViewModal(id: string | number): Promise<void> {
             modal.classList.add('flex');
         }
     } catch (error) {
-        alert('❌ ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
+        showToast({
+            message: error instanceof Error ? error.message : 'Erro desconhecido',
+            type: 'error',
+        });
     }
 }
 
@@ -566,7 +606,15 @@ function renderArchivedCard(apt: Appointment): string {
 }
 
 async function restoreAppointment(id: string): Promise<void> {
-    if (!confirm('Restaurar este agendamento? Ele voltará para a agenda.')) return;
+    const restoreConfirmed = await showConfirmModal({
+        title: 'Restaurar Agendamento',
+        message: 'Restaurar este agendamento? Ele voltará para a agenda.',
+        confirmText: 'Restaurar',
+        cancelText: 'Cancelar',
+        icon: 'fa-undo',
+        variant: 'info',
+    });
+    if (!restoreConfirmed) return;
 
     try {
         const token = AppointmentsService.getToken();
@@ -577,13 +625,13 @@ async function restoreAppointment(id: string): Promise<void> {
 
         if (!response.ok) throw new Error('Erro ao restaurar');
 
-        alert('✅ Agendamento restaurado com sucesso!');
+        showToast({ message: 'Agendamento restaurado com sucesso!', type: 'success' });
         loadArchivedAppointments();
 
         if (typeof window.loadAgenda === 'function') window.loadAgenda();
         if (typeof window.calendar?.refetchEvents === 'function') window.calendar.refetchEvents();
     } catch {
-        alert('❌ Erro ao restaurar agendamento');
+        showToast({ message: 'Erro ao restaurar agendamento', type: 'error' });
     }
 }
 
@@ -600,10 +648,10 @@ async function permanentlyDeleteAppointment(id: string): Promise<void> {
 
     try {
         await AppointmentsService.delete(id);
-        alert('✅ Agendamento excluído permanentemente!');
+        showToast({ message: 'Agendamento excluído permanentemente!', type: 'success' });
         loadArchivedAppointments();
     } catch {
-        alert('❌ Erro ao excluir agendamento');
+        showToast({ message: 'Erro ao excluir agendamento', type: 'error' });
     }
 }
 

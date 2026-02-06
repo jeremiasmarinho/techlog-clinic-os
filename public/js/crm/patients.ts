@@ -3,6 +3,20 @@
  * Handles advanced filtering and archiving for patients
  */
 
+declare function showToast(options: {
+    message: string;
+    type?: 'success' | 'error' | 'warning' | 'info';
+    duration?: number;
+}): void;
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 // ============================================
 // Type Definitions
 // ============================================
@@ -39,7 +53,7 @@ const token: string | null =
     sessionStorage.getItem('token') ||
     sessionStorage.getItem('accessToken');
 if (!token) {
-    alert('Sessão inválida. Faça login novamente.');
+    showToast({ message: 'Sessão inválida. Faça login novamente.', type: 'warning' });
     window.location.href = '/login.html';
 }
 
@@ -561,7 +575,7 @@ async function confirmArchive(): Promise<void> {
         'input[name="archiveReason"]:checked'
     ) as HTMLInputElement | null;
     if (!selectedReason) {
-        alert('Selecione um motivo para arquivar.');
+        showToast({ message: 'Selecione um motivo para arquivar.', type: 'warning' });
         return;
     }
 
@@ -627,9 +641,14 @@ function archivePatient(patientId: number): void {
 }
 
 async function _archivePatientOld(patientId: number): Promise<void> {
-    const confirmed: boolean = confirm(
-        'Tem certeza que deseja arquivar? O paciente sumirá da lista principal.'
-    );
+    const confirmed: boolean = await showConfirmModal({
+        title: 'Arquivar Paciente',
+        message: 'Tem certeza que deseja arquivar? O paciente sumirá da lista principal.',
+        confirmText: 'Arquivar',
+        cancelText: 'Cancelar',
+        icon: 'fa-archive',
+        variant: 'warning',
+    });
     if (!confirmed) return;
 
     try {

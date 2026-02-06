@@ -3,6 +3,15 @@
  * Exibe informações da clínica logada (nome, plano, status)
  */
 
+declare function showConfirmModal(options: {
+    title?: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    icon?: string;
+    variant?: string;
+}): Promise<boolean>;
+
 interface RoleConfig {
     label: string;
     color: string;
@@ -121,8 +130,16 @@ class ClinicHeader {
         }
     }
 
-    static logout(): void {
-        if (confirm('Deseja realmente sair do sistema?')) {
+    static async logout(): Promise<void> {
+        const confirmed = await showConfirmModal({
+            title: 'Sair do Sistema',
+            message: 'Deseja realmente sair do sistema?',
+            confirmText: 'Sair',
+            cancelText: 'Cancelar',
+            icon: 'fa-sign-out-alt',
+            variant: 'danger',
+        });
+        if (confirmed) {
             sessionStorage.clear();
             window.location.href = '/login.html';
         }
