@@ -190,11 +190,11 @@
   --bg-hover: rgba(8, 145, 178, 0.06);
   --bg-input: #ffffff;
 
-  /* ---- Cores de texto ---- */
-  --text-primary: #1a2b3d;
-  --text-secondary: #374151;
-  --text-muted: #6b7280;
-  --text-placeholder: #9ca3af;
+  /* ---- Cores de texto - Alto contraste ---- */
+  --text-primary: #0f1729;
+  --text-secondary: #1e293b;
+  --text-muted: #475569;
+  --text-placeholder: #94a3b8;
   --text-inverse: #ffffff;
 
   /* ---- Bordas ---- */
@@ -211,10 +211,10 @@
   --primary-glow: rgba(8, 145, 178, 0.25);
 
   /* ---- Cores secundárias ---- */
-  --secondary: #6b7280;
-  --secondary-hover: #4b5563;
-  --secondary-active: #374151;
-  --secondary-light: rgba(107, 114, 128, 0.10);
+  --secondary: #475569;
+  --secondary-hover: #334155;
+  --secondary-active: #1e293b;
+  --secondary-light: rgba(71, 85, 105, 0.12);
 
   /* ---- Cores de status - Modernas e vibrantes ---- */
   --success: #059669;
@@ -2121,13 +2121,13 @@
 /* Botões Outline no Light Mode */
 [data-theme="light"] .btn-outline {
   background: transparent;
-  color: #334155;
-  border-color: rgba(203, 213, 225, 0.5);
+  color: #1e293b;
+  border-color: rgba(203, 213, 225, 0.6);
 }
 
 [data-theme="light"] .btn-outline:hover {
   background: #f8fafc;
-  border-color: rgba(148, 163, 184, 0.5);
+  border-color: rgba(148, 163, 184, 0.6);
   color: #0f172a;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
@@ -2189,7 +2189,7 @@
 
 /* Botões Ghost no Light Mode */
 [data-theme="light"] .btn-ghost {
-  color: #64748b;
+  color: #475569;
 }
 
 [data-theme="light"] .btn-ghost:hover {
@@ -2227,14 +2227,14 @@
 }
 
 [data-theme="light"] .btn-icon.btn-outline {
-  border-color: rgba(203, 213, 225, 0.4);
-  color: #64748b;
+  border-color: rgba(203, 213, 225, 0.5);
+  color: #475569;
 }
 
 [data-theme="light"] .btn-icon.btn-outline:hover {
   background: #f8fafc;
   border-color: transparent;
-  color: #334155;
+  color: #1e293b;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
@@ -2320,7 +2320,7 @@
 /* ---- Inputs no Light Mode ---- */
 [data-theme="light"] .input {
   background: #ffffff;
-  border-color: rgba(203, 213, 225, 0.5);
+  border-color: rgba(203, 213, 225, 0.6);
   color: #0f172a;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
@@ -2384,61 +2384,61 @@
 /* ---- Badges no Light Mode - Melhor contraste ---- */
 [data-theme="light"] .badge-primary {
   background: rgba(8, 145, 178, 0.15);
-  color: #0e7490;
+  color: #0c5e73;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-success {
   background: rgba(22, 163, 74, 0.15);
-  color: #15803d;
+  color: #166534;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-warning {
   background: rgba(217, 119, 6, 0.15);
-  color: #b45309;
+  color: #92400e;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-danger {
   background: rgba(220, 38, 38, 0.15);
-  color: #b91c1c;
+  color: #991b1b;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-info {
   background: rgba(37, 99, 235, 0.15);
-  color: #1d4ed8;
+  color: #1e40af;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-secondary {
-  background: rgba(100, 116, 139, 0.15);
-  color: #475569;
+  background: rgba(71, 85, 105, 0.15);
+  color: #334155;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-orange {
   background: rgba(234, 88, 12, 0.15);
-  color: #c2410c;
+  color: #9a3412;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-purple {
   background: rgba(147, 51, 234, 0.15);
-  color: #7c3aed;
+  color: #5b21b6;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-teal {
   background: rgba(13, 148, 136, 0.15);
-  color: #0f766e;
+  color: #115e59;
   font-weight: 600;
 }
 
 [data-theme="light"] .badge-pink {
   background: rgba(219, 39, 119, 0.15);
-  color: #be185d;
+  color: #9d174d;
   font-weight: 600;
 }
 
@@ -2449,13 +2449,13 @@
 
 [data-theme="light"] .table th {
   background: #f8fafc;
-  color: #475569;
-  border-bottom: 2px solid rgba(226, 232, 240, 0.5);
+  color: #334155;
+  border-bottom: 2px solid rgba(226, 232, 240, 0.6);
 }
 
 [data-theme="light"] .table td {
-  color: #334155;
-  border-color: rgba(226, 232, 240, 0.4);
+  color: #1e293b;
+  border-color: rgba(226, 232, 240, 0.5);
 }
 
 [data-theme="light"] .table tbody tr:hover {
@@ -2488,7 +2488,7 @@
 
 /* ---- Modais no Light Mode ---- */
 [data-theme="light"] .modal-overlay {
-  background: rgba(15, 23, 42, 0.3);
+  background: rgba(15, 23, 42, 0.4);
 }
 
 [data-theme="light"] .modal {
@@ -2527,7 +2527,7 @@
 }
 
 [data-theme="light"] .lead-card .lead-info {
-  color: #64748b;
+  color: #475569;
 }
 
 /* Kanban Column */
@@ -2546,13 +2546,13 @@
   background: #ffffff;
   border-color: transparent;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.14), 0 4px 14px rgba(0, 0, 0, 0.06);
-  color: #334155;
+  color: #1e293b;
 }
 
 /* Avatar */
 [data-theme="light"] .avatar {
   background: rgba(8, 145, 178, 0.15);
-  color: #0e7490;
+  color: #0c5e73;
 }
 
 /* Progress */
@@ -2572,11 +2572,11 @@
 }
 
 [data-theme="light"] .tab {
-  color: #64748b;
+  color: #475569;
 }
 
 [data-theme="light"] .tab:hover {
-  color: #334155;
+  color: #1e293b;
   background: #f8fafc;
 }
 
@@ -2592,11 +2592,11 @@
 }
 
 [data-theme="light"] .pill {
-  color: #64748b;
+  color: #475569;
 }
 
 [data-theme="light"] .pill:hover {
-  color: #334155;
+  color: #1e293b;
   background: rgba(255, 255, 255, 0.5);
 }
 
@@ -2614,7 +2614,7 @@
 }
 
 [data-theme="light"] .dropdown-item {
-  color: #334155;
+  color: #1e293b;
 }
 
 [data-theme="light"] .dropdown-item:hover {
@@ -2623,7 +2623,7 @@
 }
 
 [data-theme="light"] .dropdown-item i {
-  color: #64748b;
+  color: #475569;
 }
 
 [data-theme="light"] .dropdown-divider {
@@ -2639,11 +2639,11 @@
 
 /* Empty State */
 [data-theme="light"] .empty-state {
-  color: #64748b;
+  color: #475569;
 }
 
 [data-theme="light"] .empty-state-title {
-  color: #334155;
+  color: #1e293b;
 }
 
 /* Divider */

@@ -279,14 +279,14 @@ body {
 }
 
 [data-theme="light"] .kanban-count {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.06);
   border: none;
-  color: #475569;
+  color: #334155;
 }
 
 [data-theme="light"] .kanban-toast {
   background: #ffffff;
-  color: #334155;
+  color: #1e293b;
   border: none;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.14), 0 4px 14px rgba(0, 0, 0, 0.06);
 }
@@ -304,15 +304,15 @@ body {
 }
 
 [data-theme="light"] .avatar {
-  background: rgba(8, 145, 178, 0.12);
+  background: rgba(8, 145, 178, 0.14);
   border: none;
-  color: #0e7490;
+  color: #0c5e73;
 }
 
 [data-theme="light"] .tag-blue {
   background: #dbeafe;
   border: none;
-  color: #1d4ed8;
+  color: #1e40af;
 }
 
 [data-theme="light"] .tag-emerald {
@@ -324,5 +324,5 @@ body {
 [data-theme="light"] .tag-purple {
   background: #ede9fe;
   border: none;
-  color: #6d28d9;
+  color: #5b21b6;
 }

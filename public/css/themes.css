@@ -80,7 +80,7 @@ a.btn-primary:not(.btn):hover {
 }
 
 [data-theme="light"] #sidebar .sidebar-item {
-  color: #475569 !important;
+  color: #334155 !important;
   transition: all 0.2s ease;
   border-radius: 8px;
   margin: 2px 8px;
@@ -111,8 +111,8 @@ a.btn-primary:not(.btn):hover {
 }
 
 [data-theme="light"] #sidebar .sidebar-item.active {
-  background: linear-gradient(90deg, rgba(8, 145, 178, 0.15) 0%, rgba(8, 145, 178, 0.08) 100%) !important;
-  color: #0e7490 !important;
+  background: linear-gradient(90deg, rgba(8, 145, 178, 0.18) 0%, rgba(8, 145, 178, 0.10) 100%) !important;
+  color: #0c5e73 !important;
 }
 
 [data-theme="light"] #sidebar .sidebar-item.active::before {
@@ -120,7 +120,7 @@ a.btn-primary:not(.btn):hover {
 }
 
 [data-theme="light"] #sidebar .sidebar-item i {
-  color: #64748b !important;
+  color: #475569 !important;
   transition: all 0.2s ease;
 }
 
@@ -130,7 +130,7 @@ a.btn-primary:not(.btn):hover {
 }
 
 [data-theme="light"] #sidebar .sidebar-item.active i {
-  color: #0e7490 !important;
+  color: #0c5e73 !important;
 }
 
 [data-theme="light"] #sidebar .bg-cyan-500\/20 {
@@ -138,7 +138,7 @@ a.btn-primary:not(.btn):hover {
 }
 
 [data-theme="light"] #sidebar .text-white {
-  color: #1a2b3d !important;
+  color: #0f1729 !important;
 }
 
 [data-theme="light"] #sidebar .text-cyan-400 {
@@ -147,7 +147,7 @@ a.btn-primary:not(.btn):hover {
 
 [data-theme="light"] #sidebar .text-gray-300,
 [data-theme="light"] #sidebar .text-slate-300 {
-  color: #64748b !important;
+  color: #475569 !important;
 }
 
 [data-theme="light"] .border-slate-700\/50 {
@@ -172,7 +172,7 @@ a.btn-primary:not(.btn):hover {
 [data-theme="light"] #sidebar select {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
   border: 1px solid rgba(226, 232, 240, 0.5) !important;
-  color: #1a2b3d !important;
+  color: #0f1729 !important;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
@@ -202,82 +202,82 @@ a.btn-primary:not(.btn):hover {
    Sobrescreve classes Tailwind no light mode
    ============================================ */
 
-/* Textos - cores mais modernas */
+/* Textos - alto contraste para light mode */
 [data-theme="light"] .text-white {
-  color: #1a2b3d !important;
+  color: #0f1729 !important;
 }
 
 [data-theme="light"] .text-slate-200 {
-  color: #374151 !important;
+  color: #1e293b !important;
 }
 
 [data-theme="light"] .text-slate-300 {
-  color: #475569 !important;
+  color: #334155 !important;
 }
 
 [data-theme="light"] .text-slate-400 {
-  color: #6b7280 !important;
-}
-
-[data-theme="light"] .text-slate-500 {
-  color: #6b7280 !important;
-}
-
-[data-theme="light"] .text-gray-300 {
   color: #475569 !important;
 }
 
+[data-theme="light"] .text-slate-500 {
+  color: #475569 !important;
+}
+
+[data-theme="light"] .text-gray-300 {
+  color: #334155 !important;
+}
+
 [data-theme="light"] .text-gray-400 {
-  color: #6b7280 !important;
+  color: #475569 !important;
 }
 
 [data-theme="light"] .text-gray-500 {
-  color: #6b7280 !important;
+  color: #475569 !important;
 }
 
-/* Cores de destaque - mais vibrantes para light mode */
+/* Cores de destaque - alto contraste para light mode */
 [data-theme="light"] .text-cyan-300 {
-  color: #0891b2 !important;
-}
-
-[data-theme="light"] .text-cyan-400 {
   color: #0e7490 !important;
 }
 
-[data-theme="light"] .text-teal-300 {
-  color: #0d9488 !important;
+[data-theme="light"] .text-cyan-400 {
+  color: #155e75 !important;
 }
 
-[data-theme="light"] .text-teal-400 {
+[data-theme="light"] .text-teal-300 {
   color: #0f766e !important;
 }
 
-[data-theme="light"] .text-green-300 {
-  color: #16a34a !important;
+[data-theme="light"] .text-teal-400 {
+  color: #115e59 !important;
 }
 
-[data-theme="light"] .text-green-400 {
+[data-theme="light"] .text-green-300 {
   color: #15803d !important;
 }
 
+[data-theme="light"] .text-green-400 {
+  color: #166534 !important;
+}
+
 [data-theme="light"] .text-red-400 {
-  color: #dc2626 !important;
+  color: #b91c1c !important;
 }
 
 [data-theme="light"] .text-yellow-400 {
-  color: #b45309 !important;
+  color: #92400e !important;
 }
 
 [data-theme="light"] .text-orange-400 {
-  color: #c2410c !important;
+  color: #9a3412 !important;
 }
 
 [data-theme="light"] .text-blue-400 {
-  color: #1d4ed8 !important;
+  color: #1e40af !important;
 }
 
 [data-theme="light"] .text-purple-400 {
-  color: #7c3aed !important;
+  color: #6d28d9 !important;
 }
 
 /* Fundos - tons mais modernos */
@@ -335,8 +335,8 @@ a.btn-primary:not(.btn):hover {
 [data-theme="light"] select:not(.input):not(.select),
 [data-theme="light"] textarea:not(.input):not(.textarea) {
   background: #ffffff !important;
-  border: 1px solid rgba(203, 213, 225, 0.4) !important;
-  color: #1a2b3d !important;
+  border: 1px solid rgba(203, 213, 225, 0.5) !important;
+  color: #0f1729 !important;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
@@ -357,21 +357,21 @@ a.btn-primary:not(.btn):hover {
 
 [data-theme="light"] input::placeholder,
 [data-theme="light"] textarea::placeholder {
-  color: #9ca3af !important;
+  color: #94a3b8 !important;
 }
 
 /* Cards no light mode - borderless, shadow-based */
 [data-theme="light"] .glass-card {
   background: rgba(255, 255, 255, 0.98) !important;
   border: none !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.09), 0 1px 4px rgba(0, 0, 0, 0.06) !important;
   transition: all 0.25s ease;
 }
 
 [data-theme="light"] .glass-card:hover {
   background: #ffffff !important;
   border: none !important;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.10), 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.06) !important;
   transform: translateY(-1px);
 }
 
@@ -393,11 +393,11 @@ a.btn-primary:not(.btn):hover {
 [data-theme="light"] .lead-card .text-xs,
 [data-theme="light"] .lead-card .text-sm,
 [data-theme="light"] .lead-card p {
-  color: #374151 !important;
+  color: #1e293b !important;
 }
 
 html[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"]):not([class*="text-"]) {
-  color: #6b7280 !important;
+  color: #475569 !important;
 }
 
 /* ============================================
@@ -576,7 +576,7 @@ html[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"
 [data-theme="light"] .bg-slate-800\/60 i,
 [data-theme="light"] .bg-slate-800\/50 i,
 [data-theme="light"] [class*="bg-slate-800"] i {
-  color: #64748b !important;
+  color: #475569 !important;
   transition: color 0.2s ease;
 }
 
@@ -669,20 +669,20 @@ html[data-theme="light"] .kanban-column .lead-card:hover {
 html[data-theme="light"] .lead-card .lead-name,
 html[data-theme="light"] .lead-card h3,
 html[data-theme="light"] lead-card h3 {
-  color: #1a2b3d !important;
+  color: #0f1729 !important;
 }
 
 /* Texto geral dos leads */
 html[data-theme="light"] .lead-card p,
 html[data-theme="light"] .lead-card .lead-phone,
 html[data-theme="light"] lead-card p {
-  color: #4b5563 !important;
+  color: #334155 !important;
 }
 
 /* Ícones dentro dos leads */
 html[data-theme="light"] .lead-card i,
 html[data-theme="light"] lead-card i {
-  color: #0891b2 !important;
+  color: #0c5e73 !important;
 }
 
 /* ============================================
