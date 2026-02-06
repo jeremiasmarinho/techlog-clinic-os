@@ -83,7 +83,7 @@ a.btn-primary:not(.btn):hover {
   color: #334155 !important;
   transition: all 0.2s ease;
   border-radius: 8px;
-  margin: 2px 8px;
+  margin: 2px 0;
   position: relative;
 }
 
