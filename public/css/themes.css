@@ -75,7 +75,7 @@ a.btn-primary:not(.btn):hover {
 
 [data-theme="light"] #sidebar {
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
-  border-right: none !important;
+  border-right-color: transparent !important;
   box-shadow: 2px 0 20px rgba(0, 0, 0, 0.04), 4px 0 8px rgba(0, 0, 0, 0.02);
 }
 
@@ -83,7 +83,6 @@ a.btn-primary:not(.btn):hover {
   color: #334155 !important;
   transition: all 0.2s ease;
   border-radius: 8px;
-  margin: 2px 0;
   position: relative;
 }
 
@@ -158,7 +157,7 @@ a.btn-primary:not(.btn):hover {
 
 [data-theme="light"] #sidebar #toggleSidebarBtn {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
-  border: none !important;
+  border-color: transparent !important;
   color: #0891b2 !important;
   transition: all 0.2s ease;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -166,8 +165,7 @@ a.btn-primary:not(.btn):hover {
 
 [data-theme="light"] #sidebar #toggleSidebarBtn:hover {
   background: linear-gradient(135deg, rgba(8, 145, 178, 0.18) 0%, rgba(8, 145, 178, 0.12) 100%) !important;
-  border: none !important;
-  transform: scale(1.05);
+  border-color: transparent !important;
   box-shadow: 0 2px 8px rgba(8, 145, 178, 0.18);
 }
 
@@ -362,34 +360,32 @@ a.btn-primary:not(.btn):hover {
   color: #94a3b8 !important;
 }
 
-/* Cards no light mode - borderless, shadow-based */
+/* Cards no light mode - shadow-based */
 [data-theme="light"] .glass-card {
   background: rgba(255, 255, 255, 0.98) !important;
-  border: none !important;
+  border-color: transparent !important;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.09), 0 1px 4px rgba(0, 0, 0, 0.06) !important;
   transition: all 0.25s ease;
 }
 
 [data-theme="light"] .glass-card:hover {
   background: #f3f5f8 !important;
-  border: none !important;
+  border-color: transparent !important;
   box-shadow: 0 10px 32px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  transform: translateY(-1px);
 }
 
 /* Lead cards no light mode - cinza claro com sombra */
 [data-theme="light"] .lead-card {
   background: #e8ecf1 !important;
-  border: none !important;
+  border-color: transparent !important;
   box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12), 0 1px 5px rgba(0, 0, 0, 0.07) !important;
   transition: all 0.2s ease;
 }
 
 [data-theme="light"] .lead-card:hover {
   background: #dfe4ea !important;
-  border: none !important;
+  border-color: transparent !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14), 0 4px 12px rgba(8, 145, 178, 0.08) !important;
-  transform: translateY(-3px);
 }
 
 [data-theme="light"] .lead-card .text-xs,
@@ -587,6 +583,19 @@ html[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"
   color: #0891b2 !important;
 }
 
+/* Stat card decorative icons - preserve their original colors */
+[data-theme="light"] .stat-icon-bg i.text-emerald-400 {
+  color: #34d399 !important;
+}
+
+[data-theme="light"] .stat-icon-bg i.text-amber-400 {
+  color: #fbbf24 !important;
+}
+
+[data-theme="light"] .stat-icon-bg i.text-purple-400 {
+  color: #a78bfa !important;
+}
+
 /* Texto dentro dos botões */
 [data-theme="light"] .bg-slate-800\/60 span,
 [data-theme="light"] .bg-slate-800\/50 span,
@@ -613,10 +622,23 @@ html[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"
   outline-offset: 2px;
 }
 
-/* Scrollbar personalizada no body */
-[data-theme="light"] ::-webkit-scrollbar {
+/* Scrollbar personalizada - tamanho igual em ambos os modos */
+::-webkit-scrollbar {
   width: 8px;
   height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
 }
 
 [data-theme="light"] ::-webkit-scrollbar-track {
@@ -642,7 +664,7 @@ html[data-theme="light"] .lead-card span:not([class*="bg-"]):not([class*="badge"
    LEAD CARDS - LIGHT MODE FIX DEFINITIVO
    ============================================ */
 
-/* Lead card base - borderless, shadow-based depth */
+/* Lead card base - shadow-based depth */
 html[data-theme="light"] .lead-card,
 html[data-theme="light"] lead-card,
 html[data-theme="light"] .lead-card.glass-card,
@@ -650,7 +672,7 @@ html[data-theme="light"] .kanban-column .lead-card,
 html[data-theme="light"] .glass-card.lead-card {
   background: #e8ecf1 !important;
   background-color: #e8ecf1 !important;
-  border: none !important;
+  border-color: transparent !important;
   box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12), 0 1px 5px rgba(0, 0, 0, 0.07) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -661,9 +683,8 @@ html[data-theme="light"] lead-card:hover,
 html[data-theme="light"] .kanban-column .lead-card:hover {
   background: #dfe4ea !important;
   background-color: #dfe4ea !important;
-  border: none !important;
+  border-color: transparent !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(8, 145, 178, 0.08) !important;
-  transform: translateY(-3px) !important;
 }
 
 /* Nomes dos leads - suave, não preto puro */
@@ -696,7 +717,7 @@ html[data-theme="light"] lead-card i {
 html[data-theme="light"] span[class*="bg-yellow"]:not(.legend-dot):not(.slot-avatar) {
   background: #fef3c7 !important;
   color: #92400e !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* Verde - Consulta, Compareceu */
@@ -704,7 +725,7 @@ html[data-theme="light"] span[class*="bg-green"]:not(.legend-dot):not(.slot-avat
 html[data-theme="light"] span[class*="bg-emerald"]:not(.legend-dot):not(.slot-avatar) {
   background: #d1fae5 !important;
   color: #065f46 !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* Roxo - Recorrente */
@@ -712,14 +733,14 @@ html[data-theme="light"] span[class*="bg-purple"]:not(.legend-dot):not(.slot-ava
 html[data-theme="light"] span[class*="bg-violet"]:not(.legend-dot):not(.slot-avatar) {
   background: #ede9fe !important;
   color: #5b21b6 !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* Azul - Retorno, Convênio */
 html[data-theme="light"] span[class*="bg-blue"]:not(.legend-dot):not(.slot-avatar) {
   background: #dbeafe !important;
   color: #1e40af !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* Cyan */
@@ -727,21 +748,21 @@ html[data-theme="light"] span[class*="bg-cyan"]:not(.legend-dot):not(.slot-avata
 html[data-theme="light"] div[class*="bg-cyan"]:not(.slot-avatar) {
   background: #cffafe !important;
   color: #0e7490 !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* Rosa */
 html[data-theme="light"] span[class*="bg-pink"]:not(.legend-dot):not(.slot-avatar) {
   background: #fce7f3 !important;
   color: #9d174d !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* Vermelho */
 html[data-theme="light"] span[class*="bg-red"]:not(.legend-dot):not(.slot-avatar) {
   background: #fee2e2 !important;
   color: #991b1b !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* Cinza */
@@ -749,7 +770,7 @@ html[data-theme="light"] span[class*="bg-gray"]:not(.legend-dot):not(.slot-avata
 html[data-theme="light"] span[class*="bg-slate"][class*="/20"]:not(.legend-dot):not(.slot-avatar) {
   background: #f3f4f6 !important;
   color: #374151 !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* Laranja */
@@ -757,7 +778,7 @@ html[data-theme="light"] span[class*="bg-orange"]:not(.legend-dot):not(.slot-ava
 html[data-theme="light"] span[class*="bg-amber"]:not(.legend-dot):not(.slot-avatar) {
   background: #ffedd5 !important;
   color: #9a3412 !important;
-  border: none !important;
+  border-color: transparent !important;
 }
 
 /* ============================================
@@ -771,13 +792,12 @@ html[data-theme="light"] .lead-card span[class*="bg-yellow-500"] {
   background-color: #facc15 !important;
   color: #111827 !important;
   border-color: #eab308 !important;
-  border: 1px solid #eab308 !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-teal-600"] {
   background-color: #0d9488 !important;
   color: #ffffff !important;
-  border: 1px solid #0f766e !important;
+  border-color: #0f766e !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-emerald-500"],
@@ -785,57 +805,57 @@ html[data-theme="light"] .lead-card span[class*="bg-green-500"],
 html[data-theme="light"] .lead-card span[class*="bg-green-400"] {
   background-color: #10b981 !important;
   color: #ffffff !important;
-  border: 1px solid #059669 !important;
+  border-color: #059669 !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-indigo-500"] {
   background-color: #6366f1 !important;
   color: #ffffff !important;
-  border: 1px solid #4f46e5 !important;
+  border-color: #4f46e5 !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-purple-500"] {
   background-color: #a855f7 !important;
   color: #ffffff !important;
-  border: 1px solid #9333ea !important;
+  border-color: #9333ea !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-blue-500"] {
   background-color: #3b82f6 !important;
   color: #ffffff !important;
-  border: 1px solid #2563eb !important;
+  border-color: #2563eb !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-cyan-600"] {
   background-color: #0891b2 !important;
   color: #ffffff !important;
-  border: 1px solid #0e7490 !important;
+  border-color: #0e7490 !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-pink-500"] {
   background-color: #ec4899 !important;
   color: #ffffff !important;
-  border: 1px solid #db2777 !important;
+  border-color: #db2777 !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-red-600"],
 html[data-theme="light"] .lead-card span[class*="bg-red-400"] {
   background-color: #dc2626 !important;
   color: #ffffff !important;
-  border: 1px solid #b91c1c !important;
+  border-color: #b91c1c !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-gray-300"] {
   background-color: #d1d5db !important;
   color: #111827 !important;
-  border: 1px solid #9ca3af !important;
+  border-color: #9ca3af !important;
 }
 
 html[data-theme="light"] .lead-card span[class*="bg-orange-500"],
 html[data-theme="light"] .lead-card span[class*="bg-amber-500"] {
   background-color: #f97316 !important;
   color: #ffffff !important;
-  border: 1px solid #ea580c !important;
+  border-color: #ea580c !important;
 }
 
 /* WhatsApp button */

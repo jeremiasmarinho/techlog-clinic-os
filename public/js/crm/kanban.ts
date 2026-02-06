@@ -621,6 +621,7 @@ window.sendConfirmationWhatsApp = sendConfirmationWhatsApp;
 // ============================================
 
 function calculateTimer(lead: KanbanLead): TimerResult {
+    // Status "agendado" — mostra countdown até a consulta
     if (lead.status === 'agendado' && lead.appointment_date) {
         const appointmentDate = new Date(lead.appointment_date);
 
@@ -635,20 +636,23 @@ function calculateTimer(lead: KanbanLead): TimerResult {
         const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
         if (diff > 0) {
+            const timeStr = hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`;
             return {
-                text: `Faltam ${hours}h ${minutes}m`,
+                text: `Faltam ${timeStr}`,
                 classes: 'text-blue-400 font-medium',
                 tooltip: `Agendado para ${appointmentDate.toLocaleString('pt-BR')}`,
             };
         } else {
+            const timeStr = hours > 0 ? `${hours}h ${minutes}min` : `${minutes}min`;
             return {
-                text: `Atraso: ${hours}h ${minutes}m`,
+                text: `Atraso de ${timeStr}`,
                 classes: 'text-red-500 font-bold animate-pulse',
                 tooltip: `Deveria ter ocorrido em ${appointmentDate.toLocaleString('pt-BR')}`,
             };
         }
     }
 
+    // Outros status — mostra tempo desde a última mudança de status
     const dateStr = lead.status_updated_at || lead.created_at;
 
     if (!dateStr) {
@@ -662,7 +666,7 @@ function calculateTimer(lead: KanbanLead): TimerResult {
     }
 
     const now = new Date();
-    const diffMs = now.getTime() - statusDate.getTime();
+    const diffMs = Math.abs(now.getTime() - statusDate.getTime());
     const totalMinutes = Math.floor(diffMs / (1000 * 60));
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -672,10 +676,18 @@ function calculateTimer(lead: KanbanLead): TimerResult {
     if (days > 0) {
         timeText = `${days}d ${hours % 24}h`;
     } else if (hours > 0) {
-        timeText = `${hours}h ${minutes}m`;
+        timeText = `${hours}h ${minutes}min`;
     } else {
-        timeText = `${minutes}m`;
+        timeText = `${minutes}min`;
     }
+
+    // Rótulo descritivo conforme o status
+    const statusLabels: Record<string, string> = {
+        novo: 'Aguardando há',
+        em_atendimento: 'Em atendimento há',
+        finalizado: 'Finalizado há',
+    };
+    const label = statusLabels[lead.status] || 'Há';
 
     let classes = '';
     if (hours < 2) {
@@ -687,7 +699,7 @@ function calculateTimer(lead: KanbanLead): TimerResult {
     }
 
     return {
-        text: timeText,
+        text: `${label} ${timeText}`,
         classes: classes,
         tooltip: `Neste status há ${timeText} (desde ${statusDate.toLocaleString('pt-BR')})`,
     };
@@ -1224,7 +1236,7 @@ function createLeadCard(lead: KanbanLead): HTMLElement | null {
         
         <h3 class="font-semibold text-white mb-1 lead-name">${lead.name}</h3>
         
-        ${timeString ? `<div class="mb-2"><small class="${timeClasses}" title="${timeTooltip}">🕒 ${timeString}</small></div>` : ''}
+        ${timeString ? `<div class="mb-2"><small class="${timeClasses}" title="${timeTooltip}"><i class="fas fa-clock mr-1"></i>${timeString}</small></div>` : ''}
         
         ${appointmentBadge}
         

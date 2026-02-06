@@ -2474,11 +2474,9 @@
 
 [data-theme="light"] .btn:hover {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
 }
 
 [data-theme="light"] .btn:active {
-  transform: translateY(0);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
@@ -2963,7 +2961,7 @@
 /* Tabela compacta no Light Mode */
 [data-theme="light"] .table-compact th,
 [data-theme="light"] .table-compact td {
-  padding: 0.5rem 0.75rem;
+  padding: var(--spacing-sm) var(--spacing-md);
 }
 
 /* Tabela com bordas no Light Mode */
@@ -3074,7 +3072,6 @@
 /* Pills */
 [data-theme="light"] .pills {
   background: #f1f5f9;
-  border: 1px solid transparent;
 }
 
 [data-theme="light"] .pill {

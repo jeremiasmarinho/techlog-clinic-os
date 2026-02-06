@@ -86,14 +86,14 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: none;
+            border-color: transparent;
             box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         [data-theme="light"] .glass-card:hover {
             background: rgba(243, 245, 248, 0.98);
-            border: none;
+            border-color: transparent;
             box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.10);
         }
         
@@ -102,7 +102,7 @@
         /* Light mode lead cards */
         [data-theme="light"] .lead-card {
             background: rgba(255, 255, 255, 0.95) !important;
-            border: none !important;
+            border-color: transparent !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
         }
         
@@ -128,21 +128,19 @@
             color: #0f172a !important;
         }
 
-        /* Metric card decorative icons - visible in light mode */
-        [data-theme="light"] .bg-slate-800\/50 > .absolute.opacity-10 {
-            opacity: 0.25 !important;
+        /* Decorative stat card icons */
+        .stat-icon-bg {
+            opacity: 0.40;
+            transition: opacity 0.2s ease;
         }
-        [data-theme="light"] .group:hover > .absolute.opacity-10 {
-            opacity: 0.40 !important;
+        .group:hover .stat-icon-bg {
+            opacity: 0.55;
         }
-        [data-theme="light"] .bg-slate-800\/50 > .absolute i.text-emerald-400 {
-            color: #34d399 !important;
+        [data-theme="light"] .stat-icon-bg {
+            opacity: 0.45;
         }
-        [data-theme="light"] .bg-slate-800\/50 > .absolute i.text-amber-400 {
-            color: #f59e0b !important;
-        }
-        [data-theme="light"] .bg-slate-800\/50 > .absolute i.text-purple-400 {
-            color: #a78bfa !important;
+        [data-theme="light"] .group:hover .stat-icon-bg {
+            opacity: 0.60;
         }
         
         /* Links in light mode */
@@ -1162,7 +1160,7 @@
             
             <!-- Card 1: Daily Revenue (Estimated) -->
             <div class="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-all cursor-pointer">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <div class="absolute top-0 right-0 p-4 stat-icon-bg">
                     <i class="fa-solid fa-sack-dollar text-4xl text-emerald-400"></i>
                 </div>
                 <p class="text-slate-400 text-sm font-medium mb-1">Faturamento Hoje (Est.)</p>
@@ -1175,7 +1173,7 @@
 
             <!-- Card 2: Tomorrow's Confirmations (Action Required) -->
             <div class="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden group hover:border-amber-500/30 transition-all cursor-pointer" onclick="openConfirmationQueue()">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <div class="absolute top-0 right-0 p-4 stat-icon-bg">
                     <i class="fa-brands fa-whatsapp text-4xl text-amber-400"></i>
                 </div>
                 <p class="text-slate-400 text-sm font-medium mb-1">Confirmar p/ Amanhã</p>
@@ -1210,7 +1208,7 @@
 
             <!-- Card 4: Average Ticket -->
             <div class="bg-slate-800/50 backdrop-blur-md border border-slate-700/50 p-5 rounded-2xl relative overflow-hidden group hover:border-purple-500/30 transition-all cursor-pointer" onclick="window.location.href='relatorios.html'">
-                <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <div class="absolute top-0 right-0 p-4 stat-icon-bg">
                     <i class="fa-solid fa-chart-pie text-4xl text-purple-400"></i>
                 </div>
                 <p class="text-slate-400 text-sm font-medium mb-1">Ticket Médio</p>
@@ -1233,7 +1231,7 @@
                     </div>
                     <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-novo">0</span>
                 </div>
-                <div class="p-3 space-y-3 min-h-[400px]" id="column-novo">
+                <div class="p-2 space-y-3 min-h-[400px]" id="column-novo">
                     <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
@@ -1247,7 +1245,7 @@
                     </div>
                     <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-em_atendimento">0</span>
                 </div>
-                <div class="p-3 space-y-3 min-h-[400px]" id="column-em_atendimento">
+                <div class="p-2 space-y-3 min-h-[400px]" id="column-em_atendimento">
                     <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
@@ -1261,7 +1259,7 @@
                     </div>
                     <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-agendado">0</span>
                 </div>
-                <div class="p-3 space-y-3 min-h-[400px]" id="column-agendado">
+                <div class="p-2 space-y-3 min-h-[400px]" id="column-agendado">
                     <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
@@ -1275,7 +1273,7 @@
                     </div>
                     <span class="bg-white/20 text-white rounded-full px-3 py-1 text-xs font-bold backdrop-blur-sm" id="count-finalizado">0</span>
                 </div>
-                <div class="p-3 space-y-3 min-h-[400px]" id="column-finalizado">
+                <div class="p-2 space-y-3 min-h-[400px]" id="column-finalizado">
                     <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
