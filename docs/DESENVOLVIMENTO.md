@@ -322,6 +322,45 @@ docs: atualiza documentação do projeto
 
 ---
 
+## 🤖 GitHub Copilot
+
+### Configuração do Copilot Chat
+
+O projeto possui configuração customizada para o GitHub Copilot em `.github/copilot-instructions.md`.
+
+Essas instruções ajudam o Copilot a:
+- Entender a arquitetura em camadas (Controller → Service → Repository)
+- Seguir os padrões de código estabelecidos
+- Usar as constantes centralizadas
+- Aplicar as regras de validação e segurança
+- Gerar código consistente com o restante do projeto
+
+### Como Usar o Copilot
+
+1. **No VS Code:**
+   - Instale a extensão GitHub Copilot
+   - Use Ctrl+I (ou Cmd+I no Mac) para abrir o chat inline
+   - O Copilot automaticamente lerá as instruções do projeto
+
+2. **No GitHub:**
+   - Acesse github.com/copilot/agents
+   - Selecione o repositório techlog-clinic-os
+   - Faça perguntas sobre o código ou peça ajuda com implementações
+
+3. **Dicas para Melhores Resultados:**
+   - Seja específico sobre qual camada você está trabalhando
+   - Mencione se precisa de Controller, Service ou Repository
+   - Peça para seguir os padrões do arquivo COPILOT_GUIDELINES.md
+   - Inclua o contexto de multi-tenant quando relevante
+
+### Documentação
+
+- **Instruções GitHub Copilot:** `.github/copilot-instructions.md`
+- **Guidelines Completas:** `/COPILOT_GUIDELINES.md`
+- **Arquitetura do Projeto:** `/docs/PROJETO.md`
+
+---
+
 ## ⚠️ Problemas Comuns
 
 ### "Cannot find module"
